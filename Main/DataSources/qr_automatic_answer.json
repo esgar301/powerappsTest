@@ -1,0 +1,10 @@
+[
+  {
+    "ApiId": "/providers/microsoft.powerapps/apis/shared_logicflows",
+    "FlowNameId": "494b53d1-a07b-4cc8-94f2-227d6ae985f5",
+    "Name": "qr_automatic_answer",
+    "ServiceKind": "ConnectedWadl",
+    "Type": "ServiceInfo",
+    "WorkflowEntityId": "527a17e9-2bac-ee11-be37-6045bd04df44"
+  }
+]

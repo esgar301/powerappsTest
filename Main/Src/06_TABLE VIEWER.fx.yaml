@@ -1,0 +1,1212 @@
+"'06_TABLE VIEWER' As screen":
+    Fill: =RGBA(237, 242, 242, 1)
+    OnVisible: |+
+        =UpdateContext({varLoadingTables: true});
+        Clear(varResultadoEQ);
+        Set(varCurrentIndex,"Empty cell index 999");
+        UpdateContext({varCellIndex:Blank()});
+        
+        Clear(DynamicTablePreview);
+        Clear(DynamicTablePreviewX);
+        Set(AutoSave,false);
+        Set(AutoSave,true);
+        ClearCollect(Dummy,nf_build_table.Run(ParamTableStructure));
+        If(
+            IsBlank(ParamStructureString),
+            Collect(DynamicTablePreview,Dummy);
+            Collect(DynamicTablePreviewX,Dummy),
+            Collect(DynamicTablePreview,nf_build_table.Run(ParamStructureString));
+            Collect(DynamicTablePreviewX,nf_build_table.Run(ParamStructureString)));
+        
+        UpdateContext(
+            {
+                varColumnsCreator: Max(Filter(DynamicTablePreview,IsNumeric(Cell_Column)),Cell_Column)
+            }
+        );
+        If(!IsBlank(LookUp(colTableEditReason,fa_question_pos_in=varItem.fa_question_pos_in && fa_child_pos_in=varItem.fa_child_pos_in).fa_Edit_Reason),
+        UpdateContext({ParamEnable:1}));
+        Select('btn_table_Entries Check');
+        UpdateContext({varLoadingTables: false});
+        
+        
+        /*
+        If(
+            IsBlank(ParamStructureString),
+            ClearCollect(
+                DynamicTablePreview,
+                ForAll(Split(
+                    ParamTableStructure,
+                    "|"
+                ), {Result: ThisRecord.Value})
+            ),
+            ClearCollect(
+                DynamicTablePreview,
+                ForAll(Split(
+                    ParamStructureString,
+                    "|"
+                ), {Result: ThisRecord.Value})
+            )
+        );
+        */
+        
+        
+        /*
+        If(
+            IsBlank(ParamStructureString),
+             
+         Clear(DynamicTablePreview);
+          ForAll(Split(
+                    ParamTableStructure,
+                    "|"
+                ),Collect(DynamicTablePreview, {Result: ThisRecord.Value}))
+                ,
+                Clear(DynamicTablePreview);
+          ForAll(Split(
+                    ParamStructureString,
+                    "|"
+                ),Collect(DynamicTablePreview, {Result: ThisRecord.Value}))
+        );
+        
+        
+        UpdateContext(
+            {
+                varColumnsCreator: Value(
+                    CountRows(
+                        ForAll(Split(
+                            First(DynamicTablePreview).Result,
+                            "^"
+                        ), {Result: ThisRecord.Value})
+                    )
+                )
+            }
+        );
+        Select('btn_table_Entries Check');
+        Set(varLoadingTable, false);
+        */
+        
+
+    TableViewer_TableList_v2 As gallery.variableTemplateHeightGallery:
+        '#CopilotOverlayLabel': ="Filtered"
+        DelayItemLoading: =true
+        Height: =Parent.Height - Self.Y
+        Items: |
+            =GroupBy(DynamicTablePreview,Row_Index,Column_Data)
+        Layout: =Layout.Vertical
+        LoadingSpinner: =LoadingSpinner.Data
+        ShowScrollbar: =false
+        TemplatePadding: =1
+        TemplateSize: =60
+        Width: =Parent.Width
+        Y: =TableViewer_Header_Shp_NavBarTop. Y + TableViewer_Header_Shp_NavBarTop.Height
+        ZIndex: =1
+
+        GalPrevCell_4 As gallery.galleryHorizontal:
+            '#CopilotOverlayLabel': ="Filtered"
+            BorderColor: =RGBA(149, 149, 149, 1)
+            BorderStyle: =BorderStyle.Dotted
+            Height: |-
+                =/*If(
+                Max(First(GalPrevCell_3.AllItems).lbl_TemplateHTMLHeight_1.Text,Index(GalPrevCell_3.AllItems,2).lbl_TemplateHTMLHeight_1.Text)>70,Max(First(GalPrevCell_3.AllItems).lbl_TemplateHTMLHeight_1.Text,Index(GalPrevCell_3.AllItems,2).lbl_TemplateHTMLHeight_1.Text),70)*/
+                If(
+                Max(GalPrevCell_4.AllItems,lbl_TemplateHTMLHeight_1.Text)>99 &&Max(GalPrevCell_4.AllItems,lbl_TemplateHTMLHeight_1.Text)<300,Max(GalPrevCell_4.AllItems,lbl_TemplateHTMLHeight_1.Text),Max(GalPrevCell_4.AllItems,lbl_TemplateHTMLHeight_1.Text)>=300,300,55)
+            Items: |
+                =ThisItem.Column_Data
+            ShowScrollbar: =false
+            TemplatePadding: =2
+            TemplateSize: =If(App.Width < App.DesignWidth,App.DesignWidth/varColumnsCreator, App.Width/varColumnsCreator) - (-1.375*varColumnsCreator + 15.375)
+            Width: =Parent.Width
+            ZIndex: =1
+
+            HiddenHTMLText_2 As htmlViewer:
+                AutoHeight: =true
+                Color: =RGBA(0, 0, 0, 0)
+                Font: =Font.'Lato Light'
+                Height: =44
+                HtmlText: |-
+                    ="<p>"&Switch(ThisItem.Cell_Type,"NumericInput",
+                    PrevObjInput_4.Text,"Selector",Concat(ComboBox1.SelectedItems,Value,Char(10)))&"</p>"
+                OnSelect: =Select(Parent)
+                Size: =PrevObjInput_4.Size
+                Width: =PrevObjInput_4.Width
+                ZIndex: =1
+
+            PrevBackground_4 As rectangle:
+                Fill: =If(ThisItem.Cell_Row = "1" && ThisItem.Cell_Type="Label", RGBA(0, 94, 146, 1), RGBA(241, 244, 249, 0))
+                Height: =Parent.Height
+                OnSelect: =
+                Width: =GalPrevCell_4.TemplateWidth - 2
+                X: =1
+                ZIndex: =2
+
+            PrevObjInput_4 As text:
+                BorderColor: =RGBA(0, 0, 0, 0)
+                BorderThickness: =0
+                Default: =ThisItem.Cell_DefaultValue
+                DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                DisplayMode: |
+                    =//If(ThisItem.Cell_Mode = "Read" Or (ParamEnable = 0), DisplayMode.Disabled,DisplayMode.Edit)
+                    If(ThisItem.Cell_Mode <> "Read" && (ParamEnable = 1 || Len(ThisItem.Cell_DefaultValue)< 1) && (varActiveLevel in Split(ThisItem.Levels,";")||(IsBlank(ThisItem.Levels)&&varActiveLevel in Split(varItem.fa_user_type,";")))
+                    , DisplayMode.Edit,DisplayMode.Disabled)
+                Font: =Font.'Lato Light'
+                FontWeight: =FontWeight.Semibold
+                Height: =Parent.Height
+                HoverBorderColor: =RGBA(0, 0, 0, 0)
+                HoverFill: =RGBA(235, 237, 238, 1)
+                LineHeight: =
+                Mode: =TextMode.MultiLine
+                OnChange: |-
+                    =Patch(DynamicTablePreviewX,LookUp(DynamicTablePreviewX,Cell_Index = ThisItem.Cell_Index),{Cell_DefaultValue : Self.Text});
+                    UpdateContext({varCellIndex:ThisItem.Cell_Index});
+                    //Notify(Self.Text,NotificationType.Information)
+                OnSelect: |+
+                    =UpdateContext({varCellIndex:ThisItem.Cell_Index})
+                    
+                PaddingLeft: =20
+                Size: =20
+                Visible: =ThisItem.Cell_Type = "NumericInput"
+                Width: =GalPrevCell_4.TemplateWidth - 4
+                X: =1
+                ZIndex: =3
+
+            PrevObjLabel_4 As label:
+                Align: =Align.Center
+                Color: =If(ThisItem.Cell_Row = "1", RGBA(255, 255, 255, 1), RGBA(0, 0, 0, 1))
+                DisplayMode: |-
+                    =If(
+                        ThisItem.Cell_Mode = "Read",
+                        DisplayMode.View,
+                        DisplayMode.Edit
+                    )
+                Fill: |-
+                    =//If(PrevRow_2.Text = "1", RGBA(255, 255, 255, 0), RGBA(166, 175, 181, 0))
+                    If(ThisItem.Cell_Row = "1" Or ThisItem.Cell_Type = "Compute", RGBA(59, 165, 168, 0.29), RGBA(255, 255, 255, 0))
+                Font: =Font.'Lato Light'
+                FontWeight: =FontWeight.Bold
+                Height: =Parent.Height
+                LineHeight: =1
+                OnSelect: =
+                PaddingLeft: =15
+                Size: =If((5 * (App.Width/varColumnsCreator)/Len(Self.Text))/4 > 15, 18,If((5 * (App.Width/varColumnsCreator)/Len(Self.Text))/4 < 12, 12, (5 * (App.Width/varColumnsCreator)/Len(Self.Text))/4))
+                Text: |-
+                    =If(
+                        ThisItem.Cell_Type = "Label",
+                        ThisItem.Cell_DefaultValue,
+                        ThisItem.Cell_Type = "Compute",
+                        If(
+                            IsBlank(
+                                First(
+                                    Filter(
+                                        varResultadoEQ,
+                                        Row = ThisItem.Cell_Row,
+                                        Column = ThisItem.Cell_Column
+                                    )
+                                ).Resultado
+                            ),
+                            ThisItem.Cell_DefaultValue
+                    
+                            
+                            ,
+                            First(
+                                Filter(
+                                    varResultadoEQ,
+                                    Row = ThisItem.Cell_Row,
+                                    Column = ThisItem.Cell_Column
+                                )
+                            ).Resultado
+                        )
+                    )
+                Visible: =ThisItem.Cell_Type = "Label" Or ThisItem.Cell_Type = "Compute"
+                Width: =GalPrevCell_4.TemplateWidth - 4
+                X: =1
+                Y: =5
+                ZIndex: =4
+
+            "icn_Execute_Single As icon.'3DPrinting'":
+                Color: =RGBA(59, 165, 168, 1)
+                DisplayMode: =DisplayMode.Edit//If(ParamEnable,DisplayMode.Edit, DisplayMode.Disabled)
+                Height: =30
+                Icon: =Icon.Printing3D
+                OnSelect: |+
+                    =//UpdateContext({VarTableResp: Label14_1.Text});
+                    UpdateContext({varLoadingTables:true});
+                     UpdateContext({varCalculationRunning:true});
+                    
+                    ClearCollect(DummyTableForCalcultion,DynamicTablePreviewX);
+                    UpdateIf(DummyTableForCalcultion,Cell_DefaultValue="",{Cell_DefaultValue:0});
+                    UpdateContext({VarTableResp:If(!IsEmpty(DummyTableForCalcultion),
+                    Left(Concat(
+                        GroupBy(DummyTableForCalcultion,Row_Index,Column_Data),
+                        Left(Concat(Column_Data,Concatenate(Cell_Row,"~",Cell_Column,"~",Cell_Type,"~",Cell_DefaultValue,"~",Cell_Mode,"^")),
+                        Len(Concat(Column_Data,Concatenate(Cell_Row,"~",Cell_Column,"~",Cell_Type,"~",Cell_DefaultValue,"~",Cell_Mode,"^"))) - 1) & "|"),
+                    Len(Concat(
+                        GroupBy(DummyTableForCalcultion,Row_Index,Column_Data),
+                        Left(Concat(Column_Data,Concatenate(Cell_Row,"~",Cell_Column,"~",Cell_Type,"~",Cell_DefaultValue,"~",Cell_Mode,"^")),
+                        Len(Concat(Column_Data,Concatenate(Cell_Row,"~",Cell_Column,"~",Cell_Type,"~",Cell_DefaultValue,"~",Cell_Mode,"^"))) - 1) & "|"))-1))});
+                    
+                    UpdateContext({VarMathEq: Substitute(LookUp(Dummy,Cell_Index = ThisItem.Cell_Index).Cell_DefaultValue, "'", "''")});//PrevObjInput_4.Text
+                    
+                    
+                    UpdateContext({VarScript:"
+                    DECLARE 
+                    @String VARCHAR(MAX) = '" & VarTableResp & "',
+                    @Sentence VARCHAR(MAX) = 'Cast(" & VarMathEq & " As VARCHAR) Resultado',
+                    @Variable VARCHAR(MAX) = '',
+                    @Value VARCHAR(MAX) = '',
+                    @SentenceVal VARCHAR(MAX) = ''
+                    
+                    
+                    SET @SentenceVal = @Sentence
+                    CREATE TABLE #DSFTable (Variable VARCHAR(20), Value Varchar(MAX))
+                    
+                    INSERT INTO #DSFTable 
+                    	SELECT 
+                    	'@' + A.RowIndex + '@' + Substring(Split.value,CHARINDEX('~',value,0)+1,CHARINDEX('~',value,CHARINDEX('~',value,0)+1) - (CHARINDEX('~',value,0)+1)) Reference,
+                    	SUBSTRING(Split.value,CAST(CHARINDEX('~',Split.value,CHARINDEX('~',Split.value,CHARINDEX('~',Split.value,0)+1)+1)+1 AS int),CAST(CHARINDEX('~',Split.value,CHARINDEX('~',Split.value,CHARINDEX('~',Split.value,CHARINDEX('~',Split.value,0)+1)+1)+1) AS int) - CAST(CHARINDEX('~',Split.value,CHARINDEX('~',Split.value,CHARINDEX('~',Split.value,0)+1)+1)+1 AS int)) Result
+                    	FROM (
+                    	SELECT 
+                    	LEFT(value,CHARINDEX('~',value,0)-1) RowIndex,
+                    	value Reference
+                    	FROM STRING_SPLIT(LEFT(@String, LEN(@String)) , '|')) AS A
+                    	cross apply string_split(A.Reference,'^') as Split
+                    
+                    DECLARE var_cursor CURSOR FOR 
+                    	SELECT * FROM #DSFTable ORDER BY  Variable desc
+                    OPEN var_cursor; 
+                    FETCH NEXT FROM var_cursor INTO 
+                    	@Variable,
+                    	@Value
+                    
+                    WHILE @@FETCH_STATUS = 0  BEGIN 
+                    
+                    
+                    	SET @SentenceVal = REPLACE(@SentenceVal,@Variable,@Value)
+                    	Print @SentenceVal
+                    
+                    	FETCH NEXT FROM var_cursor INTO 
+                    		@Variable,
+                    		@Value
+                    END 
+                    
+                    CLOSE var_cursor  
+                    DEALLOCATE var_cursor 
+                    
+                    
+                    EXEC ('SELECT ' + @SentenceVal  )
+                    
+                    DROP TABLE #DSFTable"});
+                    
+                    
+                    If(!IsBlankOrError(First(Test.Run(VarScript)).Resultado),
+                        If(
+                            CountRows(Filter(varResultadoEQ,Row = ThisItem.Cell_Row, Column = ThisItem.Cell_Column)) = 0,
+                            Collect(
+                                varResultadoEQ, 
+                                {
+                                    Resultado:First(Test.Run(VarScript)).Resultado, 
+                                    Row: ThisItem.Cell_Row, 
+                                    Column : ThisItem.Cell_Column}
+                            ),
+                            Update(
+                                varResultadoEQ,
+                                First(Filter(varResultadoEQ,Row = ThisItem.Cell_Row, Column = ThisItem.Cell_Column)),
+                                {
+                                    Resultado: First(Test.Run(VarScript)).Resultado, 
+                                    Row: ThisItem.Cell_Row, 
+                                    Column: ThisItem.Cell_Column}
+                            )
+                        );
+                        Patch(DynamicTablePreviewX,LookUp(DynamicTablePreviewX,Cell_Index = ThisItem.Cell_Index),{Cell_DefaultValue : First(Test.Run(VarScript)).Resultado}),
+                        Notify("Unsupported formula error.",NotificationType.Error)
+                    );
+                    
+                    UpdateContext({varLoadingTables:false});
+                    UpdateContext({varCalculationRunning:false});
+                    
+                    
+                Visible: =ThisItem.Cell_Type = "Compute" And ParamEnable
+                Width: =30
+                Y: =Parent.TemplateHeight-Self.Height
+                ZIndex: =5
+
+            lbl_TemplateHTMLHeight_1 As label:
+                AutoHeight: =true
+                Height: =44
+                OnSelect: =Select(Parent)
+                Size: =12
+                Text: =HiddenHTMLText_2.Height
+                Visible: =false
+                Width: =1
+                ZIndex: =6
+
+            timerSaveTableValue As timer:
+                AutoStart: =varCellIndex=ThisItem.Cell_Index && LookUp(DynamicTablePreviewX,Cell_Index = ThisItem.Cell_Index).Cell_DefaultValue <> Switch(ThisItem.Cell_Type,"NumericInput",PrevObjInput_4.Text,"Selector",Concat(ComboBox1.SelectedItems,Value,","),"Yes/No",Checkbox1.Text)
+                Duration: =1000
+                Height: =16
+                OnSelect: =Select(Parent)
+                OnTimerEnd: |-
+                    =Patch(DynamicTablePreviewX,LookUp(DynamicTablePreviewX,Cell_Index = ThisItem.Cell_Index),{Cell_DefaultValue : Switch(ThisItem.Cell_Type,"NumericInput",PrevObjInput_4.Text,"Selector",Concat(ComboBox1.SelectedItems,Value,","),"Yes/No",Checkbox1.Text)});
+                    //Notify(PrevObjInput_4.Text,NotificationType.Information,200)
+                Repeat: =varCellIndex=ThisItem.Cell_Index && LookUp(DynamicTablePreviewX,Cell_Index = ThisItem.Cell_Index).Cell_DefaultValue <> Switch(ThisItem.Cell_Type,"NumericInput",PrevObjInput_4.Text,"Selector",Concat(ComboBox1.SelectedItems,Value,","),"Yes/No",Checkbox1.Text)
+                Visible: =false
+                Width: =18
+                X: =40
+                Y: =35
+                ZIndex: =7
+
+            Checkbox1 As checkbox:
+                CheckboxSize: =40
+                Default: |-
+                    =
+                    ThisItem.Cell_DefaultValue=First(Split(ThisItem.Choices,",")).Value
+                DisplayMode: |+
+                    =If(ThisItem.Cell_Mode <> "Read" && (ParamEnable = 1 || Len(ThisItem.Cell_DefaultValue)< 1) && (varActiveLevel in Split(ThisItem.Levels,";")||(IsBlank(ThisItem.Levels)&&varActiveLevel in Split(varItem.fa_user_type,";")))
+                    , DisplayMode.Edit,DisplayMode.Disabled)
+                    
+                FocusedBorderThickness: =0
+                Height: =51
+                OnCheck: |-
+                    =Patch(DynamicTablePreviewX,LookUp(DynamicTablePreviewX,Cell_Index = ThisItem.Cell_Index),{Cell_DefaultValue : Self.Text});
+                    UpdateContext({varCellIndex:ThisItem.Cell_Index});
+                OnSelect: =Select(Parent)
+                OnUncheck: |-
+                    =Patch(DynamicTablePreviewX,LookUp(DynamicTablePreviewX,Cell_Index = ThisItem.Cell_Index),{Cell_DefaultValue : Self.Text});
+                    UpdateContext({varCellIndex:ThisItem.Cell_Index});
+                Size: =14
+                Text: =If(Self.Value,First(Split(ThisItem.Choices,",")).Value,Last(Split(ThisItem.Choices,",")).Value)
+                Tooltip: =Self.Text
+                Visible: =ThisItem.Cell_Type="Yes/No"
+                Width: =Parent.TemplateWidth-Self.X
+                X: =20
+                ZIndex: =8
+
+            ComboBox1 As combobox:
+                BorderThickness: =1
+                ChevronBackground: =RGBA(0, 0, 0, 0)
+                ChevronFill: =RGBA(59, 165, 168, 1)
+                ChevronHoverBackground: =
+                ChevronHoverFill: =RGBA(3, 89, 92, 1)
+                Color: =RGBA(54, 103, 105, 1)
+                DefaultSelectedItems: =Split(ThisItem.Cell_DefaultValue,",")
+                DisplayFields: =["Value"]
+                DisplayMode: |+
+                    =If(ThisItem.Cell_Mode <> "Read" && (ParamEnable = 1 || Len(ThisItem.Cell_DefaultValue)< 1) && (varActiveLevel in Split(ThisItem.Levels,";")||(IsBlank(ThisItem.Levels)&&varActiveLevel in Split(varItem.fa_user_type,";")))
+                    , DisplayMode.Edit,DisplayMode.View)
+                    
+                Height: =Parent.Height
+                HoverBorderColor: =RGBA(59, 128, 130, 1)
+                HoverFill: =RGBA(48, 194, 199, 1)
+                Items: =Split(ThisItem.Choices,",")
+                OnChange: |-
+                    =Patch(DynamicTablePreviewX,LookUp(DynamicTablePreviewX,Cell_Index = ThisItem.Cell_Index),{Cell_DefaultValue : Concat(Self.SelectedItems,Value,",")});
+                    UpdateContext({varCellIndex:ThisItem.Cell_Index});
+                OnSelect: =Select(Parent)
+                PaddingLeft: =25
+                PressedColor: =RGBA(8, 161, 163, 1)
+                PressedFill: =RGBA(0, 0, 0, 0)
+                SearchFields: =["Value"]
+                SearchItems: =Search(Split(ThisItem.Choices,","),ComboBox1.SearchText,Value)
+                SelectionFill: =RGBA(60, 167, 171, 1)
+                Size: =20
+                Tooltip: =Concat(Self.SelectedItems,Value,Char(10))
+                Visible: =ThisItem.Cell_Type="Selector"
+                Width: =Parent.TemplateWidth-5
+                ZIndex: =9
+
+            html_mandatory_icon As htmlViewer:
+                Height: =35
+                HtmlText: ="<b><font color=red>*</font></b>"
+                OnSelect: =Select(Parent)
+                PaddingBottom: =0
+                PaddingRight: =0
+                PaddingTop: =0
+                Size: =18
+                Visible: =ThisItem.IsRequired="Required"
+                Width: =30
+                ZIndex: =10
+
+    TableViewer_TableStructure As label:
+        Font: =Font.'Lato Light'
+        FontWeight: =FontWeight.Bold
+        Height: =239
+        Size: =15
+        Text: =ParamTableStructure
+        Visible: =false
+        Width: =Parent.Width
+        Y: =744
+        ZIndex: =2
+
+    "'btn_table_Entries Check' As button":
+        Height: =95
+        OnSelect: |-
+            =Clear(colDestructure1);
+            Clear(colDestructure2);
+            Clear(colProcessedDestructure);
+            Clear(colProcessedstructure1);
+            ForAll(Filter(coltestanswere,fa_answer_type_in = 13) As _Record,
+            Collect(colDestructure1,Split(_Record.fa_title_description_vc,"|")));
+            ForAll(colDestructure1 As _Record1,
+            Collect(colDestructure2,Split(_Record1.Value,"^")));
+            UpdateContext({RowNumber:0});
+            
+            ForAll(colDestructure2 As FullString,
+            Collect(colProcessedDestructure,{Value:Substitute(FullString.Value,Match(FullString.Value, "Compute~@.*?~").FullMatch, "Compute~~"),RowNumber:CountRows(colProcessedDestructure)+1}););
+            UpdateContext({NumberofRows:
+            CountRows(Filter(colProcessedDestructure,StartsWith(Value,1)))});
+            ForAll(colProcessedDestructure As _Record3,
+            Collect(colProcessedstructure1,{Value:_Record3.Value& If(Mod(_Record3.RowNumber,NumberofRows)=0,"|","^")}));
+            UpdateContext({finalString:Concat(colProcessedstructure1,Value,"")});
+            UpdateContext({finalString:Left(finalString,Len(finalString)-1)});
+        Text: ="Check Table Entries"
+        Visible: =false
+        Width: =116
+        X: =294
+        Y: =82
+        ZIndex: =10
+
+    lbl_resultado As label:
+        Fill: =RGBA(255, 255, 255, 1)
+        Height: =84
+        Overflow: =Overflow.Scroll
+        Size: =16
+        Text: |-
+            =If(!IsEmpty(DynamicTablePreviewX),
+            Left(Concat(
+                GroupBy(DynamicTablePreviewX,Row_Index,Column_Data),
+                Left(Concat(Column_Data,Concatenate(Cell_Row,"~",Cell_Column,"~",Cell_Type,"~",Cell_DefaultValue,"~",Cell_Mode,"~",IsRequired,"~",Choices,"~",Levels,"^")),
+                Len(Concat(Column_Data,Concatenate(Cell_Row,"~",Cell_Column,"~",Cell_Type,"~",Cell_DefaultValue,"~",Cell_Mode,"~",IsRequired,"~",Choices,"~",Levels,"^"))) - 1) & "|"),
+            Len(Concat(
+                GroupBy(DynamicTablePreviewX,Row_Index,Column_Data),
+                Left(Concat(Column_Data,Concatenate(Cell_Row,"~",Cell_Column,"~",Cell_Type,"~",Cell_DefaultValue,"~",Cell_Mode,"~",IsRequired,"~",Choices,"~",Levels,"^")),
+                Len(Concat(Column_Data,Concatenate(Cell_Row,"~",Cell_Column,"~",Cell_Type,"~",Cell_DefaultValue,"~",Cell_Mode,"~",IsRequired,"~",Choices,"~",Levels,"^"))) - 1) & "|"))-1))
+        Visible: =false
+        Width: =App.Width*0.75
+        X: =89
+        Y: =214
+        ZIndex: =11
+
+    btn_execute_all As button:
+        DisabledColor: =RGBA(116, 116, 116, 1)
+        DisabledFill: =RGBA(202, 202, 202, 1)
+        DisplayMode: |-
+            =If(ParamEnable=0,DisplayMode.Disabled,
+            DisplayMode.Edit)
+        Fill: =RGBA(128, 128, 128, 1)
+        Height: =42
+        HoverFill: =RGBA(4, 66, 99, 1)
+        OnSelect: |+
+            =
+            
+            
+            UpdateContext({varLoadingTables:true});
+            
+            ClearCollect(DummyTableForCalcultion,DynamicTablePreviewX);
+            UpdateIf(DummyTableForCalcultion,Cell_DefaultValue="",{Cell_DefaultValue:0});
+            UpdateContext({VarTableResp:If(!IsEmpty(DummyTableForCalcultion),
+            Left(Concat(
+                GroupBy(DummyTableForCalcultion,Row_Index,Column_Data),
+                Left(Concat(Column_Data,Concatenate(Cell_Row,"~",Cell_Column,"~",Cell_Type,"~",Cell_DefaultValue,"~",Cell_Mode,"^")),
+                Len(Concat(Column_Data,Concatenate(Cell_Row,"~",Cell_Column,"~",Cell_Type,"~",Cell_DefaultValue,"~",Cell_Mode,"^"))) - 1) & "|"),
+            Len(Concat(
+                GroupBy(DummyTableForCalcultion,Row_Index,Column_Data),
+                Left(Concat(Column_Data,Concatenate(Cell_Row,"~",Cell_Column,"~",Cell_Type,"~",Cell_DefaultValue,"~",Cell_Mode,"^")),
+                Len(Concat(Column_Data,Concatenate(Cell_Row,"~",Cell_Column,"~",Cell_Type,"~",Cell_DefaultValue,"~",Cell_Mode,"^"))) - 1) & "|"))-1))});
+            
+            
+            UpdateContext({VarMathEq:With({Table:ShowColumns(Filter(Dummy,Cell_Type="Compute"),Cell_DefaultValue,Cell_Index)},Concat(Table,Concatenate(Substitute(Cell_DefaultValue,"'", "''"),"~",Cell_Index),";"))});
+            
+            
+            
+            
+            ClearCollect(colTableCalcResult,'dsf.execute_calculations'.Run(VarMathEq,VarTableResp));
+            If(!IsBlankOrError(First(colTableCalcResult).Result),
+            ForAll(colTableCalcResult As _ThisRecord,
+            With({varRow:First(Split(Mid(_ThisRecord.EquationIndex,2),"@")).Value,varColumn:Last(Split(Mid(_ThisRecord.EquationIndex,2),"@")).Value},
+            If(CountRows(Filter(varResultadoEQ,Row=varRow,Column=varColumn))=0,
+            Collect(varResultadoEQ,
+            {Resultado:Text(_ThisRecord.Result),Row:varRow,Column:varColumn}),
+            Update(varResultadoEQ,First(Filter(varResultadoEQ,Row=varRow,Column=varColumn)),
+            {Resultado:Text(_ThisRecord.Result),Row:varRow,Column:varColumn})));
+            Patch(DynamicTablePreviewX,LookUp(DynamicTablePreviewX,Cell_Index = _ThisRecord.EquationIndex),{Cell_DefaultValue : _ThisRecord.Result}));
+            ,Notify("Unsupported formula error.",NotificationType.Error,4000));
+            
+            UpdateContext({varLoadingTables:false});
+            
+        PaddingLeft: =30
+        Size: =10
+        Text: ="Execute All"
+        Visible: =CountRows(Filter(DynamicTablePreview,Cell_Type = "Compute"))>=1
+        Width: =121
+        X: =TableViewer_Header_Btn_NotificationNav.X-Self.Width
+        Y: =TableViewer_Header_Btn_NotificationNav.Y
+        ZIndex: =12
+
+    "icn_execute_all As icon.'3DPrinting'":
+        Color: =RGBA(179, 243, 245, 1)
+        DisabledColor: =RGBA(149, 149, 149, 1)
+        DisplayMode: |-
+            =If(ParamEnable=0,DisplayMode.Disabled,
+            DisplayMode.Edit)
+        Height: =btn_execute_all.Height
+        Icon: =Icon.Printing3D
+        OnSelect: =Select(btn_execute_all)
+        PaddingBottom: =5
+        PaddingLeft: =5
+        PaddingRight: =5
+        PaddingTop: =5
+        Visible: =btn_execute_all.Visible
+        Width: =42
+        X: =btn_execute_all.X
+        Y: =btn_execute_all.Y
+        ZIndex: =13
+
+    btn__Edit_lock_cell As button:
+        DisplayMode: |-
+            =If( ParamEnable = 1  && varActiveLevel in Split(varItem.fa_user_type,";")
+            , DisplayMode.Edit,DisplayMode.Disabled)
+        Fill: =RGBA(116, 116, 116, 1)
+        Height: =42
+        HoverFill: =ColorFade(Self.Fill, -20%)
+        OnSelect: |-
+            =UpdateContext({varEditReasonPopUp:true})
+        PaddingLeft: =20
+        PaddingRight: =0
+        Size: =10
+        Text: ="Edit Locked Cell"
+        Width: =141
+        X: =btn__Add_Rows.X-Self.Width-10
+        Y: =TableViewer_Header_Btn_NotificationNav.Y
+        ZIndex: =14
+
+    icn_Edit_lock_cell As icon.Edit:
+        Color: =RGBA(255, 0, 0, 1)
+        DisabledColor: =RGBA(116, 116, 116, 1)
+        DisplayMode: |-
+            =If( ParamEnable = 1  && varActiveLevel in Split(varItem.fa_user_type,";")
+            , DisplayMode.Edit,DisplayMode.Disabled)
+        Height: =43
+        Icon: =Icon.Edit
+        OnSelect: =Select(btn__Edit_lock_cell)
+        PaddingBottom: =2
+        PaddingLeft: =2
+        PaddingRight: =2
+        PaddingTop: =2
+        Width: =30
+        X: =btn__Edit_lock_cell.X
+        Y: =btn__Edit_lock_cell.Y
+        ZIndex: =15
+
+    btn__Add_Rows As button:
+        DisplayMode: |-
+            =If( varActiveLevel in Split(varItem.fa_user_type,";")
+            , DisplayMode.Edit,DisplayMode.Disabled)
+        Fill: =RGBA(116, 116, 116, 1)
+        Height: =42
+        HoverFill: =ColorFade(Self.Fill, -20%)
+        OnSelect: |-
+            =UpdateContext({varaddrowsPopUp:true})
+        PaddingLeft: =20
+        PaddingRight: =0
+        Size: =10
+        Text: ="Add Rows"
+        Width: =126
+        X: =btn_execute_all.X-Self.Width-10
+        Y: =TableViewer_Header_Btn_NotificationNav.Y
+        ZIndex: =16
+
+    Icon8 As icon.Add:
+        Color: =RGBA(255, 255, 255, 1)
+        DisabledColor: =RGBA(116, 116, 116, 1)
+        DisplayMode: |-
+            =If( varActiveLevel in Split(varItem.fa_user_type,";")
+            , DisplayMode.Edit,DisplayMode.Disabled)
+        Height: =40
+        Icon: =Icon.Add
+        PaddingBottom: =5
+        PaddingLeft: =2
+        PaddingRight: =2
+        PaddingTop: =5
+        Width: =32
+        X: =btn__Add_Rows.X
+        Y: =btn__Add_Rows.Y
+        ZIndex: =17
+
+    Container3_Edit_Reason As groupContainer.manualLayoutContainer:
+        Fill: =RGBA(8, 7, 7, 0.4)
+        Height: =App.Height
+        Visible: =varEditReasonPopUp
+        Width: =App.Width
+        ZIndex: =18
+
+        Container7 As groupContainer.verticalAutoLayoutContainer:
+            Height: =App.Height
+            LayoutAlignItems: =LayoutAlignItems.Center
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutJustifyContent: =LayoutJustifyContent.Center
+            LayoutMode: =LayoutMode.Auto
+            Width: =App.Width
+            ZIndex: =9
+
+            Container4 As groupContainer.verticalAutoLayoutContainer:
+                AlignInContainer: =AlignInContainer.Center
+                DropShadow: =DropShadow.ExtraBold
+                Fill: =RGBA(255, 255, 255, 1)
+                FillPortions: =0
+                Height: =452
+                LayoutAlignItems: =LayoutAlignItems.Center
+                LayoutDirection: =LayoutDirection.Vertical
+                LayoutJustifyContent: =LayoutJustifyContent.Center
+                LayoutMinHeight: =112
+                LayoutMinWidth: =250
+                LayoutMode: =LayoutMode.Auto
+                Width: =If(App.Width<=640,640,800)
+                Y: =366
+                ZIndex: =1
+
+                icn_cancel_ER_Popup As icon.CancelBadge:
+                    AlignInContainer: =AlignInContainer.End
+                    Color: =RGBA(221, 79, 14, 1)
+                    Height: =48
+                    Icon: =Icon.CancelBadge
+                    OnSelect: =Select(btn_cancel_ER_Popup)
+                    PaddingBottom: =5
+                    PaddingLeft: =5
+                    PaddingRight: =5
+                    PaddingTop: =5
+                    Visible: =varEditReasonPopUp
+                    Width: =60
+                    X: =582
+                    Y: =40
+                    ZIndex: =1
+
+                lbl_header As label:
+                    Align: =Align.Center
+                    FontWeight: =FontWeight.Semibold
+                    Height: =58
+                    LayoutMinHeight: =70
+                    LayoutMinWidth: =560
+                    Size: =21
+                    Text: ="Reason to Edit"
+                    Visible: =varEditReasonPopUp
+                    Width: =640
+                    Y: =65
+                    ZIndex: =2
+
+                txt_Reason_ER_Popup_2 As text:
+                    BorderColor: =RGBA(9, 156, 131, 1)
+                    Default: =
+                    Height: =200
+                    HintText: ="Type mininum 10 charchters to edit"
+                    HoverBorderColor: =Self.BorderColor
+                    HoverFill: =RGBA(0, 0, 0, 0)
+                    LayoutMinHeight: =70
+                    LayoutMinWidth: =560
+                    Mode: =TextMode.MultiLine
+                    Size: =15
+                    Visible: =varEditReasonPopUp
+                    Width: =497
+                    X: =72
+                    Y: =146
+                    ZIndex: =3
+
+                Container5 As groupContainer.horizontalAutoLayoutContainer:
+                    AlignInContainer: =AlignInContainer.SetByContainer
+                    FillPortions: =0
+                    Height: =120
+                    LayoutAlignItems: =LayoutAlignItems.Center
+                    LayoutGap: =40
+                    LayoutJustifyContent: =LayoutJustifyContent.Center
+                    LayoutMinHeight: =112
+                    LayoutMinWidth: =250
+                    LayoutMode: =LayoutMode.Auto
+                    ZIndex: =4
+
+                    btn_Save_ER_Popup As button:
+                        DisplayMode: |-
+                            =If(Len(txt_Reason_ER_Popup_2.Text)>10,
+                            DisplayMode.Edit,DisplayMode.Disabled)
+                        Fill: =RGBA(55, 168, 179, 1)
+                        Height: =54
+                        HoverFill: =ColorFade(Self.Fill, -20%)
+                        LayoutMinHeight: =70
+                        LayoutMinWidth: =280
+                        OnSelect: |-
+                            =UpdateContext({ParamEnable:1});
+                            Select(btn_cancel_ER_Popup);
+                            If(!(Formularios_QuestionList.Selected.fa_question_pos_in in colTableEditReason.fa_question_pos_in),
+                            Collect(colTableEditReason,{fa_question_pos_in:Formularios_QuestionList.Selected.fa_question_pos_in,fa_child_pos_in:Formularios_QuestionList.Selected.fa_child_pos_in,fa_Edit_Reason:txt_Reason_ER_Popup_2.Text}),Patch(colTableEditReason,LookUp(colTableEditReason,fa_question_pos_in=Formularios_QuestionList.Selected.fa_question_pos_in),{fa_Edit_Reason:txt_Reason_ER_Popup_2.Text}));
+                            Reset(txt_Reason_ER_Popup_2)
+                        Size: =16
+                        Text: ="Save"
+                        Visible: =varEditReasonPopUp
+                        Width: =196
+                        X: =111
+                        Y: =338
+                        ZIndex: =1
+
+                    btn_cancel_ER_Popup As button:
+                        Fill: =RGBA(203, 102, 102, 1)
+                        Height: =54
+                        HoverFill: =ColorFade(Self.Fill, -20%)
+                        LayoutMinHeight: =70
+                        LayoutMinWidth: =280
+                        OnSelect: |-
+                            =UpdateContext({varEditReasonPopUp:false})
+                        Size: =16
+                        Text: ="Cancel"
+                        Visible: =varEditReasonPopUp
+                        Width: =196
+                        X: =221
+                        Y: =338
+                        ZIndex: =2
+
+    Container3_Add_Rows As groupContainer.manualLayoutContainer:
+        Fill: =RGBA(8, 7, 7, 0.4)
+        Height: =App.Height
+        Visible: =varaddrowsPopUp
+        Width: =App.Width
+        ZIndex: =25
+
+        Container7_4 As groupContainer.verticalAutoLayoutContainer:
+            Height: =App.Height
+            LayoutAlignItems: =LayoutAlignItems.Center
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutJustifyContent: =LayoutJustifyContent.Center
+            LayoutMode: =LayoutMode.Auto
+            Width: =App.Width
+            ZIndex: =9
+
+            Container4_4 As groupContainer.verticalAutoLayoutContainer:
+                AlignInContainer: =AlignInContainer.Center
+                DropShadow: =DropShadow.ExtraBold
+                Fill: =RGBA(255, 255, 255, 1)
+                FillPortions: =0
+                Height: =350
+                LayoutAlignItems: =LayoutAlignItems.Center
+                LayoutDirection: =LayoutDirection.Vertical
+                LayoutJustifyContent: =LayoutJustifyContent.Center
+                LayoutMinHeight: =112
+                LayoutMinWidth: =250
+                LayoutMode: =LayoutMode.Auto
+                RadiusBottomLeft: =10
+                RadiusBottomRight: =10
+                RadiusTopLeft: =10
+                RadiusTopRight: =10
+                Width: =If(App.Width<=640,640,800)
+                Y: =366
+                ZIndex: =1
+
+                icn_cancel_AR_Popup As icon.CancelBadge:
+                    AlignInContainer: =AlignInContainer.End
+                    Color: =RGBA(221, 79, 14, 1)
+                    FocusedBorderThickness: =0
+                    Height: =48
+                    Icon: =Icon.CancelBadge
+                    OnSelect: =Select(btn_cancel_AR_Popup)
+                    PaddingBottom: =5
+                    PaddingLeft: =5
+                    PaddingRight: =5
+                    PaddingTop: =5
+                    Visible: =varaddrowsPopUp
+                    Width: =60
+                    X: =582
+                    Y: =40
+                    ZIndex: =1
+
+                lbl_header_AR As label:
+                    Align: =Align.Center
+                    FontWeight: =FontWeight.Semibold
+                    Height: =58
+                    LayoutMinHeight: =70
+                    LayoutMinWidth: =560
+                    Size: =21
+                    Text: ="Number of rows to insert"
+                    Visible: =varaddrowsPopUp
+                    Width: =640
+                    Y: =65
+                    ZIndex: =2
+
+                txt_AddRows As text:
+                    Align: =Align.Center
+                    BorderColor: =RGBA(9, 156, 131, 1)
+                    BorderThickness: =1
+                    Color: =RGBA(184, 0, 0, 1)
+                    Default: =
+                    FontWeight: =FontWeight.Semibold
+                    Format: =TextFormat.Number
+                    Height: =80
+                    HintText: ="Max 50 Rows"
+                    HoverBorderColor: =Self.BorderColor
+                    HoverFill: =RGBA(0, 0, 0, 0)
+                    LayoutMinHeight: =70
+                    LayoutMinWidth: =560
+                    MaxLength: =2
+                    OnChange: =If((Max(DynamicTablePreviewX,Cell_Row)+Int(txt_AddRows.Text))>50,Notify("Total Rows Cannot exceed 50, max allowed value is "&50-Max(DynamicTablePreviewX,Cell_Row)&"",NotificationType.Warning))
+                    RadiusBottomLeft: =15
+                    RadiusBottomRight: =15
+                    RadiusTopLeft: =15
+                    RadiusTopRight: =15
+                    Size: =20
+                    Visible: =varaddrowsPopUp
+                    Width: =200
+                    X: =72
+                    Y: =146
+                    ZIndex: =3
+
+                Container5_4 As groupContainer.horizontalAutoLayoutContainer:
+                    AlignInContainer: =AlignInContainer.SetByContainer
+                    FillPortions: =0
+                    Height: =120
+                    LayoutAlignItems: =LayoutAlignItems.Center
+                    LayoutGap: =40
+                    LayoutJustifyContent: =LayoutJustifyContent.Center
+                    LayoutMinHeight: =112
+                    LayoutMinWidth: =250
+                    LayoutMode: =LayoutMode.Auto
+                    ZIndex: =4
+
+                    btn_Save_ER_Popup_1 As button:
+                        DisplayMode: |-
+                            =If(Len(txt_AddRows.Text)>0 && (Max(DynamicTablePreviewX,Cell_Row)+Int(txt_AddRows.Text))<=50,
+                            DisplayMode.Edit,DisplayMode.Disabled)
+                        Fill: =RGBA(55, 168, 179, 1)
+                        Height: =54
+                        HoverFill: =ColorFade(Self.Fill, -20%)
+                        LayoutMinHeight: =70
+                        LayoutMinWidth: =280
+                        OnSelect: |-
+                            =
+                            //ClearCollect(Dummy1,nf_build_table.Run(Label6.Text));
+                            ClearCollect(DynamicTablePreviewX,DynamicTablePreview);
+                            ClearCollect(previousTable,DynamicTablePreviewX);
+                            UpdateContext({previousDesignTable:CountRows(MatchAll(First(previousTable).StringConfig,"~"))});
+                            UpdateContext({minLevel:varActiveLevel});
+                            If(previousDesignTable>4,
+                            UpdateContext({TableString:Concat(Sequence(Int(txt_AddRows.Text)+Max(previousTable,Cell_Row)) As RowX,Left(Concat(Sequence(Max(previousTable,Cell_Column),1,1) As ColX,""&RowX.Value&"~"&ColX.Value&"~NumericInput~~Write~NotRequired~~"&minLevel&"^"),Len(Concat(Sequence(Max(previousTable,Cell_Column),1,1) As ColX,""&RowX.Value&"~"&ColX.Value&"~NumericInput~~Write~NotRequired~~"&minLevel&"^"))-1),"|")}),
+                            UpdateContext({TableString:Concat(Sequence(Int(txt_AddRows.Text)+Max(previousTable,Cell_Row)) As RowX,Left(Concat(Sequence(Max(previousTable,Cell_Column),1,1) As ColX,""&RowX.Value&"~"&ColX.Value&"~NumericInput~~Write^"),Len(Concat(Sequence(Max(previousTable,Cell_Column),1,1) As ColX,""&RowX.Value&"~"&ColX.Value&"~NumericInput~~Write^"))-1),"|")}));
+                            
+                            
+                            If(
+                                Len(TableString) > 12500,
+                                Notify("Table structure is not supported. The maximum character limit allowed (12500) has been exceeded.",NotificationType.Error),
+                                ClearCollect(DynamicTablePreviewX,nf_build_table.Run(TableString));
+                                ForAll(previousTable As _Record, UpdateIf(DynamicTablePreviewX,Cell_Index=_Record.Cell_Index,{Cell_DefaultValue:_Record.Cell_DefaultValue,Cell_Mode:_Record.Cell_Mode,Cell_Type:_Record.Cell_Type,IsRequired:_Record.IsRequired,Levels:_Record.Levels,Choices:_Record.Choices}));
+                                    ClearCollect(DynamicTablePreview,DynamicTablePreviewX));
+                                    Reset(txt_AddRows);
+                                    
+                            Select(btn_cancel_AR_Popup);
+                        Size: =16
+                        Text: ="Add"
+                        Visible: =varaddrowsPopUp
+                        Width: =196
+                        X: =111
+                        Y: =338
+                        ZIndex: =1
+
+                    btn_cancel_AR_Popup As button:
+                        Fill: =RGBA(203, 102, 102, 1)
+                        Height: =54
+                        HoverFill: =ColorFade(Self.Fill, -20%)
+                        LayoutMinHeight: =70
+                        LayoutMinWidth: =280
+                        OnSelect: |-
+                            =UpdateContext({varaddrowsPopUp:false});
+                              Reset(txt_AddRows);
+                        Size: =16
+                        Text: ="Cancel"
+                        Visible: =varaddrowsPopUp
+                        Width: =196
+                        X: =221
+                        Y: =338
+                        ZIndex: =2
+
+    TableViewer_Loading As Lir_Loading_1:
+        Height: =Parent.Height
+        IsLoading: =varLoadingTables
+        Text: =First(collAppLanguage).LoadingText  & "100 %"
+        Visible: =TableViewer_Loading.IsLoading
+        Width: =Parent.Width
+        ZIndex: =26
+
+    TableViewer_Header As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =20
+        ZIndex: =39
+
+        TableViewer_Header_Shp_NavBarTop As htmlViewer:
+            Height: =202
+            HtmlText: |-
+                ="<div style ='
+                
+                  margin-top:0px;
+                  margin-bottom:3px;
+                  margin-left:0px;
+                  margin-right:0px;
+                  width: "& TableViewer_Header_Shp_NavBarTop.Width &"px;
+                  height: "& TableViewer_Header_Shp_NavBarTop.Height - 21 &"px;
+                  background-color: #3BA5A8;
+                  box-shadow: rgba(0, 0, 0, 0.15) 3px 6px 18px;'
+                  <center>
+                  </center>
+                  </div>
+                "//rgba(203, 16, 18, 1)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Width: =Parent.Width
+            ZIndex: =3
+
+        TableViewer_Header_Lbl_ScreenTitle As label:
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =//"Arial Rounded MT"
+            Height: =67
+            Size: =32
+            Text: =First(collAppLanguage).TableViewer_Header_Lbl_ScreenTitle
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =TableViewer_Header_Lbl_ScreenSubTitle.Y - Self.Height
+            ZIndex: =4
+
+        TableViewer_Header_Lbl_ScreenSubTitle As label:
+            Color: =RGBA(241, 244, 249, 1)
+            Font: ="Unity"
+            FontWeight: =FontWeight.Lighter
+            Height: =29
+            Size: =12
+            Text: =//First(collAppLanguage).TableViewer_Header_Lbl_ScreenSubTitle
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =TableViewer_Header_Shp_NavBarTop.Height - Self.Height - 25
+            ZIndex: =5
+
+        TableViewer_Header_Btn_NotificationNav As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.Bell
+            OnSelect: =
+            Tooltip: ="Pending Task"
+            Width: =59
+            X: =Parent.Width - Self.Width - 30
+            Y: =33
+            ZIndex: =6
+
+        TableViewer_Header_Btn_ProfileNav As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            DisplayMode: |-
+                =DisplayMode.Edit
+                
+                /*If(
+                    Len(
+                        Left(
+                            Concat(
+                                TableViewer_TableList.AllItems,
+                                PrevRowSummary_1.Text & "|"
+                            ),
+                            Len(
+                                Concat(
+                                    TableViewer_TableList.AllItems,
+                                    PrevRowSummary_1.Text & "|"
+                                )
+                            ) - 1
+                        )
+                    ) >= Len(ParamTableStructure),
+                    DisplayMode.Edit,
+                    DisplayMode.Disabled
+                )*/
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: |-
+                =IfError(
+                If(Not(   If(
+                        !IsBlank(ParamStructureString),
+                        ParamStructureString,
+                        finalString
+                    ) <> (Left(
+                        Concat(
+                            TableViewer_TableList_v2.AllItems,
+                            lbl_resultado.Text & "|"
+                        ),
+                        Len(
+                            Concat(
+                                TableViewer_TableList_v2.AllItems,
+                                lbl_resultado.Text & "|"
+                            )
+                        ) - 1
+                    ))),
+                    Icon.ArrowLeft,
+                    Icon.Save
+                    
+                ),Icon.ArrowLeft)
+            OnSelect: |-
+                =Set(varLoadingTable,true);
+                //Set(VarTableTimer,false);
+                //Set(VarTableTimer,true);
+                If(btn_execute_all.DisplayMode=DisplayMode.Edit && (btn_execute_all.Visible),UpdateContext({varLoadingTables:true});
+                
+                ClearCollect(DummyTableForCalcultion,DynamicTablePreviewX);
+                UpdateIf(DummyTableForCalcultion,Cell_DefaultValue="",{Cell_DefaultValue:0});
+                UpdateContext({VarTableResp:If(!IsEmpty(DummyTableForCalcultion),
+                Left(Concat(
+                    GroupBy(DummyTableForCalcultion,Row_Index,Column_Data),
+                    Left(Concat(Column_Data,Concatenate(Cell_Row,"~",Cell_Column,"~",Cell_Type,"~",Cell_DefaultValue,"~",Cell_Mode,"~",IsRequired,"^")),
+                    Len(Concat(Column_Data,Concatenate(Cell_Row,"~",Cell_Column,"~",Cell_Type,"~",Cell_DefaultValue,"~",Cell_Mode,"~",IsRequired,"^"))) - 1) & "|"),
+                Len(Concat(
+                    GroupBy(DummyTableForCalcultion,Row_Index,Column_Data),
+                    Left(Concat(Column_Data,Concatenate(Cell_Row,"~",Cell_Column,"~",Cell_Type,"~",Cell_DefaultValue,"~",Cell_Mode,"~",IsRequired,"^")),
+                    Len(Concat(Column_Data,Concatenate(Cell_Row,"~",Cell_Column,"~",Cell_Type,"~",Cell_DefaultValue,"~",Cell_Mode,"~",IsRequired,"^"))) - 1) & "|"))-1))});
+                
+                
+                UpdateContext({VarMathEq:With({Table:ShowColumns(Filter(Dummy,Cell_Type="Compute"),Cell_DefaultValue,Cell_Index)},Concat(Table,Concatenate(Substitute(Cell_DefaultValue,"'", "''"),"~",Cell_Index),";"))});
+                
+                
+                
+                
+                ClearCollect(colTableCalcResult,'dsf.execute_calculations'.Run(VarMathEq,VarTableResp));
+                If(!IsBlankOrError(First(colTableCalcResult).Result),
+                ForAll(colTableCalcResult As _ThisRecord,
+                With({varRow:First(Split(Mid(_ThisRecord.EquationIndex,2),"@")).Value,varColumn:Last(Split(Mid(_ThisRecord.EquationIndex,2),"@")).Value},
+                If(CountRows(Filter(varResultadoEQ,Row=varRow,Column=varColumn))=0,
+                Collect(varResultadoEQ,
+                {Resultado:Text(_ThisRecord.Result),Row:varRow,Column:varColumn}),
+                Update(varResultadoEQ,First(Filter(varResultadoEQ,Row=varRow,Column=varColumn)),
+                {Resultado:Text(_ThisRecord.Result),Row:varRow,Column:varColumn})));
+                Patch(DynamicTablePreviewX,LookUp(DynamicTablePreviewX,Cell_Index = _ThisRecord.EquationIndex),{Cell_DefaultValue : _ThisRecord.Result}));
+                ,Notify("Unsupported formula error.",NotificationType.Error,4000)));
+                Set(
+                    VarLoadPage,
+                    false
+                );
+                
+                Set(
+                    varStopFlag,
+                    true
+                );
+                Set(
+                    varNextAnswer,
+                    Formularios_QuestionList.Selected.RowNum
+                );
+                
+                
+                If(
+                    CountRows(
+                        Filter(
+                            varTableAnswers,
+                            AnsPos = ParamAnsPos,
+                            ChildPos= ParamChildPos,
+                            ReportDate = ParamReportDate
+                        )
+                    ) = 0,
+                    Collect(
+                        varTableAnswers,
+                        {
+                            Resultado: lbl_resultado.Text,
+                            AnsPos : ParamAnsPos,
+                            ChildPos: ParamChildPos,
+                            ReportDate : ParamReportDate
+                        }
+                    ),
+                    Update(
+                        varTableAnswers,
+                        First(
+                            Filter(
+                            varTableAnswers,
+                            AnsPos = ParamAnsPos,
+                            ChildPos= ParamChildPos,
+                            ReportDate = ParamReportDate
+                            )
+                        ),
+                        {
+                            Resultado: lbl_resultado.Text,
+                            AnsPos : ParamAnsPos,
+                            ChildPos: ParamChildPos,
+                            ReportDate : ParamReportDate
+                        }
+                    )
+                );
+                Set(varStart,false);
+                Set(varStart,true);
+                Back(ScreenTransition.CoverRight);
+                Set(varLoadingTable,false);
+                If(ParamEnable<>0,Set(AutoSaveTable,true),Set(AutoSaveTable,false));
+                UpdateContext({varLoadingTables:false});
+                
+                
+                
+                
+                
+                /*
+                If(
+                    CountRows(
+                        Filter(
+                            varTableAnswers,
+                            AnsPos = ParamAnsPos,
+                            ReportDate = ParamReportDate
+                        )
+                    ) = 0,
+                    Collect(
+                        varTableAnswers,
+                        {
+                            Resultado: TableViewer_TableResult.Text,
+                            AnsPos : ParamAnsPos,
+                            ReportDate : ParamReportDate
+                        }
+                    ),
+                    Update(
+                        varTableAnswers,
+                        First(
+                            Filter(
+                            varTableAnswers,
+                            AnsPos = ParamAnsPos,
+                            ReportDate = ParamReportDate
+                            )
+                        ),
+                        {
+                            Resultado: TableViewer_TableResult.Text,
+                            AnsPos : ParamAnsPos,
+                            ReportDate : ParamReportDate
+                        }
+                    )
+                );
+                Set(varStart,false);
+                Set(varStart,true);
+                Back(ScreenTransition.CoverRight);
+                Set(varLoadingTable,false);*/
+            Width: =59
+            X: =30
+            Y: =33
+            ZIndex: =7
+
+        TableViewer_Header_Shp_PendingIndicator As circle:
+            BorderColor: =RGBA(220, 153, 153, 1)
+            BorderThickness: =2
+            Fill: =RGBA(203, 102, 102, 1)
+            Height: =28
+            OnSelect: =
+            Visible: =If(TotalPending = 0 Or IsBlankOrError(TotalPending),false,true)
+            Width: =28
+            X: =Parent.Width - Self.Width - 30
+            Y: =29
+            ZIndex: =8
+
+        TableViewer_Header_Lbl_PendingIndicator As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =
+            FontWeight: =FontWeight.Bold
+            Height: =28
+            OnSelect: =
+            Size: =10
+            Text: |-
+                =//----------------------------------------------------------------------------------------------------MUESTRA CANTIDAD DE PENDIENTES
+                If(TotalPending > 9,"+9",TotalPending)
+            Visible: =If(TotalPending = 0 Or IsBlankOrError(TotalPending),false,true)
+            Width: =28
+            X: =Parent.Width - Self.Width - 30
+            Y: =31
+            ZIndex: =9
+

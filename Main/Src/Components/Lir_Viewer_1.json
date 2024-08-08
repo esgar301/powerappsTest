@@ -1,0 +1,91 @@
+{
+  "ComponentAllowCustomization": true,
+  "ComponentChangedSinceFileImport": true,
+  "ComponentManifest": {
+    "AllowAccessToGlobals": false,
+    "AllowCustomization": true,
+    "Description": "",
+    "Name": "Lir_Viewer_1",
+    "TemplateGuid": "0e71f46d27db4861a44494d76a40659e"
+  },
+  "ComponentType": "CanvasComponent",
+  "CustomGroupControlTemplateName": "",
+  "CustomProperties": [
+    {
+      "Category": 0,
+      "DisplayName": "OpenClose",
+      "Hidden": false,
+      "Name": "OpenClose",
+      "PropertyDataTypeKey": "Boolean",
+      "Tooltip": "Propiedad personalizada",
+      "Type": "{\"Version\":\"1.343\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"Boolean\",\"EnumString\":\"\",\"Type\":[]}}"
+    },
+    {
+      "Category": 0,
+      "DisplayName": "ViewerVisible",
+      "Hidden": true,
+      "Name": "ViewerVisible",
+      "PropertyDataTypeKey": "Boolean",
+      "Tooltip": "Propiedad personalizada",
+      "Type": "{\"Version\":\"1.343\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"Boolean\",\"EnumString\":\"\",\"Type\":[]}}"
+    },
+    {
+      "Category": 0,
+      "DisplayName": "LabelPicture",
+      "Hidden": false,
+      "Name": "LabelPicture",
+      "PropertyDataTypeKey": "Table",
+      "Tooltip": "Propiedad personalizada",
+      "Type": "{\"Version\":\"1.343\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"Table\",\"EnumString\":\"\",\"Type\":[{\"Name\":\"SampleBooleanField\",\"Kind\":\"Boolean\",\"EnumString\":\"\",\"Type\":[]},{\"Name\":\"SampleNumberField\",\"Kind\":\"Number\",\"EnumString\":\"\",\"Type\":[]},{\"Name\":\"SampleStringField\",\"Kind\":\"String\",\"EnumString\":\"\",\"Type\":[]}]}}"
+    },
+    {
+      "Category": 0,
+      "DisplayName": "ProcessOrder",
+      "Hidden": false,
+      "Name": "ProcessOrder",
+      "PropertyDataTypeKey": "String",
+      "Tooltip": "Propiedad personalizada",
+      "Type": "{\"Version\":\"1.343\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"String\",\"EnumString\":\"\",\"Type\":[]}}"
+    },
+    {
+      "Category": 0,
+      "DisplayName": "ProcessOrderVesion",
+      "Hidden": false,
+      "Name": "ProcessOrderVesion",
+      "PropertyDataTypeKey": "String",
+      "Tooltip": "Propiedad personalizada",
+      "Type": "{\"Version\":\"1.343\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"String\",\"EnumString\":\"\",\"Type\":[]}}"
+    },
+    {
+      "Category": 0,
+      "DisplayName": "ProcessOrderEnable",
+      "Hidden": false,
+      "Name": "ProcessOrderEnable",
+      "PropertyDataTypeKey": "Boolean",
+      "Tooltip": "Propiedad personalizada",
+      "Type": "{\"Version\":\"1.343\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"Boolean\",\"EnumString\":\"\",\"Type\":[]}}"
+    },
+    {
+      "Category": 0,
+      "DisplayName": "ChecksEnable",
+      "Hidden": false,
+      "Name": "ChecksEnable",
+      "PropertyDataTypeKey": "Boolean",
+      "Tooltip": "Propiedad personalizada",
+      "Type": "{\"Version\":\"1.343\",\"Type\":{\"Name\":\"Root\",\"Kind\":\"Boolean\",\"EnumString\":\"\",\"Type\":[]}}"
+    }
+  ],
+  "FirstParty": true,
+  "Id": "http://microsoft.com/appmagic/Component",
+  "IsComponentLocked": false,
+  "IsComponentTemplate": true,
+  "IsCustomGroupControlTemplate": false,
+  "IsPcfControl": false,
+  "IsPremiumPcfControl": false,
+  "IsWidgetTemplate": false,
+  "LastModifiedTimestamp": "638587500704478271",
+  "Name": "0e71f46d27db4861a44494d76a40659e",
+  "OverridableProperties": {},
+  "TemplateOriginalName": "ee78374bd6ce4416a3fe29bdee10e2bf",
+  "Version": "637726015778121447"
+}

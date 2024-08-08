@@ -1,0 +1,179 @@
+Lir_Header As CanvasComponent:
+    ConfigNavigationDisplay: =App.ActiveScreen
+    Fill: =RGBA(96, 96, 98, 1)
+    Height: =145
+    HintSearchText: ="Text"
+    LeftNavigationActive: ="Texto"
+    LeftNavigationDisplay: =App.ActiveScreen
+    LeftNavigationText: ="Texto"
+    NotificationNavigationDisplay: =App.ActiveScreen
+    OnReset: =
+    RightNavigationActive: ="Texto"
+    RightNavigationDisplay: =App.ActiveScreen
+    RightNavigationText: ="Texto"
+    SearchFormOutput: =Txt_SearchForm.Text
+    SearchFormVisible: =true
+    Subtitle: ="Subtitle"
+    SubtitleVisible: =true
+    Title: ="Text"
+    Width: =640
+    X: =0
+    Y: =0
+    ZIndex: =1
+
+    Lbl_Title As label:
+        Color: =RGBA(255, 255, 255, 1)
+        Font: =Font.'Open Sans Condensed'
+        FontWeight: =FontWeight.Semibold
+        Height: =45
+        Size: =24
+        Text: =Right(Lir_Header.Title,Len(Lir_Header.Title)-3)
+        Width: =464
+        X: =93
+        Y: =15
+        ZIndex: =1
+
+    Img_Profile As image:
+        BorderColor: =RGBA(116, 116, 116, 1)
+        BorderThickness: =1
+        Height: =55
+        Image: =User().Image
+        ImagePosition: =ImagePosition.Stretch
+        OnSelect: =Navigate(Lir_Header.ConfigNavigationDisplay,ScreenTransition.Fade);
+        RadiusBottomLeft: =Img_Profile.Height
+        RadiusBottomRight: =Img_Profile.Height
+        RadiusTopLeft: =Img_Profile.Height
+        RadiusTopRight: =Img_Profile.Height
+        Width: =55
+        X: =15
+        Y: =9
+        ZIndex: =2
+
+    Btn_Nofication As icon.Add:
+        Color: =RGBA(255, 255, 255, 1)
+        Height: =38
+        Icon: =Icon.Bell
+        OnSelect: =Navigate(Lir_Header.NotificationNavigationDisplay,ScreenTransition.Fade)
+        Tooltip: ="Configuración"
+        Width: =32
+        X: =Parent.Width - (Btn_Nofication.Width + 20)
+        Y: =19
+        ZIndex: =3
+
+    Shp_LeftButton As rectangle:
+        BorderColor: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(250, 155, 112, 1)
+        Height: =3
+        Visible: =If(App.ActiveScreen.Name = Lir_Header.LeftNavigationActive,true,false)
+        Width: =80
+        X: =107
+        Y: =132
+        ZIndex: =4
+
+    Btn_LeftNav As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderThickness: =0
+        Color: =If(App.ActiveScreen.Name = Lir_Header.LeftNavigationActive,RGBA(250, 155, 112, 100),RGBA(255, 255, 255, 1))
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(255, 255, 255, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        Fill: =RGBA(0, 0, 0, 0)
+        FontWeight: =FontWeight.Bold
+        Height: =41
+        HoverBorderColor: =
+        HoverFill: =
+        OnSelect: =If(App.ActiveScreen.Name = Lir_Header.LeftNavigationActive,"", Navigate(Lir_Header.LeftNavigationDisplay,ScreenTransition.Fade))
+        PressedBorderColor: =
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =
+        Size: =20
+        Text: =Lir_Header.LeftNavigationText
+        Width: =280
+        X: =7
+        Y: =94
+        ZIndex: =5
+
+    Btn_RightNav As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderThickness: =0
+        Color: =If(App.ActiveScreen.Name = Lir_Header.RightNavigationActive,RGBA(250, 155, 112, 100),RGBA(255, 255, 255, 1))
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(255, 255, 255, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        Fill: =RGBA(0, 0, 0, 0)
+        FontWeight: =FontWeight.Bold
+        Height: =41
+        HoverBorderColor: =
+        HoverFill: =
+        OnSelect: =If(App.ActiveScreen.Name = Lir_Header.RightNavigationActive,"",Navigate(Lir_Header.RightNavigationDisplay,ScreenTransition.Fade))
+        PressedBorderColor: =
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =
+        Size: =20
+        Text: =Lir_Header.RightNavigationText
+        Width: =280
+        X: =Parent.Width - (Btn_RightNav.Width + 5)
+        Y: =94
+        ZIndex: =6
+
+    Shp_RightButton As rectangle:
+        BorderColor: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(250, 155, 112, 1)
+        Height: =3
+        Visible: =If(App.ActiveScreen.Name = Lir_Header.RightNavigationActive,true,false)
+        Width: =80
+        X: =Parent.Width - (Btn_RightNav.Width/2+Shp_RightButton.Width/2)
+        Y: =132
+        ZIndex: =7
+
+    Lbl_SubTitle As label:
+        AutoHeight: =true
+        Color: =RGBA(255, 255, 255, 1)
+        Font: =Font.'Open Sans Condensed'
+        FontWeight: =FontWeight.Semibold
+        Size: =18
+        Text: =Lir_Header.Subtitle
+        Visible: =Lir_Header.SubtitleVisible
+        Width: =559
+        X: =70
+        Y: =75
+        ZIndex: =8
+
+    Rectangle5 As rectangle:
+        Fill: =RGBA(96, 96, 98, 0.83)
+        Height: =145
+        Visible: =VarSearchVisible
+        Width: =640
+        ZIndex: =9
+
+    Txt_SearchForm As text:
+        BorderColor: =RGBA(116, 116, 116, 1)
+        Clear: =true
+        Default: =""
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        EnableSpellCheck: =true
+        Height: =80
+        HintText: =Lir_Header.HintSearchText
+        HoverBorderColor: =RGBA(149, 149, 149, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        OnChange: =If(VarSearchVisible = true,Set(VarSearchVisible,false),Set(VarSearchVisible,true))
+        PressedColor: =RGBA(0, 0, 0, 1)
+        Size: =24
+        Visible: =VarSearchVisible && Lir_Header.SearchFormVisible
+        Width: =473
+        X: =52
+        Y: =14
+        ZIndex: =10
+
+    Btn_Search As icon.Add:
+        Color: =RGBA(255, 255, 255, 1)
+        Height: =38
+        Icon: =Icon.Search
+        OnSelect: =If(VarSearchVisible = true,Set(VarSearchVisible,false),Set(VarSearchVisible,true))
+        Tooltip: ="Configuración"
+        Visible: =Lir_Header.SearchFormVisible
+        Width: =32
+        X: =Parent.Width - (Btn_Search.Width + 20 + Btn_Nofication.Width + 20)
+        Y: =19
+        ZIndex: =11
+

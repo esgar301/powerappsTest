@@ -1,0 +1,537 @@
+"'08_SOLICITUDES PENDIENTES' As screen":
+    Fill: =
+    OnVisible: |-
+        =Refresh('dsf.request_approval');
+        Set(TotalPending,CountRows(varFormsLibraryCT))
+        //UpdateContext({varFilterStatus: "Pendiente"})
+
+    SolicitudReq_Shp_BackgroudSearchBar As htmlViewer:
+        Fill: =RGBA(0, 0, 0, 0)
+        Height: =180
+        HtmlText: |-
+            ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:1;background-color:#FFFFFF;box-shadow:0 3px 6px 1px  #ccc; border-radius:5px'></div>"
+        Width: =Parent.Width
+        Y: =SolicitudReq_Header_Shp_NavBarTop.Height - 20
+        ZIndex: =1
+
+    "SolicitudReq_Lst_Request As gallery.'BrowseLayout_Vertical_TwoTextVariant_ver4.0'":
+        '#CopilotOverlayLabel': ="Filtered"
+        Height: =Parent.Height - Self.Y
+        Items: |-
+            =Switch(
+                varFilterStatus,
+                "Pendiente",
+                Sort(
+                    Filter(
+                        Filter(
+                            'dsf.request_approval',
+                            (Solicitud_DateFilter_Txt_SearchBar.Text in lr_process_order_in Or Solicitud_DateFilter_Txt_SearchBar.Text in lr_request_email_vc Or Solicitud_DateFilter_Txt_SearchBar.Text in la_approval_email_vc)
+                        ),
+                        "Pendiente" in la_approval_status_vc
+                    ),
+                    lr_request_date_dt,
+                    SortOrder.Descending
+                ),
+                "En Proceso",
+                Sort(
+                    Filter(
+                        Filter(
+                            'dsf.request_approval',
+                            (Solicitud_DateFilter_Txt_SearchBar.Text in lr_process_order_in Or Solicitud_DateFilter_Txt_SearchBar.Text in lr_request_email_vc Or Solicitud_DateFilter_Txt_SearchBar.Text in la_approval_email_vc)
+                        ),
+                        "En Proceso" in la_approval_status_vc Or "Esperando liberación" in la_approval_status_vc
+                    ),
+                    lr_request_date_dt,
+                    SortOrder.Descending
+                ),
+                "Completado",
+                If(
+                    varDateFilterEnable = true,
+                    Sort(
+                        Filter(
+                            Filter(
+                                Filter(
+                                    'dsf.request_approval',
+                                    (Solicitud_DateFilter_Txt_SearchBar.Text in lr_process_order_in Or Solicitud_DateFilter_Txt_SearchBar.Text in lr_request_email_vc Or Solicitud_DateFilter_Txt_SearchBar.Text in la_approval_email_vc)
+                                ),
+                                "Completado" in la_approval_status_vc
+                            ),
+                            (Year(Solicitud_DateFilter_Dtp_FechaFiltro.SelectedDate) * 10000 + Month(Solicitud_DateFilter_Dtp_FechaFiltro.SelectedDate) * 100 + Day(Solicitud_DateFilter_Dtp_FechaFiltro.SelectedDate) = lr_request_date_in)
+                        ),
+                        lr_request_date_dt,
+                        SortOrder.Descending
+                    ),
+                    Sort(
+                        Filter(
+                            
+                                Filter(
+                                    'dsf.request_approval',
+                                    (Solicitud_DateFilter_Txt_SearchBar.Text in lr_process_order_in Or Solicitud_DateFilter_Txt_SearchBar.Text in lr_request_email_vc Or Solicitud_DateFilter_Txt_SearchBar.Text in la_approval_email_vc)
+                                ),
+                                "Completado" in la_approval_status_vc
+                            
+                        ),
+                        lr_request_date_dt,
+                        SortOrder.Descending
+                    )
+                )
+            )
+        Layout: =Layout.Vertical
+        OnSelect: =
+        TemplatePadding: =0
+        TemplateSize: =237
+        Width: =Parent.Width
+        Y: =SolicitudReq_Buttons_Shp_Completed.Y + SolicitudReq_Buttons_Shp_Completed.Height - 10
+        ZIndex: =5
+
+        Shp_BackgroudSearchBar_2 As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =237
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:1;background-color:#FFFFFF;box-shadow:0 3px 6px 1px  #ccc; border-radius:5px'></div>"
+            Width: =Parent.Width
+            ZIndex: =1
+
+        Title23_2 As label:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Font: ="Unity"
+            OnSelect: =
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =25
+            Text: =First(collAppLanguage).Title23 
+            VerticalAlign: =VerticalAlign.Top
+            Width: =567
+            X: =73
+            Y: =22
+            ZIndex: =2
+
+        Subtitle15_8 As label:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(0, 0, 0, 0.69)
+            Font: ="Unity"
+            Height: =34
+            OnSelect: =
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =15
+            Text: =First(collAppLanguage).'Order Screen 5' & " " & ThisItem.lr_process_order_in & "  " & First(collAppLanguage).'Version Screen 5' & " " & ThisItem.lr_request_version_tin
+            VerticalAlign: =VerticalAlign.Top
+            Width: =557
+            X: =21
+            Y: =74
+            ZIndex: =3
+
+        Btn_Open_5 As icon.ChevronRight:
+            AccessibleLabel: =Self.Tooltip
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(59, 165, 168, 1)
+            Height: =237
+            Icon: =Icon.ChevronRight
+            OnSelect: |-
+                =Navigate(
+                        '09_ESTADO SOLICITUD',
+                        ScreenTransition.Fade,
+                        {
+                            Pr_ProcessOrder: ThisItem.lr_process_order_in,
+                            Pr_Version: ThisItem.lr_request_version_tin
+                        }
+                    )
+            PaddingBottom: =10
+            PaddingLeft: =10
+            PaddingRight: =10
+            PaddingTop: =10
+            TabIndex: =0
+            Tooltip: ="Ver los detalles del elemento"
+            Width: =85
+            X: =Parent.Width-Btn_Open_5.Width
+            ZIndex: =4
+
+        Subtitle15_10 As label:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(0, 0, 0, 0.69)
+            Font: ="Unity"
+            Height: =35
+            OnSelect: =
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =15
+            Text: =First(collAppLanguage).'Requested By Screen 5' & " " & ThisItem.lr_request_email_vc
+            VerticalAlign: =VerticalAlign.Top
+            Width: =557
+            X: =21
+            Y: =142
+            ZIndex: =5
+
+        Subtitle15_11 As label:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(0, 0, 0, 0.69)
+            Font: ="Unity"
+            Height: =28
+            OnSelect: =
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =15
+            Text: =First(collAppLanguage).'Verified by Screen 5' & " " & If(IsBlankOrError(ThisItem.la_approval_email_vc) Or false Or ThisItem.la_approval_email_vc = "No asignada","Pendiente",ThisItem.la_approval_email_vc)
+            VerticalAlign: =VerticalAlign.Top
+            Width: =557
+            X: =21
+            Y: =177
+            ZIndex: =6
+
+        Subtitle15_9 As label:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(0, 0, 0, 0.69)
+            Font: ="Unity"
+            Height: =34
+            OnSelect: =
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =15
+            Text: =First(collAppLanguage).'Request Date Screen 5' & " " &Text(ThisItem.lr_request_date_dt)
+            VerticalAlign: =VerticalAlign.Top
+            Width: =557
+            X: =21
+            Y: =108
+            ZIndex: =7
+
+        Icon1_7 As icon.Add:
+            Color: =Switch(ThisItem.la_approval_result_vc,"Pendiente",RGBA(116, 116, 116, 1),"Aprobado",RGBA(0, 121, 187, 1),"Rechazado",RGBA(203, 102, 102, 1))
+            Height: =42
+            Icon: =Switch(ThisItem.la_approval_result_vc,"Pendiente",Icon.Clock,"Aprobado",Icon.Check,"Rechazado",Icon.Cancel) 
+            PaddingBottom: =
+            Width: =42
+            X: =21
+            Y: =20
+            ZIndex: =8
+
+    SolicitudReq_Header As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =20
+        ZIndex: =22
+
+        SolicitudReq_Header_Shp_NavBarTop As htmlViewer:
+            Height: =202
+            HtmlText: |-
+                ="<div style ='
+                
+                  margin-top:0px;
+                  margin-bottom:3px;
+                  margin-left:0px;
+                  margin-right:0px;
+                  width: "& SolicitudReq_Header_Shp_NavBarTop.Width &"px;
+                  height: "& SolicitudReq_Header_Shp_NavBarTop.Height - 21 &"px;
+                  background-color: #3BA5A8;
+                  box-shadow: rgba(0, 0, 0, 0.15) 3px 6px 18px;'
+                  <center>
+                  </center>
+                  </div>
+                "//rgba(203, 16, 18, 1)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Width: =Parent.Width
+            ZIndex: =9
+
+        SolicitudReq_Header_Lbl_ScreenTitle As label:
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =//"Arial Rounded MT"
+            Height: =67
+            Size: =32
+            Text: =Right(First(collAppLanguage).'Title Screen 5', Len(First(collAppLanguage).'Title Screen 5') -3)
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =SolicitudReq_Header_Lbl_ScreenSubTitle.Y - Self.Height
+            ZIndex: =10
+
+        SolicitudReq_Header_Lbl_ScreenSubTitle As label:
+            Color: =RGBA(241, 244, 249, 1)
+            Font: ="Unity"
+            FontWeight: =FontWeight.Lighter
+            Height: =29
+            Size: =12
+            Text: ="Buscador de verificaciones de etiquetas" 
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =SolicitudReq_Header_Shp_NavBarTop.Height - Self.Height - 25
+            ZIndex: =11
+
+        SolicitudReq_Header_Btn_NotificationNav As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.Bell
+            OnSelect: =Navigate('04_NOTIFICACIONES',ScreenTransition.Cover)
+            Tooltip: ="Pending Task"
+            Width: =59
+            X: =Parent.Width - Self.Width - 30
+            Y: =33
+            ZIndex: =12
+
+        SolicitudReq_Header_Btn_ProfileNav As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.ArrowLeft
+            OnSelect: =Navigate('01_PRINCIPAL',ScreenTransition.CoverRight)
+            Width: =59
+            X: =30
+            Y: =33
+            ZIndex: =13
+
+        SolicitudReq_Header_Btn_RequestIndicator As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.Tag
+            OnSelect: |-
+                =UpdateContext({Test:true})
+            Tooltip: ="Pending Request"
+            Width: =59
+            X: =SolicitudReq_Header_Btn_NotificationNav.X - Self.Width - 30
+            Y: =33
+            ZIndex: =14
+
+        SolicitudReq_Header_Shp_PendingIndicator As circle:
+            BorderColor: =RGBA(220, 153, 153, 1)
+            BorderThickness: =2
+            Fill: =RGBA(203, 102, 102, 1)
+            Height: =28
+            OnSelect: =Navigate('04_NOTIFICACIONES',ScreenTransition.Cover)
+            Visible: =If(TotalPending = 0 Or IsBlankOrError(TotalPending),false,true)
+            Width: =28
+            X: =Parent.Width - Self.Width - 30
+            Y: =30
+            ZIndex: =15
+
+        SolicitudReq_Header_Lbl_PendingIndicator As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =
+            FontWeight: =FontWeight.Bold
+            Height: =28
+            OnSelect: =Navigate('04_NOTIFICACIONES',ScreenTransition.Cover)
+            Size: =10
+            Text: |-
+                =//----------------------------------------------------------------------------------------------------MUESTRA CANTIDAD DE PENDIENTES
+                If(TotalPending > 9,"+9",TotalPending)
+            Visible: =If(TotalPending = 0 Or IsBlankOrError(TotalPending),false,true)
+            Width: =28
+            X: =Parent.Width - Self.Width - 30
+            Y: =31
+            ZIndex: =16
+
+    Solicitud_DateFilter As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =22
+
+        Solicitud_DateFilter_Txt_SearchBar As text:
+            BorderColor: =RGBA(149, 149, 149, 1)
+            Default: =""
+            Fill: =RGBA(241, 244, 249, 1)
+            Font: ="Unity"
+            Height: =50
+            HintText: ="Search Form Number/Description"
+            HoverBorderColor: =RGBA(149, 149, 149, 1)
+            Size: =17
+            Width: =Parent.Width - 70
+            X: =35
+            Y: =SolicitudReq_Header_Shp_NavBarTop.Height + 10
+            ZIndex: =17
+
+        Solicitud_DateFilter_Shp_Background As rectangle:
+            Fill: =RGBA(116, 116, 116, 1)
+            Height: =51
+            Width: =49
+            X: =35
+            Y: =SolicitudReq_Shp_BackgroudSearchBar.Y + SolicitudReq_Shp_BackgroudSearchBar.Height - Self.Height -30
+            ZIndex: =18
+
+        Solicitud_DateFilter_Dtp_FechaFiltro As datepicker:
+            BorderColor: =RGBA(116, 116, 116, 1)
+            DisplayMode: =If(varDateFilterEnable = true, DisplayMode.Edit,DisplayMode.Disabled)
+            Font: ="Unity"
+            Height: =51
+            IconBackground: =RGBA(116, 116, 116, 1)
+            Size: =16
+            Width: =Parent.Width- Self.X - 35
+            X: =Solicitud_DateFilter_Shp_Background.X + Solicitud_DateFilter_Shp_Background.Width
+            Y: =SolicitudReq_Shp_BackgroudSearchBar.Y + SolicitudReq_Shp_BackgroudSearchBar.Height - Self.Height -30
+            ZIndex: =19
+
+        Solicitud_DateFilter_Icon_Date As icon.Add:
+            AutoDisableOnSelect: =false
+            Color: =RGBA(255, 255, 255, 1)
+            Fill: =RGBA(116, 116, 116, 1)
+            Height: =28
+            Icon: =Icon.Filter
+            OnSelect: |-
+                =If(varDateFilterEnable = true, UpdateContext({varDateFilterEnable: false}),UpdateContext({varDateFilterEnable: true}))
+            Tooltip: ="Deshabilitar filtro"
+            Width: =25
+            X: =47
+            Y: =SolicitudReq_Shp_BackgroudSearchBar.Y + SolicitudReq_Shp_BackgroudSearchBar.Height - Self.Height -40
+            ZIndex: =20
+
+        Solicitud_DateFilter_Banner As button:
+            Align: =Align.Left
+            AutoDisableOnSelect: =false
+            BorderColor: =RGBA(241, 244, 249, 1)
+            BorderThickness: =0
+            Color: =RGBA(116, 116, 116, 1)
+            DisabledBorderColor: =RGBA(241, 244, 249, 1)
+            DisabledColor: =RGBA(116, 116, 116, 1)
+            DisabledFill: =RGBA(241, 244, 249, 1)
+            Fill: =RGBA(241, 244, 249, 1)
+            Font: ="Unity"
+            FontWeight: =FontWeight.Normal
+            Height: =51
+            HoverBorderColor: =RGBA(241, 244, 249, 1)
+            HoverColor: =RGBA(116, 116, 116, 1)
+            HoverFill: =RGBA(241, 244, 249, 1)
+            OnSelect: =
+            PressedBorderColor: =RGBA(241, 244, 249, 1)
+            PressedColor: =RGBA(116, 116, 116, 1)
+            PressedFill: =RGBA(241, 244, 249, 1)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Size: =10
+            Text: =First(collAppLanguage).Button1_5
+            Visible: =Not(varDateFilterEnable)
+            Width: =Parent.Width- Self.X - 35
+            X: =Solicitud_DateFilter_Shp_Background.X + Solicitud_DateFilter_Shp_Background.Width
+            Y: =SolicitudReq_Shp_BackgroudSearchBar.Y + SolicitudReq_Shp_BackgroudSearchBar.Height - Self.Height -30
+            ZIndex: =21
+
+    SolicitudReq_Buttons As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =22
+
+        SolicitudReq_Buttons_Shp_Pending As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =98
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:0.8;background-color:#FFFFFF;box-shadow:0 3px 6px 1px  #ccc; border-radius:90px'></div>"
+            OnSelect: =
+            Width: =SolicitudReq_Buttons_Btn_Pending.Width
+            X: =SolicitudReq_Buttons_Btn_Pending.X
+            Y: =SolicitudReq_Shp_BackgroudSearchBar.Y + SolicitudReq_Shp_BackgroudSearchBar.Height - 20
+            ZIndex: =2
+
+        SolicitudReq_Buttons_Shp_Completed As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =98
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:0.8;background-color:#FFFFFF;box-shadow:0 3px 6px 1px  #ccc; border-radius:90px'></div>"
+            OnSelect: =
+            Width: =SolicitudReq_Buttons_Btn_Completed.Width
+            X: =SolicitudReq_Buttons_Btn_Completed.X
+            Y: =SolicitudReq_Shp_BackgroudSearchBar.Y + SolicitudReq_Shp_BackgroudSearchBar.Height - 20
+            ZIndex: =3
+
+        SolicitudReq_Buttons_Shp_InProgress As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =98
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:0.8;background-color:#FFFFFF;box-shadow:0 3px 6px 1px  #ccc; border-radius:90px'></div>"
+            OnSelect: =
+            Width: =SolicitudReq_Buttons_Btn_InProgress.Width
+            X: =SolicitudReq_Buttons_Btn_InProgress.X
+            Y: =SolicitudReq_Shp_BackgroudSearchBar.Y + SolicitudReq_Shp_BackgroudSearchBar.Height - 20
+            ZIndex: =4
+
+        SolicitudReq_Buttons_Btn_Pending As button:
+            Color: =If(varFilterStatus = "Pendiente", RGBA(59, 165, 168, 1),RGBA(40, 60, 97, 1))
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0, 0, 0, 0)
+            Font: ="Unity"
+            FontWeight: =FontWeight.Normal
+            Height: =55
+            HoverBorderColor: =
+            HoverColor: =If(varFilterStatus = "Pendiente", RGBA(251, 188, 159, 1),RGBA(250, 250, 250, 1))
+            HoverFill: =RGBA(0, 0, 0, 0)
+            OnSelect: |-
+                =UpdateContext({varFilterStatus:"Pendiente"})
+            PressedBorderColor: =
+            PressedColor: =If(varFilterStatus = "Pendiente",RGBA(250, 155, 112, 1),RGBA(250, 155, 112, 1))
+            PressedFill: =
+            Size: =18
+            Text: =First(collAppLanguage).Button1
+            Underline: =true
+            Width: =210
+            Y: =SolicitudReq_Shp_BackgroudSearchBar.Y + SolicitudReq_Shp_BackgroudSearchBar.Height - 5
+            ZIndex: =6
+
+        SolicitudReq_Buttons_Btn_Completed As button:
+            Color: =If(varFilterStatus = "Completado", RGBA(59, 165, 168, 1),RGBA(40, 60, 97, 1))
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0, 0, 0, 0)
+            Font: ="Unity"
+            FontWeight: =FontWeight.Normal
+            Height: =55
+            HoverBorderColor: =
+            HoverColor: =If(varFilterStatus = "Completado", RGBA(251, 188, 159, 1),RGBA(250, 250, 250, 1))
+            HoverFill: =RGBA(0, 0, 0, 0)
+            OnSelect: |-
+                =UpdateContext({varFilterStatus:"Completado"})
+            PressedBorderColor: =
+            PressedColor: =RGBA(250, 155, 112, 1)
+            PressedFill: =
+            Size: =18
+            Text: =First(collAppLanguage).Button1_3
+            Underline: =true
+            Width: =210
+            X: =Parent.Width-SolicitudReq_Buttons_Btn_Completed.Width
+            Y: =SolicitudReq_Shp_BackgroudSearchBar.Y + SolicitudReq_Shp_BackgroudSearchBar.Height - 5
+            ZIndex: =7
+
+        SolicitudReq_Buttons_Btn_InProgress As button:
+            Color: =If(varFilterStatus = "En Proceso", RGBA(59, 165, 168, 1),RGBA(40, 60, 97, 1))
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0, 0, 0, 0)
+            Font: ="Unity"
+            FontWeight: =FontWeight.Normal
+            Height: =55
+            HoverBorderColor: =
+            HoverColor: =If(varFilterStatus = "En Proceso", RGBA(251, 188, 159, 1),RGBA(250, 250, 250, 1))
+            HoverFill: =RGBA(0, 0, 0, 0)
+            OnSelect: |-
+                =UpdateContext({varFilterStatus:"En Proceso"})
+            PressedBorderColor: =
+            PressedColor: =RGBA(250, 155, 112, 1)
+            PressedFill: =
+            Size: =18
+            Text: =First(collAppLanguage).Button1_4
+            Underline: =true
+            Width: =210
+            X: =Parent.Width/2-SolicitudReq_Buttons_Btn_InProgress.Width/2
+            Y: =SolicitudReq_Shp_BackgroudSearchBar.Y + SolicitudReq_Shp_BackgroudSearchBar.Height - 5
+            ZIndex: =8
+

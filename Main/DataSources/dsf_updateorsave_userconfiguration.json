@@ -1,0 +1,10 @@
+[
+  {
+    "ApiId": "/providers/microsoft.powerapps/apis/shared_logicflows",
+    "FlowNameId": "fe9d9133-75aa-45cb-9eef-781fff6ac299",
+    "Name": "dsf_updateorsave_userconfiguration",
+    "ServiceKind": "ConnectedWadl",
+    "Type": "ServiceInfo",
+    "WorkflowEntityId": "445ce8cc-d58d-ee11-8179-002248081803"
+  }
+]

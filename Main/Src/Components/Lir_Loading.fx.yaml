@@ -1,0 +1,46 @@
+Lir_Loading As CanvasComponent:
+    AnimatedGIF: |-
+        ="https://aka.ms/preloadergif"
+    Fill: =RGBA(96, 96, 98, 0.64)
+    Height: =1136
+    IsLoading: =true
+    OnReset: =
+    Text: ="LOADING..."
+    Visible: =Lir_Loading.IsLoading
+    Width: =640
+    X: =0
+    Y: =0
+    ZIndex: =9
+
+    imgLoader As image:
+        FocusedBorderColor: =imgLoader.BorderColor
+        Height: =105
+        HoverBorderColor: =ColorFade(imgLoader.BorderColor, 20%)
+        HoverFill: =ColorFade(imgLoader.Fill, 20%)
+        Image: =Lir_Loading.AnimatedGIF
+        PressedBorderColor: =ColorFade(imgLoader.BorderColor, -20%)
+        PressedFill: =ColorFade(imgLoader.Fill, -20%)
+        Width: =154
+        X: =Parent.Width/2-(imgLoader.Width/2)
+        Y: =Parent.Height/2-(imgLoader.Height)
+        ZIndex: =2
+
+    lblLoaderText As label:
+        Align: =Align.Center
+        Color: =RGBA(255, 255, 255, 1)
+        FocusedBorderColor: =lblLoaderText.BorderColor
+        Font: =Font.'Open Sans Condensed'
+        FontWeight: =FontWeight.Semibold
+        Height: =81
+        HoverBorderColor: =lblLoaderText.BorderColor
+        HoverColor: =lblLoaderText.Color
+        HoverFill: =lblLoaderText.Fill
+        PressedBorderColor: =lblLoaderText.BorderColor
+        PressedColor: =lblLoaderText.Color
+        PressedFill: =lblLoaderText.Fill
+        Size: =19
+        Text: =Lir_Loading.Text
+        Width: =Lir_Loading.Width
+        Y: =Parent.Height/2
+        ZIndex: =3
+

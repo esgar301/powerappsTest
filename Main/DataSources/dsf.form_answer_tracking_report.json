@@ -1,0 +1,33 @@
+[
+  {
+    "ApiId": "/providers/microsoft.powerapps/apis/shared_sql",
+    "CdpRevision": {
+      "BaseUrl": "/v2",
+      "LastChangedTimeString": "2024-05-10T14:35:28.9920000Z",
+      "RevisionNumber": 2
+    },
+    "ConnectedDataSourceInfoNameMapping": {
+      "57dfb1b5-7d79-4046-a4da-fd831d5befe1-KeyId": "KeyId",
+      "Expr1": "Expr1",
+      "fat_change_datetime_dt": "fat_change_datetime_dt",
+      "fat_change_reason_vc": "fat_change_reason_vc",
+      "fat_child_pos_in": "fat_child_pos_in",
+      "fat_form_number_vc": "fat_form_number_vc",
+      "fat_plant_id_in": "fat_plant_id_in",
+      "fat_question_answer_vc": "fat_question_answer_vc",
+      "fat_question_description_vc": "fat_question_description_vc",
+      "fat_question_pos_in": "fat_question_pos_in",
+      "fat_record_type_vc": "fat_record_type_vc",
+      "fat_report_date_dt": "fat_report_date_dt",
+      "fat_report_date_in": "fat_report_date_in",
+      "fat_user_id_bin": "fat_user_id_bin",
+      "usr_email_vc": "usr_email_vc"
+    },
+    "DatasetName": "sql-tccc-cpf-test-1.database.windows.net,POF_LIR",
+    "EncodeDataset": false,
+    "IsSampleData": false,
+    "IsWritable": false,
+    "Name": "dsf.form_answer_tracking_report",
+    "Type": "ConnectedDataSourceInfo"
+  }
+]

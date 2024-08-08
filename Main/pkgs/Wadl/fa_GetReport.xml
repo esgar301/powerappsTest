@@ -1,0 +1,144 @@
+<application xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:service="https://unitedstates-002.azure-apim.net/apim/logicflows" xmlns:siena="http://schemas.microsoft.com/MicrosoftProjectSiena/WADL/2014/11" siena:serviceId="fa_GetReport" xmlns="http://wadl.dev.java.net/2009/02">
+  <doc title="fa_GetReport" />
+  <grammars>
+    <jsonTypes targetNamespace="https://unitedstates-002.azure-apim.net/apim/logicflows" xmlns="http://schemas.microsoft.com/MicrosoftProjectSiena/WADL/2014/11">
+      <string name="ManualTriggerInput_text_def" />
+      <string name="ManualTriggerInput_text_1_def" />
+      <string name="ManualTriggerInput_text_2_def" />
+      <string name="ManualTriggerInput_text_3_def" />
+      <string name="ManualTriggerInput_text_4_def" />
+      <object name="ManualTriggerInput">
+        <property name="text" type="string" />
+        <property name="text_1" type="string" />
+        <property name="text_2" type="string" />
+        <property name="text_3" type="string" />
+        <property name="text_4" type="string" />
+      </object>
+      <integer name="ResponseActionOutput_items_def_fa_table_id_in_def" />
+      <integer name="ResponseActionOutput_items_def_fa_plant_id_in_def" />
+      <string name="ResponseActionOutput_items_def_fa_form_number_vc_def" />
+      <integer name="ResponseActionOutput_items_def_fa_question_pos_in_def" />
+      <string name="ResponseActionOutput_items_def_fa_title_name_vc_def" />
+      <string name="ResponseActionOutput_items_def_fa_title_description_vc_def" />
+      <string name="ResponseActionOutput_items_def_fa_question_description_vc_def" />
+      <boolean name="ResponseActionOutput_items_def_fa_question_equipment_bt_def" />
+      <boolean name="ResponseActionOutput_items_def_fa_question_required_bt_def" />
+      <boolean name="ResponseActionOutput_items_def_fa_question_enable_bt_def" />
+      <boolean name="ResponseActionOutput_items_def_fa_question_type_bt_def" />
+      <boolean name="ResponseActionOutput_items_def_fa_mandatory_bt_def" />
+      <integer name="ResponseActionOutput_items_def_fa_form_version_tin_def" />
+      <boolean name="ResponseActionOutput_items_def_fa_title_hide_bt_def" />
+      <integer name="ResponseActionOutput_items_def_fa_answer_type_in_def" />
+      <integer name="ResponseActionOutput_items_def_fa_answer_min_dc_def" />
+      <integer name="ResponseActionOutput_items_def_fa_answer_max_dc_def" />
+      <integer name="ResponseActionOutput_items_def_fa_answer_characters_in_def" />
+      <string name="ResponseActionOutput_items_def_fa_answer_list_vc_def" />
+      <string name="ResponseActionOutput_items_def_fa_label_on_vc_def" />
+      <string name="ResponseActionOutput_items_def_fa_label_off_vc_def" />
+      <integer name="ResponseActionOutput_items_def_fa_answer_numeric_in_def" />
+      <string name="ResponseActionOutput_items_def_fa_answer_text_vc_def" />
+      <boolean name="ResponseActionOutput_items_def_fa_answer_bit_bt_def" />
+      <string name="ResponseActionOutput_items_def_fa_report_date_dt_def" />
+      <integer name="ResponseActionOutput_items_def_fa_report_date_in_def" />
+      <integer name="ResponseActionOutput_items_def_fa_equipment_id_in_def" />
+      <integer name="ResponseActionOutput_items_def_fa_user_id_bin_def" />
+      <string name="ResponseActionOutput_items_def_usr_email_vc_def" />
+      <string name="ResponseActionOutput_items_def_fa_comment_vc_def" />
+      <string name="ResponseActionOutput_items_def_fa_answer_date_dt_def" />
+      <boolean name="ResponseActionOutput_items_def_fq_question_type_bt_def" />
+      <boolean name="ResponseActionOutput_items_def_fq_question_enable_bt_def" />
+      <integer name="ResponseActionOutput_items_def_fat_question_pos_in_def" />
+      <string name="ResponseActionOutput_items_def_fa_user_type_def" />
+      <integer name="ResponseActionOutput_items_def_fa_active_level_def" />
+      <integer name="ResponseActionOutput_items_def_fa_total_question_level_def" />
+      <string name="ResponseActionOutput_items_def_fa_requested_user_def" />
+      <string name="ResponseActionOutput_items_def_fa_child_criteria_def" />
+      <integer name="ResponseActionOutput_items_def_fa_child_pos_in_def" />
+      <object name="ResponseActionOutput_items_def">
+        <property name="fa_table_id_in" type="integer" />
+        <property name="fa_plant_id_in" type="integer" />
+        <property name="fa_form_number_vc" type="string" />
+        <property name="fa_question_pos_in" type="integer" />
+        <property name="fa_title_name_vc" type="string" />
+        <property name="fa_title_description_vc" type="string" />
+        <property name="fa_question_description_vc" type="string" />
+        <property name="fa_question_equipment_bt" type="boolean" />
+        <property name="fa_question_required_bt" type="boolean" />
+        <property name="fa_question_enable_bt" type="boolean" />
+        <property name="fa_question_type_bt" type="boolean" />
+        <property name="fa_mandatory_bt" type="boolean" />
+        <property name="fa_form_version_tin" type="integer" />
+        <property name="fa_title_hide_bt" type="boolean" />
+        <property name="fa_answer_type_in" type="integer" />
+        <property name="fa_answer_min_dc" type="integer" />
+        <property name="fa_answer_max_dc" type="integer" />
+        <property name="fa_answer_characters_in" type="integer" />
+        <property name="fa_answer_list_vc" type="string" />
+        <property name="fa_label_on_vc" type="string" />
+        <property name="fa_label_off_vc" type="string" />
+        <property name="fa_answer_numeric_in" type="integer" />
+        <property name="fa_answer_text_vc" type="string" />
+        <property name="fa_answer_bit_bt" type="boolean" />
+        <property name="fa_report_date_dt" type="string" />
+        <property name="fa_report_date_in" type="integer" />
+        <property name="fa_equipment_id_in" type="integer" />
+        <property name="fa_user_id_bin" type="integer" />
+        <property name="usr_email_vc" type="string" />
+        <property name="fa_comment_vc" type="string" />
+        <property name="fa_answer_date_dt" type="string" />
+        <property name="fq_question_type_bt" type="boolean" />
+        <property name="fq_question_enable_bt" type="boolean" />
+        <property name="fat_question_pos_in" type="integer" />
+        <property name="fa_user_type" type="string" />
+        <property name="fa_active_level" type="integer" />
+        <property name="fa_total_question_level" type="integer" />
+        <property name="fa_requested_user" type="string" />
+        <property name="fa_child_criteria" type="string" />
+        <property name="fa_child_pos_in" type="integer" />
+      </object>
+      <array typeRef="ResponseActionOutput_items_def" name="ResponseActionOutput" />
+      <object name="Run_responses_default_def" />
+    </jsonTypes>
+  </grammars>
+  <resources siena:authenticationProviderHref="#PowerAppAuth" base="https://unitedstates-002.azure-apim.net/apim/logicflows">
+    <resource path="/{connectionId}/triggers/manual/run">
+      <param style="template" name="connectionId" type="xs:string" required="true" />
+      <method siena:requiresAuthentication="true" name="POST" id="Run">
+        <doc title="Runs a logic flow trigger." />
+        <request>
+          <param style="query" name="api-version" type="xs:string" required="true" fixed="2015-02-01-preview">
+            <doc title="The api version" />
+          </param>
+          <representation mediaType="application/json">
+            <param style="plain" name="text" path="/text" type="xs:string" required="true">
+              <doc title="FormNumber" />
+            </param>
+            <param style="plain" name="text_1" path="/text_1" type="xs:string" required="true">
+              <doc title="ReportDate" />
+            </param>
+            <param style="plain" name="text_2" path="/text_2" type="xs:string" required="true">
+              <doc title="RecordDate" />
+            </param>
+            <param style="plain" name="text_3" path="/text_3" type="xs:string" required="true">
+              <doc title="PlantID" />
+            </param>
+            <param style="plain" name="text_4" path="/text_4" type="xs:string" required="true">
+              <doc title="SourceInput" />
+            </param>
+          </representation>
+        </request>
+        <response>
+          <representation mediaType="application/json" element="service:ResponseActionOutput" />
+        </response>
+      </method>
+    </resource>
+  </resources>
+  <authenticationProviders xmlns="http://schemas.microsoft.com/MicrosoftProjectSiena/WADL/2014/11">
+    <connectionProvider id="PowerAppAuth" siena:connectionProviderId="logicflows" />
+  </authenticationProviders>
+  <template xmlns="http://schemas.microsoft.com/MicrosoftProjectSiena/WADL/2014/11">
+    <variable name="connectionId">
+      <modifyParams style="template" name="connectionId" attribute="fixed" />
+    </variable>
+  </template>
+</application>

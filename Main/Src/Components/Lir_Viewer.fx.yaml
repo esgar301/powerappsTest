@@ -1,0 +1,130 @@
+Lir_Viewer As CanvasComponent:
+    ChecksEnable: =true
+    Fill: =RGBA(96, 96, 98, 0.64)
+    Height: =1136
+    LabelPicture: =
+    OnReset: =
+    OpenClose: =true
+    ProcessOrder: ="Indefinido"
+    ProcessOrderEnable: =true
+    ProcessOrderVesion: ="Texto"
+    ViewerVisible: =isViewerOpen
+    Width: =640
+    X: =0
+    Y: =0
+    ZIndex: =1
+
+    Gallery7 As gallery.galleryHorizontal:
+        '#CopilotOverlayLabel': ="Filtered"
+        BorderColor: =RGBA(0, 0, 0, 0)
+        Height: =1079
+        Items: =Lir_Viewer.LabelPicture
+        ShowNavigation: =true
+        ShowScrollbar: =false
+        TemplatePadding: =1
+        TemplateSize: =Parent.Width/2
+        Width: =Parent.Width
+        ZIndex: =1
+
+        Image10 As image:
+            Height: =1078
+            Image: =//ThisItem.Label
+            ImageRotation: =varImagePosition.Value
+            OnSelect: =Select(Parent)
+            Width: =320
+            ZIndex: =1
+
+    Rectangle2_2 As rectangle:
+        Fill: =RGBA(151, 0, 0, 0.58)
+        Height: =56
+        Width: =Parent.Width
+        Y: =Parent.Height-Rectangle2_2.Height
+        ZIndex: =2
+
+    Lbl_SubTitle_2 As label:
+        Color: =RGBA(255, 255, 255, 1)
+        Font: =Font.'Open Sans Condensed'
+        FontWeight: =FontWeight.Semibold
+        Height: =49
+        Size: =22
+        Text: |-
+            ="PO: " & Lir_Viewer.ProcessOrder
+        Visible: =Lir_Viewer.ProcessOrderEnable
+        Width: =322
+        X: =7
+        Y: =Parent.Height-(Lbl_SubTitle_2.Height+Rectangle2_2.Height)/2
+        ZIndex: =3
+
+    Btn_NewPicture_3 As icon.Add:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        Color: =RGBA(255, 255, 255, 1)
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        Height: =33
+        Icon: =Icon.Settings
+        OnSelect: =If(VarConfVisible = true,Set(VarConfVisible,false),Set(VarConfVisible,true))
+        Visible: =false
+        Width: =39
+        X: =Parent.Width-Btn_NewPicture_3.Width-10
+        Y: =12
+        ZIndex: =4
+
+    Cb_ImagePosition_2 As dropdown:
+        BorderColor: =RGBA(116, 116, 116, 1)
+        ChevronBackground: =RGBA(166, 166, 166, 1)
+        ChevronHoverBackground: =RGBA(166, 166, 166, 1)
+        Height: =38
+        Items: =[ImagePosition.Center,ImagePosition.Stretch,ImagePosition.Fill,ImagePosition.Fit]
+        OnChange: =Set(VarPositionImage,Cb_ImagePosition_2.Selected)
+        PressedFill: =RGBA(166, 166, 166, 1)
+        SelectionFill: =RGBA(116, 116, 116, 1)
+        Size: =15
+        Visible: =VarConfVisible
+        Width: =162
+        X: =Btn_NewPicture_5.X-Cb_ImagePosition_2.Width/2
+        Y: =12
+        ZIndex: =5
+
+    Btn_NewPicture_5 As icon.Add:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        Color: =RGBA(255, 255, 255, 1)
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        Height: =33
+        Icon: =Icon.Reload
+        OnSelect: |
+            =If(varIndexPosition>3,Set(varIndexPosition,1),Set(varIndexPosition,varIndexPosition+1));
+            Set(varImagePosition,Last(FirstN([ImageRotation.Rotate90,ImageRotation.Rotate180,ImageRotation.Rotate270,ImageRotation.None], varIndexPosition)))
+        Width: =39
+        X: =(Rectangle2_2.Width/4)*3+Btn_NewPicture_5.Width/2
+        Y: =Parent.Height-(Btn_NewPicture_5.Height+Rectangle2_2.Height)/2
+        ZIndex: =6
+
+    Btn_NewPicture_1 As icon.Add:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        Color: =RGBA(255, 255, 255, 1)
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        Height: =39
+        Icon: =Icon.Cancel
+        OnSelect: =Set(isViewerOpen,false)
+        Width: =44
+        X: =(Rectangle2_2.Width/4)*3.5+Btn_NewPicture_1.Width/2
+        Y: =Parent.Height-(Btn_NewPicture_1.Height+Rectangle2_2.Height)/2
+        ZIndex: =7
+
+    Toggle2_3 As toggleSwitch:
+        Default: =Lir_Viewer.OpenClose
+        FalseHoverFill: =ColorFade(Toggle2_3.FalseFill, 15%)
+        FocusedBorderColor: =Toggle2_3.BorderColor
+        Height: =74
+        HoverBorderColor: =ColorFade(Toggle2_3.BorderColor, 15%)
+        OnChange: =
+        OnCheck: =Set(isViewerOpen, true)
+        OnUncheck: =Set(isViewerOpen, false)
+        PressedBorderColor: =ColorFade(Toggle2_3.BorderColor, -15%)
+        ShowLabel: =false
+        Size: =21
+        TrueHoverFill: =ColorFade(Toggle2_3.TrueFill, 15%)
+        Width: =237
+        X: =396
+        Y: =12
+        ZIndex: =8
+

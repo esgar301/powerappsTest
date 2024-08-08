@@ -1,0 +1,110 @@
+<application xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:service="https://unitedstates-002.azure-apim.net/apim/logicflows" xmlns:siena="http://schemas.microsoft.com/MicrosoftProjectSiena/WADL/2014/11" siena:serviceId="fa_AnswerReport" xmlns="http://wadl.dev.java.net/2009/02">
+  <doc title="fa_AnswerReport" />
+  <grammars>
+    <jsonTypes targetNamespace="https://unitedstates-002.azure-apim.net/apim/logicflows" xmlns="http://schemas.microsoft.com/MicrosoftProjectSiena/WADL/2014/11">
+      <string name="ManualTriggerInput_AnswerList_Value_def" />
+      <string name="ManualTriggerInput_AnswerText_Value_def" />
+      <string name="ManualTriggerInput_ApprovalEmail_Value_def" />
+      <string name="ManualTriggerInput_Event_Value_def" />
+      <string name="ManualTriggerInput_FormNumber_Value_def" />
+      <string name="ManualTriggerInput_LabelOff_Value_def" />
+      <string name="ManualTriggerInput_LabelOn_Value_def" />
+      <string name="ManualTriggerInput_QuestionDescription_Value_def" />
+      <string name="ManualTriggerInput_TitleDescription_Value_def" />
+      <string name="ManualTriggerInput_TitleName_Value_def" />
+      <string name="ManualTriggerInput_ReportDate_Value_def" />
+      <string name="ManualTriggerInput_Comment_Value_def" />
+      <boolean name="ManualTriggerInput_Executestoredprocedure_ux28_V2_ux29__param_answer_bit_def" />
+      <integer name="ManualTriggerInput_Executestoredprocedure_ux28_V2_ux29__param_answer_characters_in_def" />
+      <number name="ManualTriggerInput_Executestoredprocedure_ux28_V2_ux29__param_answer_max_dc_def" />
+      <number name="ManualTriggerInput_Executestoredprocedure_ux28_V2_ux29__param_answer_min_dc_def" />
+      <number name="ManualTriggerInput_Executestoredprocedure_ux28_V2_ux29__param_answer_numeric_def" />
+      <integer name="ManualTriggerInput_Executestoredprocedure_ux28_V2_ux29__param_answer_type_in_def" />
+      <integer name="ManualTriggerInput_Executestoredprocedure_ux28_V2_ux29__param_equipment_id_def" />
+      <integer name="ManualTriggerInput_Executestoredprocedure_ux28_V2_ux29__param_plant_id_in_def" />
+      <boolean name="ManualTriggerInput_Executestoredprocedure_ux28_V2_ux29__param_question_equipment_bt_def" />
+      <integer name="ManualTriggerInput_Executestoredprocedure_ux28_V2_ux29__param_question_pos_in_def" />
+      <boolean name="ManualTriggerInput_Executestoredprocedure_ux28_V2_ux29__param_question_required_bt_def" />
+      <boolean name="ManualTriggerInput_Executestoredprocedure_ux28_V2_ux29__param_title_hide_bt_def" />
+      <string name="ManualTriggerInput_RecordDate_Value_def" />
+      <string name="ManualTriggerInput_Initializevariable_Value_def" />
+      <object name="ManualTriggerInput">
+        <property name="AnswerList_Value" type="string" />
+        <property name="AnswerText_Value" type="string" />
+        <property name="ApprovalEmail_Value" type="string" />
+        <property name="Event_Value" type="string" />
+        <property name="FormNumber_Value" type="string" />
+        <property name="LabelOff_Value" type="string" />
+        <property name="LabelOn_Value" type="string" />
+        <property name="QuestionDescription_Value" type="string" />
+        <property name="TitleDescription_Value" type="string" />
+        <property name="TitleName_Value" type="string" />
+        <property name="ReportDate_Value" type="string" />
+        <property name="Comment_Value" type="string" />
+        <property name="Executestoredprocedure(V2)_param_answer_bit" type="boolean" />
+        <property name="Executestoredprocedure(V2)_param_answer_characters_in" type="integer" />
+        <property name="Executestoredprocedure(V2)_param_answer_max_dc" type="number" />
+        <property name="Executestoredprocedure(V2)_param_answer_min_dc" type="number" />
+        <property name="Executestoredprocedure(V2)_param_answer_numeric" type="number" />
+        <property name="Executestoredprocedure(V2)_param_answer_type_in" type="integer" />
+        <property name="Executestoredprocedure(V2)_param_equipment_id" type="integer" />
+        <property name="Executestoredprocedure(V2)_param_plant_id_in" type="integer" />
+        <property name="Executestoredprocedure(V2)_param_question_equipment_bt" type="boolean" />
+        <property name="Executestoredprocedure(V2)_param_question_pos_in" type="integer" />
+        <property name="Executestoredprocedure(V2)_param_question_required_bt" type="boolean" />
+        <property name="Executestoredprocedure(V2)_param_title_hide_bt" type="boolean" />
+        <property name="RecordDate_Value" type="string" />
+        <property name="Initializevariable_Value" type="string" />
+      </object>
+    </jsonTypes>
+  </grammars>
+  <resources siena:authenticationProviderHref="#PowerAppAuth" base="https://unitedstates-002.azure-apim.net/apim/logicflows">
+    <resource path="/{connectionId}/triggers/manual/run">
+      <param style="template" name="connectionId" type="xs:string" required="true" />
+      <method siena:requiresAuthentication="true" name="POST" id="Run">
+        <doc title="Runs a logic flow trigger." />
+        <request>
+          <param style="query" name="api-version" type="xs:string" required="true" fixed="2015-02-01-preview">
+            <doc title="The api version" />
+          </param>
+          <representation mediaType="application/json">
+            <param style="plain" name="AnswerList_Value" path="/AnswerList_Value" type="xs:string" required="true" />
+            <param style="plain" name="AnswerText_Value" path="/AnswerText_Value" type="xs:string" required="true" />
+            <param style="plain" name="ApprovalEmail_Value" path="/ApprovalEmail_Value" type="xs:string" required="true" />
+            <param style="plain" name="Event_Value" path="/Event_Value" type="xs:string" required="true" />
+            <param style="plain" name="FormNumber_Value" path="/FormNumber_Value" type="xs:string" required="true" />
+            <param style="plain" name="LabelOff_Value" path="/LabelOff_Value" type="xs:string" required="true" />
+            <param style="plain" name="LabelOn_Value" path="/LabelOn_Value" type="xs:string" required="true" />
+            <param style="plain" name="QuestionDescription_Value" path="/QuestionDescription_Value" type="xs:string" required="true" />
+            <param style="plain" name="TitleDescription_Value" path="/TitleDescription_Value" type="xs:string" required="true" />
+            <param style="plain" name="TitleName_Value" path="/TitleName_Value" type="xs:string" required="true" />
+            <param style="plain" name="ReportDate_Value" path="/ReportDate_Value" type="xs:string" required="true" />
+            <param style="plain" name="Comment_Value" path="/Comment_Value" type="xs:string" required="true" />
+            <param style="plain" name="Executestoredprocedure(V2)_param_answer_bit" path="/Executestoredprocedure(V2)_param_answer_bit" type="xs:boolean" required="true" />
+            <param style="plain" name="Executestoredprocedure(V2)_param_answer_characters_in" path="/Executestoredprocedure(V2)_param_answer_characters_in" type="xs:long" required="true" />
+            <param style="plain" name="Executestoredprocedure(V2)_param_answer_max_dc" path="/Executestoredprocedure(V2)_param_answer_max_dc" type="xs:double" required="true" />
+            <param style="plain" name="Executestoredprocedure(V2)_param_answer_min_dc" path="/Executestoredprocedure(V2)_param_answer_min_dc" type="xs:double" required="true" />
+            <param style="plain" name="Executestoredprocedure(V2)_param_answer_numeric" path="/Executestoredprocedure(V2)_param_answer_numeric" type="xs:double" required="true" />
+            <param style="plain" name="Executestoredprocedure(V2)_param_answer_type_in" path="/Executestoredprocedure(V2)_param_answer_type_in" type="xs:long" required="true" />
+            <param style="plain" name="Executestoredprocedure(V2)_param_equipment_id" path="/Executestoredprocedure(V2)_param_equipment_id" type="xs:long" required="true" />
+            <param style="plain" name="Executestoredprocedure(V2)_param_plant_id_in" path="/Executestoredprocedure(V2)_param_plant_id_in" type="xs:long" required="true" />
+            <param style="plain" name="Executestoredprocedure(V2)_param_question_equipment_bt" path="/Executestoredprocedure(V2)_param_question_equipment_bt" type="xs:boolean" required="true" />
+            <param style="plain" name="Executestoredprocedure(V2)_param_question_pos_in" path="/Executestoredprocedure(V2)_param_question_pos_in" type="xs:long" required="true" />
+            <param style="plain" name="Executestoredprocedure(V2)_param_question_required_bt" path="/Executestoredprocedure(V2)_param_question_required_bt" type="xs:boolean" required="true" />
+            <param style="plain" name="Executestoredprocedure(V2)_param_title_hide_bt" path="/Executestoredprocedure(V2)_param_title_hide_bt" type="xs:boolean" required="true" />
+            <param style="plain" name="RecordDate_Value" path="/RecordDate_Value" type="xs:string" required="true" />
+            <param style="plain" name="Initializevariable_Value" path="/Initializevariable_Value" type="xs:string" required="true" />
+          </representation>
+        </request>
+      </method>
+    </resource>
+  </resources>
+  <authenticationProviders xmlns="http://schemas.microsoft.com/MicrosoftProjectSiena/WADL/2014/11">
+    <connectionProvider id="PowerAppAuth" siena:connectionProviderId="logicflows" />
+  </authenticationProviders>
+  <template xmlns="http://schemas.microsoft.com/MicrosoftProjectSiena/WADL/2014/11">
+    <variable name="connectionId">
+      <modifyParams style="template" name="connectionId" attribute="fixed" />
+    </variable>
+  </template>
+</application>

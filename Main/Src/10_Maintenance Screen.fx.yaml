@@ -1,0 +1,40 @@
+"'10_Maintenance Screen' As screen":
+    BackgroundImage: ='7'
+    Fill: =RGBA(255, 255, 255, 1)
+    ImagePosition: =ImagePosition.Fill
+
+    Container12 As groupContainer.manualLayoutContainer:
+        Fill: =RGBA(0, 0, 0, 0.3)
+        Height: =Parent.Height
+        Width: =Parent.Width
+        ZIndex: =5
+
+        Label4 As label:
+            Align: |-
+                =
+                Align.Center
+            AutoHeight: =true
+            Color: =RGBA(255, 255, 255, 1)
+            Fill: =RGBA(255, 0, 0, 1)
+            FontWeight: =FontWeight.Bold
+            Height: =200
+            PaddingLeft: =50
+            PaddingRight: =50
+            Size: |+
+                =Switch(
+                    '10_Maintenance Screen'.Size , ScreenSize.Small,
+                    18,ScreenSize.Medium,
+                        32,
+                        35
+                    )
+                
+            Text: |
+                =/*
+                If(Screen2.Size=ScreenSize.Small,"Attention:"&Char(10)&"Application is currently down for maintenance. "&Char(10)&"We expect to be back in few hours. "&Char(10)&"Thank you for your patience.","Attention: Application is currently down for maintenance."&Char(10)&" We expect to be back in few hours."&Char(10)&" Thank you for your patience.")
+                */
+                "⚠️⚠️🚧Attention🚧⚠️⚠️ "&Char(10)&"Application down for maintenance "&Char(10)&"We'll be back online shortly.Thanks!"
+            Width: =App.Width
+            X: =If('10_Maintenance Screen'.Size=ScreenSize.Small,0,0)
+            Y: =App.Height*0.57
+            ZIndex: =2
+

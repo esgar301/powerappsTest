@@ -1,0 +1,179 @@
+Lir_Header_1 As CanvasComponent:
+    ConfigNavigationDisplay: =App.ActiveScreen
+    Fill: =RGBA(96, 96, 98, 1)
+    Height: =145
+    HintSearchText: ="Text"
+    LeftNavigationActive: ="Texto"
+    LeftNavigationDisplay: =App.ActiveScreen
+    LeftNavigationText: ="Texto"
+    NotificationNavigationDisplay: =App.ActiveScreen
+    OnReset: =
+    RightNavigationActive: ="Texto"
+    RightNavigationDisplay: =App.ActiveScreen
+    RightNavigationText: ="Texto"
+    SearchFormOutput: =Txt_SearchForm_1.Text
+    SearchFormVisible: =true
+    Subtitle: ="Subtitle"
+    SubtitleVisible: =true
+    Title: ="Text"
+    Width: =640
+    X: =0
+    Y: =0
+    ZIndex: =1
+
+    Lbl_Title_1 As label:
+        Color: =RGBA(255, 255, 255, 1)
+        Font: =Font.'Open Sans Condensed'
+        FontWeight: =FontWeight.Semibold
+        Height: =45
+        Size: =24
+        Text: =Right(Lir_Header_1.Title,Len(Lir_Header_1.Title)-3)
+        Width: =464
+        X: =93
+        Y: =15
+        ZIndex: =1
+
+    Img_Profile_1 As image:
+        BorderColor: =RGBA(116, 116, 116, 1)
+        BorderThickness: =1
+        Height: =55
+        Image: =User().Image
+        ImagePosition: =ImagePosition.Stretch
+        OnSelect: =Navigate(Lir_Header_1.ConfigNavigationDisplay,ScreenTransition.Fade);
+        RadiusBottomLeft: =Img_Profile_1.Height
+        RadiusBottomRight: =Img_Profile_1.Height
+        RadiusTopLeft: =Img_Profile_1.Height
+        RadiusTopRight: =Img_Profile_1.Height
+        Width: =55
+        X: =15
+        Y: =9
+        ZIndex: =2
+
+    Btn_Nofication_1 As icon.Add:
+        Color: =RGBA(255, 255, 255, 1)
+        Height: =38
+        Icon: =Icon.Bell
+        OnSelect: =Navigate(Lir_Header_1.NotificationNavigationDisplay,ScreenTransition.Fade)
+        Tooltip: =
+        Width: =32
+        X: =Parent.Width - (Btn_Nofication_1.Width + 20)
+        Y: =19
+        ZIndex: =3
+
+    Shp_LeftButton_1 As rectangle:
+        BorderColor: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(250, 155, 112, 1)
+        Height: =3
+        Visible: =If(App.ActiveScreen.Name = Lir_Header_1.LeftNavigationActive,true,false)
+        Width: =80
+        X: =107
+        Y: =132
+        ZIndex: =4
+
+    Btn_LeftNav_1 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderThickness: =0
+        Color: =If(App.ActiveScreen.Name = Lir_Header_1.LeftNavigationActive,RGBA(250, 155, 112, 100),RGBA(255, 255, 255, 1))
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(255, 255, 255, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        Fill: =RGBA(0, 0, 0, 0)
+        FontWeight: =FontWeight.Bold
+        Height: =41
+        HoverBorderColor: =
+        HoverFill: =
+        OnSelect: =If(App.ActiveScreen.Name = Lir_Header_1.LeftNavigationActive,"", Navigate(Lir_Header_1.LeftNavigationDisplay,ScreenTransition.Fade))
+        PressedBorderColor: =
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =
+        Size: =20
+        Text: =Lir_Header_1.LeftNavigationText
+        Width: =280
+        X: =7
+        Y: =94
+        ZIndex: =5
+
+    Btn_RightNav_1 As button:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderThickness: =0
+        Color: =If(App.ActiveScreen.Name = Lir_Header_1.RightNavigationActive,RGBA(250, 155, 112, 100),RGBA(255, 255, 255, 1))
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(255, 255, 255, 1)
+        DisabledFill: =RGBA(0, 0, 0, 0)
+        Fill: =RGBA(0, 0, 0, 0)
+        FontWeight: =FontWeight.Bold
+        Height: =41
+        HoverBorderColor: =
+        HoverFill: =
+        OnSelect: =If(App.ActiveScreen.Name = Lir_Header_1.RightNavigationActive,"",Navigate(Lir_Header_1.RightNavigationDisplay,ScreenTransition.Fade))
+        PressedBorderColor: =
+        PressedColor: =RGBA(255, 255, 255, 1)
+        PressedFill: =
+        Size: =20
+        Text: =Lir_Header_1.RightNavigationText
+        Width: =280
+        X: =Parent.Width - (Btn_RightNav_1.Width + 5)
+        Y: =94
+        ZIndex: =6
+
+    Shp_RightButton_1 As rectangle:
+        BorderColor: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(250, 155, 112, 1)
+        Height: =3
+        Visible: =If(App.ActiveScreen.Name = Lir_Header_1.RightNavigationActive,true,false)
+        Width: =80
+        X: =Parent.Width - (Btn_RightNav_1.Width/2+Shp_RightButton_1.Width/2)
+        Y: =132
+        ZIndex: =7
+
+    Lbl_SubTitle_1 As label:
+        AutoHeight: =true
+        Color: =RGBA(255, 255, 255, 1)
+        Font: =Font.'Open Sans Condensed'
+        FontWeight: =FontWeight.Semibold
+        Size: =18
+        Text: =Lir_Header_1.Subtitle
+        Visible: =Lir_Header_1.SubtitleVisible
+        Width: =559
+        X: =70
+        Y: =75
+        ZIndex: =8
+
+    Rectangle5_1 As rectangle:
+        Fill: =RGBA(96, 96, 98, 0.83)
+        Height: =Parent.Height
+        Visible: =VarSearchVisible && Lir_Header_1.SearchFormVisible
+        Width: =Parent.Width
+        ZIndex: =9
+
+    Txt_SearchForm_1 As text:
+        BorderColor: =RGBA(116, 116, 116, 1)
+        Clear: =true
+        Default: =""
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        EnableSpellCheck: =true
+        Height: =80
+        HintText: =Lir_Header_1.HintSearchText
+        HoverBorderColor: =RGBA(149, 149, 149, 1)
+        HoverFill: =RGBA(255, 255, 255, 1)
+        OnChange: =If(VarSearchVisible = true,Set(VarSearchVisible,false),Set(VarSearchVisible,true))
+        PressedColor: =RGBA(0, 0, 0, 1)
+        Size: =24
+        Visible: =VarSearchVisible && Lir_Header_1.SearchFormVisible
+        Width: =Btn_Search_1.X - Txt_SearchForm_1.X - 5
+        X: =Parent.Width * 0.05
+        Y: =14
+        ZIndex: =10
+
+    Btn_Search_1 As icon.Add:
+        Color: =RGBA(255, 255, 255, 1)
+        Height: =38
+        Icon: =Icon.Search
+        OnSelect: =If(VarSearchVisible = true,Set(VarSearchVisible,false),Set(VarSearchVisible,true))
+        Tooltip: =
+        Visible: =Lir_Header_1.SearchFormVisible
+        Width: =32
+        X: =Parent.Width - (Btn_Search_1.Width + 20 + Btn_Nofication_1.Width + 20)
+        Y: =19
+        ZIndex: =11
+

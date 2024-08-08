@@ -1,0 +1,10 @@
+[
+  {
+    "ApiId": "/providers/microsoft.powerapps/apis/shared_logicflows",
+    "FlowNameId": "bda6a17a-1ace-4a67-8d27-b12d2dda45fa",
+    "Name": "Send_Team_Messagev2",
+    "ServiceKind": "ConnectedWadl",
+    "Type": "ServiceInfo",
+    "WorkflowEntityId": "abe2b4fd-09e5-ec11-bb3c-000d3a30a6e2"
+  }
+]

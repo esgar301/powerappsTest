@@ -1,0 +1,39 @@
+[
+  {
+    "ApiId": "/providers/microsoft.powerapps/apis/shared_sql",
+    "CdpRevision": {
+      "BaseUrl": "/v2",
+      "LastChangedTimeString": "2023-07-26T18:43:25.8860000Z",
+      "RevisionNumber": 2
+    },
+    "ConnectedDataSourceInfoNameMapping": {
+      "fl_approver_vc": "fl_approver_vc",
+      "fl_area_assigned_vc": "fl_area_assigned_vc",
+      "fl_classification": "fl_classification",
+      "fl_created_by_vc": "fl_created_by_vc",
+      "fl_created_date_dt": "fl_created_date_dt",
+      "fl_data_retention_vc": "fl_data_retention_vc",
+      "fl_form_description_vc": "fl_form_description_vc",
+      "fl_form_enable_bt": "fl_form_enable_bt",
+      "fl_form_number_vc": "fl_form_number_vc",
+      "fl_form_state_in": "fl_form_state_in",
+      "fl_form_type_in": "fl_form_type_in",
+      "fl_form_version_tin": "fl_form_version_tin",
+      "fl_frequency_vc": "fl_frequency_vc",
+      "fl_norm_vc": "fl_norm_vc",
+      "fl_parent_number_vc": "fl_parent_number_vc",
+      "fl_plant_id_in": "fl_plant_id_in",
+      "fl_powerbi_url_vc": "fl_powerbi_url_vc",
+      "fl_reviewer_vc": "fl_reviewer_vc",
+      "fl_single_parameters_bt": "fl_single_parameters_bt",
+      "fl_subarea_assigned_vc": "fl_subarea_assigned_vc",
+      "fl_table_id_in": "fl_table_id_in"
+    },
+    "DatasetName": "sql-tccc-cpf-test-1.database.windows.net,POF_LIR",
+    "EncodeDataset": false,
+    "IsSampleData": false,
+    "IsWritable": true,
+    "Name": "dsf.forms_library",
+    "Type": "ConnectedDataSourceInfo"
+  }
+]

@@ -1,0 +1,10 @@
+[
+  {
+    "ApiId": "/providers/microsoft.powerapps/apis/shared_logicflows",
+    "FlowNameId": "8ffbf436-54c0-41df-b9cd-8a77ea4547c6",
+    "Name": "lb_approval_acquire",
+    "ServiceKind": "ConnectedWadl",
+    "Type": "ServiceInfo",
+    "WorkflowEntityId": "a3734a60-fbe4-ec11-bb3c-000d3a30ac93"
+  }
+]

@@ -1,0 +1,10 @@
+[
+  {
+    "ApiId": "/providers/microsoft.powerapps/apis/shared_logicflows",
+    "FlowNameId": "fc7aabce-1153-44e4-93e5-69b939483a30",
+    "Name": "DSF_NewSAS",
+    "ServiceKind": "ConnectedWadl",
+    "Type": "ServiceInfo",
+    "WorkflowEntityId": "22fef346-32e5-ee11-904c-000d3a5aed0b"
+  }
+]

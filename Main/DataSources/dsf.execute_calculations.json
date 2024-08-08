@@ -1,0 +1,10 @@
+[
+  {
+    "ApiId": "/providers/microsoft.powerapps/apis/shared_logicflows",
+    "FlowNameId": "5eee722c-cff7-4d3b-a832-a3e6ca6da29d",
+    "Name": "dsf.execute_calculations",
+    "ServiceKind": "ConnectedWadl",
+    "Type": "ServiceInfo",
+    "WorkflowEntityId": "71c0d98c-ad24-ef11-840b-6045bd085d17"
+  }
+]

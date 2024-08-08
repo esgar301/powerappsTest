@@ -1,0 +1,1430 @@
+"'01_PRINCIPAL' As screen.'phoneLayout_FluidGridWithHeaderPageLayout_ver3.0'":
+    Fill: =stBackgroudColor
+    OnVisible: |
+        =//---------------------------------------------------------------------------------------------------- REFRESCA TABLAS
+        Refresh('dsf.form_library_counters');
+        Refresh('dsf.form_report');
+        
+        
+        //---------------------------------------------------------------------------------------------------- LIMPIA EL BUSCADOR
+        UpdateContext({VarBarcodeText: ""});
+        //---------------------------------------------------------------------------------------------------- POPULA LA LISTA DE FORMULARIOS
+        ClearCollect(
+            varFormsLibrary,
+            Filter(
+                'dsf.form_library_counters',
+                fl_plant_id_in = varPlantId,
+                fl_form_enable_bt = true,
+                fl_form_state_in <> 7
+            )
+        );
+        
+        //---------------------------------------------------------------------------------------------------------------------------------------- INDICADORE DE PENDIENTES
+        //----------------------------------------------------------------------------------------------------DETERMINA CUALES FORMULARIOS MOSTRAR
+        ClearCollect(
+            varFormsLibraryCT,
+            Filter(
+                'dsf.form_library_counters',
+                fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant,
+                fl_form_state_in = 2,
+                varUserEmail = fl_reviewer_vc Or IBMS = true
+            )
+        );
+        Collect(
+            varFormsLibraryCT,
+            Filter(
+                'dsf.form_library_counters',
+                fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant,
+                fl_form_state_in = 3,
+                IBMS = true
+            )
+        );
+        Collect(
+            varFormsLibraryCT,
+            Filter(
+                'dsf.form_library_counters',
+                fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant,
+                fl_form_state_in = 4,
+                varUserEmail = fl_approver_vc Or IBMS = true
+            )
+        );
+        //-----------------------------------------Default filters set for User
+        UpdateContext({varHomeFilter:true});
+        //----------------------------------------------------------------------------------------------------ACTUALIZA EL INDICADOR DE PENDIENTES
+        Set(TotalPending,CountRows(varFormsLibraryCT));
+        //If(IsBlank(colfilter1),Set(colfilter1,Split(LookUp('dsf.user_configuration',fl_user_email_id=varUserEmail).fl_default_filter_principal,"~")));
+        UpdateContext({varStarTimer:false});
+        UpdateContext({varStarTimer:true});
+
+    Timer1 As timer:
+        AutoStart: =true
+        Duration: =8000
+        Height: =70
+        OnTimerEnd: |-
+            =//----------------------------------------------------------------------------------------------------
+            Set(varUserEmisorReceptor,false);
+            If(!IsBlank(Param("FN")) And !IsBlank(Param("FD")) And VarAutoNavigationQR,
+            Set(VarLoadPage,true);
+            Set(varCompleteReader,0);
+            Set(varBackPopup,true);
+            UpdateContext({VarDateQR: Text(Now(),"[$-es-ES]yyyy/mm/dd hh:mm:ss")});
+            //Notify(Text(Param("FN")) & " ----- " & Text(Param("FD")) & " ----- " &  Text(VarDateQR));
+            fa_AnswerReport.Run(
+                    "",
+                    "",
+                    User().Email,
+                    "New",
+                    Text(Param("FN")),
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    VarDateQR,
+                    "",
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    varPlantId,
+                    1,
+                    0,
+                    0,
+                    0,
+                    Text(Now(),"[$-es-ES]yyyy/mm/dd hh:mm:ss"),1);
+            
+            qr_automatic_answer.Run(Text(Param("QR")),"New",Text(Param("FN")),Text(varPlantId),VarDateQR);
+            Refresh('dsf.answers_report');
+            Refresh('dsf.answers_report_release_process');
+            Set(varUserEmisorReceptor,false); //---Emisor
+            Clear(Q11_TemporalPictures);
+            Reset(Q14_QuestionAttachment);
+            Navigate(
+                '05_FORMULARIOS',
+                ScreenTransition.Fade,
+                {
+                    Pr_FormDescription: Text(Param("FD")),
+                    Pr_FormNumber: Text(Param("FN")),
+                    Pr_DateFilteDT:VarDateQR,
+                    Pr_DateFilterIn: Value(Year(DateValue(VarDateQR)) * 10000000000 + Month(DateValue(VarDateQR)) * 100000000 + Day(DateValue(VarDateQR)) * 1000000 + Hour(DateTimeValue(VarDateQR)) * 10000 + Minute(DateTimeValue(VarDateQR)) * 100 + Second(DateTimeValue(VarDateQR))),
+                    Pr_ReviewMode: 0,
+                    Pr_PartialRecord: 0
+                }
+            );
+            UpdateContext({varPrincipalLoading:false});
+            Set(VarAutoNavigationQR,false); 
+            , UpdateContext({varPrincipalLoading:false});
+            Set(VarLoadPage,false));
+        OnTimerStart: |-
+            =//----------------------------------------------------------------------------------------------------
+            If(!IsBlank(Param("FN")) And !IsBlank(Param("FD")) And VarAutoNavigationQR,
+            UpdateContext({varPrincipalLoading:true})
+            , UpdateContext({varPrincipalLoading:false}));
+        Repeat: =true
+        Visible: =false
+        Width: =280
+        X: =360
+        Y: =1066
+        ZIndex: =1
+
+    Principal_Header As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =20
+        ZIndex: =12
+
+        Principal_Header_Shp_NavBarTop As htmlViewer:
+            Height: =202
+            HtmlText: |-
+                ="<div style ='
+                
+                  margin-top:0px;
+                  margin-bottom:3px;
+                  margin-left:0px;
+                  margin-right:0px;
+                  width: "& Principal_Header_Shp_NavBarTop.Width &"px;
+                  height: "& Principal_Header_Shp_NavBarTop.Height - 21 &"px;
+                  background-color: #3BA5A8;
+                  box-shadow: rgba(0, 0, 0, 0.15) 3px 6px 18px;'
+                  <center>
+                  </center>
+                  </div>
+                "//rgba(203, 16, 18, 1)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Width: =Parent.Width
+            ZIndex: =7
+
+        Principal_Header_Lbl_ScreenTitle As label:
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =//"Arial Rounded MT"
+            Height: =67
+            Size: =32
+            Text: =Right(First(collAppLanguage).'Title Screen 1', Len(First(collAppLanguage).'Title Screen 1') -3)
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =Principal_Header_Lbl_ScreenSubTitle.Y - Self.Height
+            ZIndex: =8
+
+        Principal_Header_Lbl_ScreenSubTitle As label:
+            Color: =RGBA(241, 244, 249, 1)
+            Font: ="Unity"
+            FontWeight: =FontWeight.Lighter
+            Height: =29
+            Size: =12
+            Text: =First(collAppLanguage).Principal_Header_Lbl_ScreenSubTitle 
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =Principal_Header_Shp_NavBarTop.Height - Self.Height - 25
+            ZIndex: =9
+
+        Principal_Header_Btn_NotificationNav As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.Bell
+            OnSelect: =Navigate('04_NOTIFICACIONES',ScreenTransition.Cover)
+            Tooltip: ="Pending Task"
+            Width: =59
+            X: =Parent.Width - Self.Width - 30
+            Y: =33
+            ZIndex: =10
+
+        Principal_Header_Btn_ProfileNav As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.More
+            OnSelect: =Navigate('02_CONFIGURACIÓN',ScreenTransition.CoverRight)
+            Width: =59
+            X: =30
+            Y: =33
+            ZIndex: =11
+
+        Principal_Header_Shp_PendingIndicator As circle:
+            BorderColor: =RGBA(220, 153, 153, 1)
+            BorderThickness: =2
+            Fill: =RGBA(203, 102, 102, 1)
+            Height: =28
+            OnSelect: =Navigate('04_NOTIFICACIONES',ScreenTransition.Cover)
+            Visible: =If(TotalPending = 0 Or IsBlankOrError(TotalPending),false,true)
+            Width: =28
+            X: =Parent.Width - Self.Width - 30
+            Y: =30
+            ZIndex: =12
+
+        Principal_Header_Lbl_PendingIndicator As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =
+            FontWeight: =FontWeight.Bold
+            Height: =28
+            OnSelect: =Navigate('04_NOTIFICACIONES',ScreenTransition.Cover)
+            Size: =10
+            Text: |-
+                =//----------------------------------------------------------------------------------------------------MUESTRA CANTIDAD DE PENDIENTES
+                If(TotalPending > 9,"+9",TotalPending)
+            Visible: =If(TotalPending = 0 Or IsBlankOrError(TotalPending),false,true)
+            Width: =28
+            X: =Parent.Width - Self.Width - 30
+            Y: =31
+            ZIndex: =13
+
+    Principal_Footer As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =1019.1199999999999
+        ZIndex: =27
+
+        Principal_Footer_Shp_NavBarBottom As rectangle:
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =Parent.Height * 0.08
+            Width: =Parent.Width
+            Y: =Parent.Height - Self.Height
+            ZIndex: =14
+
+        Principal_Footer_Lbl_ConfidentialMessage As label:
+            Align: =Align.Center
+            Color: =RGBA(39, 67, 125, 1)
+            Font: ="Unity"
+            FontWeight: =FontWeight.Lighter
+            Height: =26
+            Size: =10
+            Text: ="Classified -  Confidential"
+            Visible: =!varHomeFilter
+            Width: =Parent.Width
+            Y: =Principal_Footer_Shp_NavBarBottom.Y - Self.Height
+            ZIndex: =15
+
+        Principal_Footer_Shp_ProgressBarUpdate As rectangle:
+            Fill: =RGBA(25, 178, 209, 1)
+            Height: =5
+            Width: =Parent.Width * (Principal_Other_Tmr_RefreshTimer.Value/Principal_Other_Tmr_RefreshTimer.Duration)
+            Y: =Parent.Height - Principal_Footer_Shp_ProgressBarUpdate.Height
+            ZIndex: =16
+
+        Principal_Footer_Icon_Home As icon.Add:
+            Color: =If(varHomeFilter,RGBA(40, 60, 97, 1), RGBA(25, 178, 209, 1))
+            Height: =Principal_Footer_Shp_NavBarBottom.Height * 0.6 
+            Icon: =Icon.Home
+            OnSelect: =
+            Width: =stIconWidth
+            X: =(Parent.Width / 5) * 1 - (Self.Width / 2)
+            Y: =Principal_Footer_Shp_NavBarBottom.Y + Principal_Footer_Shp_NavBarBottom.Height * 0.1
+            ZIndex: =17
+
+        Principal_Footer_Icon_Report As icon.Add:
+            Color: =RGBA(40, 60, 97, 1)
+            Height: =Principal_Footer_Shp_NavBarBottom.Height * 0.6 
+            Icon: =Icon.TrendingUpwards
+            OnSelect: =
+            Width: =stIconWidth
+            X: =(Parent.Width / 5) * 2 - (Self.Width / 2)
+            Y: =Principal_Footer_Shp_NavBarBottom.Y + Principal_Footer_Shp_NavBarBottom.Height * 0.1
+            ZIndex: =18
+
+        Principal_Footer_Icon_PendingLabels As icon.Add:
+            Color: =RGBA(40, 60, 97, 1)
+            Height: =Principal_Footer_Shp_NavBarBottom.Height * 0.6 
+            Icon: =Icon.LevelsLayersItems
+            OnSelect: =
+            Width: =stIconWidth
+            X: =(Parent.Width / 5) * 3 - (Self.Width / 2)
+            Y: =Principal_Footer_Shp_NavBarBottom.Y + Principal_Footer_Shp_NavBarBottom.Height * 0.1
+            ZIndex: =19
+
+        Principal_Footer_Lbl_PendingLabels As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(130, 141, 158, 1)
+            Font: =stFontType
+            FontWeight: =FontWeight.Lighter
+            Height: =17
+            OnSelect: =
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: =First(collAppLanguage).Lbl_RightButton_2
+            VerticalAlign: =VerticalAlign.Top
+            Width: =90
+            Wrap: =false
+            X: =(Parent.Width / 5) * 3 - (Self.Width / 2)
+            Y: =Parent.Height - Self.Height - Principal_Footer_Icon_PendingLabels.Height * 0.1
+            ZIndex: =20
+
+        Principal_Footer_Lbl_Report As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(130, 141, 158, 1)
+            Font: =stFontType
+            FontWeight: =FontWeight.Lighter
+            Height: =17
+            OnSelect: =
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: =First(collAppLanguage).Principal_Footer_Lbl_Report
+            VerticalAlign: =VerticalAlign.Top
+            Width: =90
+            Wrap: =false
+            X: =(Parent.Width / 5) * 2 - (Self.Width / 2)
+            Y: =Parent.Height - Self.Height - Principal_Footer_Icon_Report.Height * 0.1
+            ZIndex: =21
+
+        Principal_Footer_Lbl_Home As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(130, 141, 158, 1)
+            Font: =stFontType
+            FontWeight: =FontWeight.Lighter
+            Height: =17
+            OnSelect: =
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: =First(collAppLanguage).Principal_Footer_Lbl_Home
+            VerticalAlign: =VerticalAlign.Top
+            Width: =90
+            Wrap: =false
+            X: =(Parent.Width / 5) * 1 - (Self.Width / 2)
+            Y: =Parent.Height - Self.Height - Principal_Footer_Icon_Home.Height * 0.1
+            ZIndex: =22
+
+        Principal_Footer_Btn_ReportNav As button:
+            AutoDisableOnSelect: =false
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderThickness: =0
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =Principal_Footer_Shp_NavBarBottom.Height
+            HoverBorderColor: =
+            HoverFill: =
+            OnSelect: |-
+                =//Notify("This section is temporarily inactive. We are developing new features to improve your data analysis.",NotificationType.Information,6000)
+                Launch(varPlant_Report)
+            PressedBorderColor: =
+            PressedColor: =
+            PressedFill: =
+            Size: =24
+            Text: =""
+            Tooltip: =
+            Width: =95
+            X: =(Parent.Width / 5) * 2 - (Self.Width / 2)
+            Y: =Parent.Height - Self.Height
+            ZIndex: =23
+
+        Principal_Footer_Btn_PendingLabelsNav As button:
+            AutoDisableOnSelect: =false
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderThickness: =0
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =Principal_Footer_Shp_NavBarBottom.Height
+            HoverBorderColor: =
+            HoverFill: =
+            OnSelect: |-
+                =//----------------------------------------------------------------------------------------------------HABILITADO UNICAMENTE PARA LIBERIA
+                If(
+                    varPlantId = 5144,
+                    Navigate(
+                        '08_SOLICITUDES PENDIENTES',
+                        ScreenTransition.Fade
+                    ),
+                    Notify(
+                        First(collAppLanguage).Btn_RightButton_01,
+                        NotificationType.Warning,
+                        2000
+                    )
+                )
+            PressedBorderColor: =
+            PressedColor: =
+            PressedFill: =
+            Size: =24
+            Text: =""
+            Tooltip: =
+            Width: =95
+            X: =(Parent.Width / 5) * 3 - (Self.Width / 2)
+            Y: =Parent.Height - Self.Height
+            ZIndex: =24
+
+        Principal_Footer_Btn_HomeNav As button:
+            AutoDisableOnSelect: =false
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderThickness: =0
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =Principal_Footer_Shp_NavBarBottom.Height
+            HoverBorderColor: =
+            HoverFill: =
+            OnSelect: |-
+                =UpdateContext({varHomeFilter:false})
+            PressedBorderColor: =
+            PressedColor: =
+            PressedFill: =
+            Size: =24
+            Text: =""
+            Tooltip: =
+            Width: =95
+            X: =(Parent.Width / 5) * 1 - (Self.Width / 2)
+            Y: =Parent.Height - Self.Height
+            ZIndex: =25
+
+    Accion_ActualRequest_Icon_Filter_2 As icon.Filter:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        Color: =RGBA(255, 255, 255, 1)
+        FocusedBorderThickness: =0
+        Height: =49
+        Icon: =Icon.Filter
+        OnSelect: |-
+            =UpdateContext({varHomeFilter:!varHomeFilter})
+        Tooltip: ="Pending Task"
+        Visible: =true//If(CountRows(Accion_ActualRequestList.AllItems) = 0 Or IsBlankOrError(CountRows(Accion_ActualRequestList.AllItems)),false,true)
+        Width: =59
+        X: =Principal_Header_Lbl_ScreenSubTitle.X+Principal_Header_Lbl_ScreenSubTitle.Width-Self.Width
+        Y: =Principal_Header_Lbl_ScreenSubTitle.Y-Self.Width/2
+        ZIndex: =31
+
+    Principal_Footer_Icon_Central_Dashboard As icon.Add:
+        Color: =RGBA(40, 60, 97, 1)
+        Height: =Principal_Footer_Shp_NavBarBottom.Height * 0.6 
+        Icon: =Icon.Trending
+        OnSelect: =
+        Width: =stIconWidth
+        X: =(Parent.Width / 5) * 4 - (Self.Width / 2)
+        Y: =Principal_Footer_Shp_NavBarBottom.Y + Principal_Footer_Shp_NavBarBottom.Height * 0.1
+        ZIndex: =32
+
+    Principal_Footer_Lbl_Central_Dashboard As label:
+        Align: =Align.Center
+        BorderColor: =RGBA(0, 0, 0, 1)
+        Color: =RGBA(130, 141, 158, 1)
+        Font: =stFontType
+        FontWeight: =FontWeight.Lighter
+        Height: =17
+        OnSelect: =
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Size: =10
+        Text: ="Central DashBoard "
+        VerticalAlign: =VerticalAlign.Top
+        Width: =120
+        Wrap: =false
+        X: =(Parent.Width / 5) * 4 - (Self.Width / 2)
+        Y: =Parent.Height - Self.Height - Principal_Footer_Icon_Central_Dashboard.Height * 0.1
+        ZIndex: =33
+
+    Principal_Footer_Btn_Central_Dashboard As button:
+        AutoDisableOnSelect: =false
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderThickness: =0
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        DisabledColor: =RGBA(0, 0, 0, 0)
+        Fill: =RGBA(0, 0, 0, 0)
+        Height: =Principal_Footer_Shp_NavBarBottom.Height
+        HoverBorderColor: =
+        HoverFill: =
+        OnSelect: |-
+            =//Notify("This section is temporarily inactive. We are developing new features to improve your data analysis.",NotificationType.Information,6000)
+            Launch(varCentral_DashBoard_Report)
+        PressedBorderColor: =
+        PressedColor: =
+        PressedFill: =
+        Size: =24
+        Text: =""
+        Tooltip: =
+        Width: =95
+        X: =(Parent.Width / 5) * 4 - (Self.Width / 2)
+        Y: =Parent.Height - Self.Height
+        ZIndex: =34
+
+    Container9 As groupContainer.manualLayoutContainer:
+        Height: =Parent.Height-Principal_Header_Shp_NavBarTop.Y-Principal_Header_Shp_NavBarTop.Height-(Parent.Height-Principal_Footer_Shp_NavBarBottom.Y)
+        Width: =Parent.Width
+        Y: =Principal_Header_Shp_NavBarTop.Height
+        ZIndex: =35
+
+        "Principal_FormList As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
+            '#CopilotOverlayLabel': ="Filtered"
+            BorderStyle: =BorderStyle.None
+            Height: =Parent.Height-Container6.Height-5
+            Items: |-
+                =Filter(
+                    Filter(
+                        varFormsLibrary,
+                        fl_plant_id_in = varPlantId,
+                        If(IsBlank(Principal_Filters_Cb_Department.Selected),fl_area_assigned_vc = fl_area_assigned_vc, fl_area_assigned_vc in Concat(Principal_Filters_Cb_Department.SelectedItems,fd_department_name_vc & ",")),
+                        If(IsBlank(Principal_Filters_Cb_Subdepartment.Selected),fl_subarea_assigned_vc = fl_subarea_assigned_vc, fl_subarea_assigned_vc in Concat(Principal_Filters_Cb_Subdepartment.SelectedItems,Result & ",")),
+                        If(IsBlank(Principal_Filters_Cb_Frequency.Selected),fl_frequency_vc = fl_frequency_vc, fl_frequency_vc in Concat(Principal_Filters_Cb_Frequency.SelectedItems,ff_frequency_name_vc & ",")),
+                        If(IsBlank(Principal_Filters_Cb_Type.Selected),fl_classification = fl_classification, fl_classification in Concat(Principal_Filters_Cb_Type.SelectedItems,ft_classification_name_vc & ","))
+                        ),
+                    Principal_Filters_Txt_SearchBar.Text in fl_form_description_vc Or 
+                    Principal_Filters_Txt_SearchBar.Text in fl_form_number_vc
+                )
+            Layout: =Layout.Vertical
+            TemplatePadding: =0
+            TemplateSize: =200
+            Visible: |-
+                =//!varHomeFilter
+                true
+            Width: =Parent.Width
+            WrapCount: =0
+            Y: =Container6.Y+Container6.Height
+            ZIndex: =1
+
+            Principal_FormList_Shp_BackgroudItem As htmlViewer:
+                Fill: =RGBA(0, 0, 0, 0)
+                Height: =Principal_FormList.TemplateHeight
+                HtmlText: |-
+                    ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:0.8;background-color:#FFFFFF;box-shadow:0 3px 6px 1px  #ccc; border-radius:30px'></div>"
+                Width: =Parent.Width-20
+                ZIndex: =1
+
+            Principal_FormList_Img_FormItem As image:
+                Height: =86
+                Image: ='png-clipart-computer-icons-checkbox-checklist-others-miscellaneous-logo'
+                OnSelect: =Select(Parent)
+                Width: =75
+                X: =8
+                ZIndex: =2
+
+            Principal_FormList_Lbl_FormNumberItem As label:
+                BorderColor: =RGBA(0, 0, 0, 1)
+                Color: =RGBA(128, 128, 128, 1)
+                Font: ="Unity"
+                Height: =Self.Size * 1.8
+                OnSelect: =Select(Parent)
+                PaddingBottom: =0
+                PaddingLeft: =0
+                PaddingRight: =0
+                PaddingTop: =0
+                Size: =16
+                Text: =ThisItem.fl_form_number_vc
+                VerticalAlign: =VerticalAlign.Top
+                Width: =Principal_FormList_Btn_OpenForm.X - Self.X
+                X: =Principal_FormList_Img_FormItem.X + Principal_FormList_Img_FormItem.Width + 10
+                Y: =90
+                ZIndex: =3
+
+            Principal_FormList_Btn_OpenForm As icon.ChevronRight:
+                AccessibleLabel: =Self.Tooltip
+                BorderColor: =RGBA(0, 0, 0, 0)
+                Color: =If(ThisItem.fl_form_enable_bt = true,RGBA(59, 165, 168, 1),RGBA(166, 166, 166, 100))
+                DisplayMode: =If(ThisItem.fl_form_enable_bt = true,DisplayMode.Edit,DisplayMode.View)
+                Height: =Principal_FormList.TemplateHeight
+                Icon: =If(ThisItem.fl_form_enable_bt = true,Icon.ChevronRight,Icon.Lock)
+                OnSelect: |-
+                    =If(
+                        ThisItem.fl_form_description_vc = "Registro Etiquetas",
+                        Navigate(
+                            '07_SOLICITUD',
+                            ScreenTransition.Cover,
+                            {
+                                Pr_FormDescription: ThisItem.fl_form_description_vc,
+                                Pr_FormNumber: ThisItem.fl_form_number_vc
+                            }
+                        ),
+                        Navigate(
+                            '03_ACCIÓN',
+                            ScreenTransition.Cover,
+                            {
+                                Pr_FormDescription: ThisItem.fl_form_description_vc,
+                                Pr_FormNumber: ThisItem.fl_form_number_vc,
+                                Pr_FormReviewMode: 0,
+                                Pr_FormFrequency: ThisItem.fl_frequency_vc
+                            }
+                        );
+                        Set(StartTimerBlob1,true);
+                        Set(varDeeplinkComplete,true);
+                    )
+                PaddingBottom: =10
+                PaddingLeft: =10
+                PaddingRight: =10
+                PaddingTop: =10
+                TabIndex: =0
+                Width: =94
+                X: =Principal_FormList_Shp_BackgroudItem.Width - Self.Width - 10
+                ZIndex: =4
+
+            Principal_FormList_Lbl_FormDescriptionItem As label:
+                BorderColor: =RGBA(0, 0, 0, 1)
+                Color: =If(ThisItem.fl_form_enable_bt = true,RGBA(40, 60, 97, 1),RGBA(166, 166, 166, 100))
+                Font: =//"Unity"
+                FontWeight: =FontWeight.Semibold
+                Height: =Principal_FormList_Lbl_FormNumberItem.Y - 17
+                OnSelect: =Select(Parent)
+                PaddingLeft: =0
+                Size: =20
+                Text: =ThisItem.fl_form_description_vc 
+                VerticalAlign: =VerticalAlign.Bottom
+                Width: =Principal_FormList_Btn_OpenForm.X - Self.X
+                Wrap: =false
+                X: =Principal_FormList_Img_FormItem.X + Principal_FormList_Img_FormItem.Width + 10
+                Y: =17
+                ZIndex: =5
+
+            Principal_FormList_Lbl_FormDescriptionItem_1 As label:
+                Align: =Align.Center
+                BorderColor: =RGBA(0, 0, 0, 1)
+                Color: =If(ThisItem.fl_form_enable_bt = true,RGBA(40, 60, 97, 1),RGBA(166, 166, 166, 100))
+                Font: =//"Unity"
+                FontWeight: =FontWeight.Semibold
+                Height: =52
+                OnSelect: =Select(Parent)
+                PaddingLeft: =0
+                Size: =Switch(App.ActiveScreen.Size,1,15,25)
+                Text: =ThisItem.PendingUser01
+                Width: =60
+                Wrap: =false
+                X: =Principal_FormList_Lbl_FormNumberItem_1.X - Self.Width - Switch(App.ActiveScreen.Size,1,2,10)
+                Y: =Principal_FormList_Shp_BackgroudItem.Height - Self.Height - 20
+                ZIndex: =22
+
+            Principal_FormList_Lbl_FormDescriptionItem_2 As label:
+                Align: =Align.Center
+                BorderColor: =RGBA(0, 0, 0, 1)
+                Color: =If(ThisItem.fl_form_enable_bt = true,RGBA(40, 60, 97, 1),RGBA(166, 166, 166, 100))
+                Font: =//"Unity"
+                FontWeight: =FontWeight.Semibold
+                Height: =52
+                OnSelect: =Select(Parent)
+                PaddingLeft: =0
+                Size: =Switch(App.ActiveScreen.Size,1,15,25)
+                Text: =ThisItem.PendingUser02 + ThisItem.InProgressUser01
+                Width: =60
+                Wrap: =false
+                X: =Principal_FormList_Btn_OpenForm.X - Self.Width - Switch(App.ActiveScreen.Size,1,2,20)
+                Y: =Principal_FormList_Shp_BackgroudItem.Height - Self.Height - 20
+                ZIndex: =23
+
+            Principal_FormList_Lbl_FormNumberItem_1 As label:
+                Align: =Align.Right
+                BorderColor: =RGBA(0, 0, 0, 1)
+                Color: =RGBA(128, 128, 128, 1)
+                Font: ="Unity"
+                FontWeight: =FontWeight.Lighter
+                Height: =33
+                OnSelect: =Select(Parent)
+                PaddingBottom: =0
+                PaddingLeft: =0
+                PaddingRight: =0
+                PaddingTop: =0
+                Size: =Switch(App.ActiveScreen.Size,1,15,18)
+                Text: |-
+                    ="Pending by others" & ":"
+                Tooltip: =Self.Width
+                Width: =Min(Parent.Width * 0.22,400)
+                Wrap: =false
+                X: =Principal_FormList_Lbl_FormDescriptionItem_2.X - Self.Width
+                Y: =Principal_FormList_Lbl_FormDescriptionItem_2.Y + Principal_FormList_Lbl_FormDescriptionItem_2.Height/2 - Self.Height/2
+                ZIndex: =24
+
+            Principal_FormList_Lbl_FormNumberItem_2 As label:
+                Align: =Align.Right
+                BorderColor: =RGBA(0, 0, 0, 1)
+                Color: =RGBA(128, 128, 128, 1)
+                Font: ="Unity"
+                FontWeight: =FontWeight.Lighter
+                Height: =33
+                OnSelect: =Select(Parent)
+                PaddingBottom: =0
+                PaddingLeft: =0
+                PaddingRight: =0
+                PaddingTop: =0
+                Size: =Switch(App.ActiveScreen.Size,1,15,18)
+                Text: |-
+                    =First(collAppLanguage).Sts_01 & ":"
+                Width: =Min(Parent.Width * 0.22,400)
+                Wrap: =false
+                X: =Principal_FormList_Lbl_FormDescriptionItem_1.X - Self.Width
+                Y: =Principal_FormList_Lbl_FormDescriptionItem_2.Y + Principal_FormList_Lbl_FormDescriptionItem_2.Height/2 - Self.Height/2
+                ZIndex: =25
+
+        Container6 As groupContainer:
+            DropShadow: =DropShadow.Regular
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: |-
+                =If(varHomeFilter,
+                If(Principal_Filters_Txt_SearchBar.Y<>Principal_Filters_Cb_Frequency.Y,
+                Principal_Filters_Cb_Frequency.Height+Principal_Filters_Txt_SearchBar.Height+50,Principal_Filters_Txt_SearchBar.Height+70),0)
+            RadiusBottomLeft: =15
+            RadiusBottomRight: =15
+            RadiusTopLeft: =15
+            RadiusTopRight: =15
+            Visible: =varHomeFilter
+            Width: =Parent.Width-40
+            X: =20
+            Y: =20
+            ZIndex: =2
+
+            Principal_Filters_Txt_SearchBar As text:
+                BorderColor: =RGBA(149, 149, 149, 1)
+                Default: =""
+                Fill: =RGBA(241, 244, 249, 1)
+                Font: ="Unity"
+                Height: =55
+                HintText: ="🔍 Search"
+                HoverBorderColor: =RGBA(149, 149, 149, 1)
+                Reset: =varFilterReset
+                Size: =15
+                Visible: =varHomeFilter
+                Width: |
+                    =If(
+                        App.Width > 5000, (Parent.Width * 0.8) / 10 - 5,
+                        App.Width > 4000, (Parent.Width * 0.8) / 9 - 5,
+                        App.Width > 3000, (Parent.Width * 0.8) / 8 - 5,
+                        App.Width > 2000, (Parent.Width * 0.8) / 7 - 5,
+                        App.Width > 1100, (Parent.Width * 0.8) / 5 - 5,
+                        App.Width > 982, (Parent.Width * 0.8) / 5 - 5,
+                        (Parent.Width * 0.9) / 3 - 5
+                    )
+                X: |-
+                    =Principal_Header_Lbl_ScreenSubTitle.X-5
+                    //Parent.Width/2 - Self.Width/2 //- 10
+                Y: =25
+                ZIndex: =2
+
+            Principal_Filters_Cb_Subdepartment As combobox:
+                BorderColor: =RGBA(202, 202, 202, 1)
+                ChevronBackground: =RGBA(149, 149, 149, 1)
+                ChevronDisabledBackground: =RGBA(59, 165, 168, 1)
+                ChevronHoverBackground: =RGBA(59, 165, 168, 1)
+                DefaultSelectedItems: |
+                    =
+                    Filter(
+                    ForAll(Distinct(Filter('dsf.form_subdepartment',fsd_plant_id_in = varPlantId),fsd_subdepartment_name_vc), {Result: ThisRecord.Value}), Result in Split(Last(FirstN(colfilter1,2)).Value,"|"))
+                DisplayFields: =["Result"]
+                Font: ="Unity"
+                Height: =55
+                HoverFill: =RGBA(94, 186, 189, 1)
+                InputTextPlaceholder: =First(collAppLanguage).Principal_Filters_Lbl_SubDepartment
+                Items: |-
+                    =
+                    
+                    ForAll(Distinct(Filter('dsf.form_subdepartment',fsd_plant_id_in = varPlantId),fsd_subdepartment_name_vc), {Result: ThisRecord.Value})
+                PressedFill: =RGBA(59, 165, 168, 1)
+                Reset: =varFilterReset
+                SearchFields: =["Result"]
+                SearchItems: |-
+                    =Search(ForAll(Distinct(Filter('dsf.form_subdepartment',fsd_plant_id_in=varPlantId),fsd_subdepartment_name_vc),{Result:ThisRecord.Value}),Principal_Filters_Cb_Subdepartment.SearchText,Result)
+                SelectionFill: =RGBA(149, 149, 149, 1)
+                Size: =15
+                Visible: =varHomeFilter
+                Width: |
+                    =If(
+                        App.Width > 5000, (Parent.Width * 0.8) / 10 - 5,
+                        App.Width > 4000, (Parent.Width * 0.8) / 9 - 5,
+                        App.Width > 3000, (Parent.Width * 0.8) / 8 - 5,
+                        App.Width > 2000, (Parent.Width * 0.8) / 7 - 5,
+                        App.Width > 1100, (Parent.Width * 0.8) / 5 - 5,
+                        App.Width > 982, (Parent.Width * 0.8) / 5 - 5,
+                        (Parent.Width * 0.9) / 3 - 5
+                    )
+                X: =Principal_Filters_Cb_Department.X+Principal_Filters_Cb_Department.Width+10
+                Y: =Principal_Filters_Txt_SearchBar.Y
+                ZIndex: =3
+
+            Principal_Filters_Cb_Frequency As combobox:
+                BorderColor: =RGBA(202, 202, 202, 1)
+                ChevronBackground: =RGBA(149, 149, 149, 1)
+                ChevronDisabledBackground: =RGBA(59, 165, 168, 1)
+                ChevronHoverBackground: =RGBA(59, 165, 168, 1)
+                DefaultSelectedItems: |
+                    =//Split(Last(FirstN(colfilter1,3)).Value,"|")
+                    
+                    Filter(Filter('dsf.form_frequency',  ff_plant_id_in = varPlantId),ff_frequency_name_vc in Split(Last(FirstN(colfilter1,3)).Value,"|") )
+                    /*Filter(
+                    ForAll(Distinct(Filter('dsf.form_frequency',ff_plant_id_in = varPlantId),ff_frequency_name_vc), {Result: ThisRecord.Value}), Result in Split(Last(FirstN(colfilter1,2)).Value,"|"))*/
+                DisplayFields: =["ff_frequency_name_vc"]
+                Font: ="Unity"
+                Height: =55
+                HoverFill: =RGBA(94, 186, 189, 1)
+                InputTextPlaceholder: =First(collAppLanguage).Principal_Filters_Lbl_Frequency
+                Items: =Filter('dsf.form_frequency',ff_plant_id_in = varPlantId)
+                PressedFill: =RGBA(59, 165, 168, 1)
+                Reset: =varFilterReset
+                SearchFields: =["ff_frequency_name_vc"]
+                SearchItems: =Search(Filter('dsf.form_frequency',ff_plant_id_in=varPlantId),Principal_Filters_Cb_Frequency.SearchText,ff_frequency_name_vc)
+                SelectionFill: =RGBA(149, 149, 149, 1)
+                Size: =15
+                Visible: =varHomeFilter
+                Width: |
+                    =If(
+                        App.Width > 5000, (Parent.Width * 0.8) / 10 - 5,
+                        App.Width > 4000, (Parent.Width * 0.8) / 9 - 5,
+                        App.Width > 3000, (Parent.Width * 0.8) / 8 - 5,
+                        App.Width > 2000, (Parent.Width * 0.8) / 7 - 5,
+                        App.Width > 1100, (Parent.Width * 0.8) / 5 - 5,
+                        App.Width > 982, (Parent.Width * 0.8) / 5 - 5,
+                        (Parent.Width * 0.9) / 3 - 5
+                    )
+                X: |-
+                    =
+                    If(App.Width>982,
+                    Principal_Filters_Cb_Subdepartment.X+Principal_Filters_Cb_Subdepartment.Width+10,Principal_Filters_Txt_SearchBar.X)
+                Y: |-
+                    =
+                    If(App.Width<982,
+                    Principal_Filters_Txt_SearchBar.Y+Principal_Filters_Txt_SearchBar.Height+10,Principal_Filters_Txt_SearchBar.Y)
+                ZIndex: =4
+
+            Principal_Filters_Cb_Department As combobox:
+                BorderColor: =RGBA(202, 202, 202, 1)
+                ChevronBackground: =RGBA(149, 149, 149, 1)
+                ChevronDisabledBackground: =RGBA(59, 165, 168, 1)
+                ChevronHoverBackground: =RGBA(59, 165, 168, 1)
+                DefaultSelectedItems: =Filter('dsf.form_department',fd_department_name_vc=First(colfilter1).Value)
+                DisplayFields: =["fd_department_name_vc"]
+                Font: ="Unity"
+                Height: =55
+                HoverFill: =RGBA(94, 186, 189, 1)
+                InputTextPlaceholder: =First(collAppLanguage).Principal_Filters_Lbl_Department
+                Items: =Filter('dsf.form_department',fd_plant_id_in = varPlantId)
+                OnChange: =
+                PressedFill: =RGBA(59, 165, 168, 1)
+                Reset: =varFilterReset
+                SearchFields: =["fd_department_name_vc"]
+                SearchItems: =Search(Filter('dsf.form_department',fd_plant_id_in=varPlantId),Principal_Filters_Cb_Department.SearchText,fd_department_name_vc)
+                SelectionFill: =RGBA(149, 149, 149, 1)
+                SelectMultiple: =false
+                Size: |-
+                    =//If(App.Width > 982,15,12)
+                    15
+                Visible: =varHomeFilter
+                Width: |
+                    =If(
+                        App.Width > 5000, (Parent.Width * 0.8) / 10 - 5,
+                        App.Width > 4000, (Parent.Width * 0.8) / 9 - 5,
+                        App.Width > 3000, (Parent.Width * 0.8) / 8 - 5,
+                        App.Width > 2000, (Parent.Width * 0.8) / 7 - 5,
+                        App.Width > 1100, (Parent.Width * 0.8) / 5 - 5,
+                        App.Width > 982, (Parent.Width * 0.8) / 5 - 5,
+                        (Parent.Width * 0.9) / 3 - 5
+                    )
+                X: =Principal_Filters_Txt_SearchBar.X+Principal_Filters_Txt_SearchBar.Width+10
+                Y: =Principal_Filters_Txt_SearchBar.Y
+                ZIndex: =5
+
+            Principal_Filters_Cb_Type As combobox:
+                BorderColor: =RGBA(202, 202, 202, 1)
+                ChevronBackground: =RGBA(149, 149, 149, 1)
+                ChevronDisabledBackground: =RGBA(59, 165, 168, 1)
+                ChevronHoverBackground: =RGBA(59, 165, 168, 1)
+                DefaultSelectedItems: |-
+                    =//Split(Last(FirstN(colfilter1,4)).Value,"|")
+                    Filter(
+                    Filter('dsf.form_classification',ft_plant_id_in = varPlantId),ft_classification_name_vc in Split(Last(FirstN(colfilter1,4)).Value,"|"))
+                DisplayFields: =["ft_classification_name_vc"]
+                Font: ="Unity"
+                Height: =55
+                HoverFill: =RGBA(94, 186, 189, 1)
+                InputTextPlaceholder: =First(collAppLanguage).Principal_Filters_Lbl_Type
+                Items: =Filter('dsf.form_classification',ft_plant_id_in = varPlantId)
+                PressedFill: =RGBA(59, 165, 168, 1)
+                Reset: =varFilterReset
+                SearchFields: =["ft_classification_name_vc"]
+                SearchItems: =Search(Filter('dsf.form_classification',ft_plant_id_in=varPlantId),Principal_Filters_Cb_Type.SearchText,ft_classification_name_vc)
+                SelectionFill: =RGBA(149, 149, 149, 1)
+                Size: =15
+                Visible: =varHomeFilter
+                Width: |
+                    =If(
+                        App.Width > 5000, (Parent.Width * 0.8) / 10 - 5,
+                        App.Width > 4000, (Parent.Width * 0.8) / 9 - 5,
+                        App.Width > 3000, (Parent.Width * 0.8) / 8 - 5,
+                        App.Width > 2000, (Parent.Width * 0.8) / 7 - 5,
+                        App.Width > 1100, (Parent.Width * 0.8) / 5 - 5,
+                        App.Width > 982, (Parent.Width * 0.8) / 5 - 5,
+                        (Parent.Width * 0.9) / 3 - 5
+                    )
+                X: =Principal_Filters_Cb_Frequency.X+Principal_Filters_Cb_Frequency.Width+10
+                Y: =Principal_Filters_Cb_Frequency.Y
+                ZIndex: =6
+
+            Principal_Filters_Lbl_TotalItems As label:
+                BorderColor: =RGBA(0, 0, 0, 1)
+                Color: =RGBA(40, 60, 97, 1)
+                Font: ="Unity"
+                OnSelect: =
+                PaddingLeft: =0
+                Size: =12
+                Text: |-
+                    ="Forms: " & CountRows(Principal_FormList.AllItems) 
+                Visible: =varHomeFilter
+                Width: =100
+                Wrap: =false
+                X: =Principal_Filters_Cb_Type.X+Principal_Filters_Cb_Type.Width+10
+                Y: =Principal_Filters_Cb_Type.Y
+                ZIndex: =7
+
+            Button2 As button:
+                Fill: =RGBA(59, 165, 168, 1)
+                Height: =50
+                HoverFill: =ColorFade(RGBA(59, 165, 168, 1), -20%)
+                OnSelect: |-
+                    =dsf_updateorsave_userconfiguration.Run(varUserEmail,Concatenate(Principal_Filters_Cb_Department.Selected.fd_department_name_vc,"~",Concat(Principal_Filters_Cb_Subdepartment.SelectedItems,Result,"|"),"~",Concat(Principal_Filters_Cb_Frequency.SelectedItems,ff_frequency_name_vc,"|"),"~",Concat(Principal_Filters_Cb_Type.SelectedItems,ft_classification_name_vc,"|")));
+                    
+                    
+                    /*
+                    If(IsBlank(LookUp('dsf.user_configuration',fl_user_email_id=varUserEmail)),
+                    Patch('dsf.user_configuration',Defaults('dsf.user_configuration'),{fl_user_email_id:varUserEmail,fl_default_filter_principal:Concatenate(Principal_Filters_Cb_Department.Selected.fd_department_name_vc,"~",Concat(Principal_Filters_Cb_Subdepartment.SelectedItems,Result,"|"),"~",Concat(Principal_Filters_Cb_Frequency.SelectedItems,ff_frequency_name_vc,"|"),"~",Concat(Principal_Filters_Cb_Type.SelectedItems,ft_classification_name_vc,"|"))})
+                    ,
+                    
+                    UpdateIf('dsf.user_configuration',fl_user_email_id=varUserEmail,{fl_default_filter_principal:Concatenate(Principal_Filters_Cb_Department.Selected.fd_department_name_vc,"~",Concat(Principal_Filters_Cb_Subdepartment.SelectedItems,Result,"|"),"~",Concat(Principal_Filters_Cb_Frequency.SelectedItems,ff_frequency_name_vc,"|"),"~",Concat(Principal_Filters_Cb_Type.SelectedItems,ft_classification_name_vc,"|"))}))*/
+                Size: =If(App.Width<982,12,16)
+                Text: ="Save Filter"
+                Visible: =varHomeFilter
+                Width: =If(App.Width<982,80,150)
+                X: |-
+                    =If(App.Width<982,
+                    Principal_Filters_Lbl_TotalItems.X+Principal_Filters_Lbl_TotalItems.Width,Principal_Filters_Lbl_TotalItems.X+Principal_Filters_Lbl_TotalItems.Width+10)
+                Y: =Principal_Filters_Lbl_TotalItems.Y
+                ZIndex: =8
+
+    Principal_UserLogin As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =35
+
+        Principal_UserLogin_Rectangle1_24 As rectangle:
+            BorderColor: =RGBA(101, 128, 187, 1)
+            Fill: =RGBA(96, 96, 98, 0.9)
+            Height: =Parent.Height
+            Visible: |-
+                =false /*If(
+                    IsBlank(varPlantId),
+                    true,
+                    false
+                )*/
+            Width: =Parent.Width
+            ZIndex: =2
+
+        Principal_UserLogin_Rectangle1_27 As rectangle:
+            BorderColor: =RGBA(153, 153, 153, 1)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =4
+            Fill: =RGBA(230, 230, 230, 1)
+            Height: =342
+            Visible: |-
+                =false /*If(
+                    IsBlank(varPlantId),
+                    true,
+                    false
+                )*/
+            Width: =Parent.Width
+            Y: =430
+            ZIndex: =3
+
+        Principal_UserLogin_yesButton_10 As button:
+            Color: =RGBA(255,255,255,1)
+            DisabledBorderColor: =ColorFade(Self.BorderColor, 70%)
+            DisabledColor: =ColorFade(RGBA(47, 41, 43, 1), 70%)
+            DisabledFill: =ColorFade(RGBA(159, 167, 165, 1), 50%)
+            Fill: =RGBA(96, 96, 98, 1)
+            Height: =70
+            HoverColor: =Self.Color
+            HoverFill: =ColorFade(Self.Fill, 20%)
+            OnSelect: |-
+                =Set(
+                    varPlantId,
+                    Principal_UserLogin_PlantId.Selected.plnt_id_in
+                );
+                
+                If(IsBlank(varUserId),
+                Patch(
+                    'users.users',
+                    Defaults('users.users'),
+                    {usr_email_vc: User().Email, 
+                    usr_plant_in:varPlantId, 
+                    user_dispname_vc:User().FullName}
+                    ),
+                Patch(
+                    'users.users', 
+                    LookUp('users.users',usr_id_bin = varUserId),
+                    {usr_plant_in:varPlantId}
+                    )
+                );
+                
+                Refresh('users.users');
+                
+                Navigate('02_CONFIGURACIÓN',ScreenTransition.CoverRight);
+            Size: =24
+            Text: ="OK"
+            Visible: |-
+                =false /*If(
+                    IsBlank(varPlantId),
+                    true,
+                    false
+                )*/
+            Width: =250
+            X: =(Parent.Width-Principal_UserLogin_yesButton_10.Width)/2
+            Y: =652
+            ZIndex: =4
+
+        Principal_UserLogin_Label3_10 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(101, 128, 187, 1)
+            Color: =RGBA(47,41,43,1)
+            DisabledColor: =ColorFade(RGBA(47, 41, 43, 1), 70%)
+            Height: =70
+            Size: =21
+            Text: ="Seleccione la planta"
+            Visible: |-
+                =false /*If(
+                    IsBlank(varPlantId),
+                    true,
+                    false
+                )*/
+            Width: =550
+            X: =(Parent.Width-Principal_UserLogin_Label3_10.Width)/2
+            Y: =472
+            ZIndex: =5
+
+        Principal_UserLogin_PlantId As combobox:
+            BorderColor: =RGBA(204, 204, 204, 1)
+            ChevronBackground: =RGBA(0, 0, 0, 0)
+            ChevronDisabledBackground: =RGBA(215, 210, 204, 1)
+            ChevronDisabledFill: =RGBA(235, 233, 229, 1)
+            ChevronFill: =RGBA(115, 115, 115, 1)
+            ChevronHoverBackground: =ColorFade(Self.ChevronBackground, 20%)
+            ChevronHoverFill: =Self.ChevronFill
+            DisabledBorderColor: =RGBA(186, 186, 186, 1)
+            DisabledColor: =RGBA(186, 186, 186, 1)
+            DisabledFill: =RGBA(242, 242, 242, 1)
+            DisplayFields: =["plnt_name_vc","plnt_name_vc","spn_spe_id_bin"]
+            Height: =61
+            HoverColor: =Self.Color
+            HoverFill: =RGBA(186, 186, 186, 1)
+            InputTextPlaceholder: =
+            IsSearchable: =false
+            Items: ='plant_resources.plant'
+            PressedColor: =Self.Color
+            PressedFill: =ColorFade(Self.SelectionFill, -30%)
+            SearchFields: =["plnt_name_vc"]
+            SearchItems: =[]
+            SelectionFill: =RGBA(244, 0, 0, 1)
+            SelectMultiple: =false
+            Size: =20
+            Visible: |-
+                =false /*If(
+                    IsBlank(varPlantId),
+                    true,
+                    false
+                )*/
+            Width: =523
+            X: =(Parent.Width-Principal_UserLogin_PlantId.Width)/2
+            Y: =549
+            ZIndex: =6
+
+    Principal_Other As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =36
+
+        Principal_Other_Btn_Scanner As barcodeScanner:
+            BorderColor: =RGBA(59, 165, 168, 1)
+            BorderThickness: =1
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =20
+            HoverBorderColor: =
+            HoverFill: =
+            OnCancel: |-
+                =UpdateContext({VarBarcodeText:""})
+            OnScan: |-
+                =//---------------------------------------------------------------------------------------------------- LIMPIA EL BUSCADOR
+                UpdateContext({VarBarcodeText: ""});
+                //---------------------------------------------------------------------------------------------------- CARGA EL BUSCADOR
+                UpdateContext({VarBarcodeText: Principal_Other_Btn_Scanner.Value})
+            PressedBorderColor: =
+            PressedFill: =
+            Reset: =true
+            Size: =24
+            Text: =""
+            Visible: =false
+            Width: =54
+            Y: =1054
+            ZIndex: =26
+
+        Principal_Other_Tmr_RefreshTimer As timer:
+            AutoStart: =true
+            Height: =10
+            OnTimerEnd: |
+                =//---------------------------------------------------------------------------------------------------------------------------------------- LISTA DE FORMULARIOS
+                //---------------------------------------------------------------------------------------------------- REFRESCA TABLAS
+                Refresh('dsf.form_library_counters');
+                
+                //---------------------------------------------------------------------------------------------------- POPULA LA LISTA DE FORMULARIOS
+                ClearCollect(
+                    varFormsLibrary,
+                    Filter(
+                        'dsf.form_library_counters',
+                        fl_plant_id_in = varPlantId,
+                        fl_form_enable_bt = true,
+                        fl_form_state_in <> 7
+                    )
+                );
+                
+                //---------------------------------------------------------------------------------------------------------------------------------------- INDICADORE DE PENDIENTES
+                //----------------------------------------------------------------------------------------------------DETERMINA CUALES FORMULARIOS MOSTRAR
+                ClearCollect(
+                    varFormsLibraryCT,
+                    Filter(
+                        'dsf.form_library_counters',
+                        fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant,
+                        fl_form_state_in = 2,
+                        varUserEmail = fl_reviewer_vc Or IBMS = true
+                    )
+                );
+                Collect(
+                    varFormsLibraryCT,
+                    Filter(
+                        'dsf.form_library_counters',
+                        fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant,
+                        fl_form_state_in = 3,
+                        IBMS = true
+                    )
+                );
+                Collect(
+                    varFormsLibraryCT,
+                    Filter(
+                        'dsf.form_library_counters',
+                        fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant,
+                        fl_form_state_in = 4,
+                        varUserEmail = fl_approver_vc Or IBMS = true
+                    )
+                );
+                //----------------------------------------------------------------------------------------------------ACTUALIZA EL INDICADOR DE PENDIENTES
+                Set(TotalPending,CountRows(varFormsLibraryCT));
+            OnTimerStart: =
+            Repeat: =true
+            Text: =Text(Time(0, 0, Self.Value/1000), "ss")
+            Visible: =false
+            Width: =10
+            X: =10
+            Y: =1019
+            ZIndex: =27
+
+        Principal_Other_Tgl_AutoNavigation As toggleSwitch:
+            Default: =varToggle
+            FalseText: =Param("browser")
+            Height: =10
+            OnCheck: |-
+                =//----------------------------------------------------------------------------------------------------
+                If(
+                    CountRows(
+                        Filter(
+                            Principal_FormList.AllItems,
+                            Param("browser") in Principal_FormList_Lbl_FormNumberItem.Text
+                        )
+                    ) > 0,
+                    Navigate(
+                        '03_ACCIÓN',
+                        ScreenTransition.Fade,
+                        {
+                            Pr_FormDescription: First(
+                                Filter(
+                                    Principal_FormList.AllItems,
+                                    Param("browser") in Principal_FormList_Lbl_FormNumberItem.Text
+                                )
+                            ).Principal_FormList_Lbl_FormDescriptionItem.Text,
+                            Pr_FormNumber: Param("browser"),
+                            Pr_FormReviewMode: 0
+                        }
+                    ),
+                    ""
+                )
+            Size: =21
+            TrueText: =Param("browser")
+            Visible: =false
+            Width: =10
+            X: =10
+            Y: =1011
+            ZIndex: =28
+
+    Principal_Loading As Lir_Loading_1:
+        Height: =Parent.Height
+        IsLoading: =varPrincipalLoading
+        Text: ="Loading form..." & Round((Timer1.Value * 100)/Timer1.Duration,0) & "%" //First(collAppLanguage).LoadingText 
+        Visible: =Principal_Loading.IsLoading
+        Width: =Parent.Width
+        ZIndex: =46
+
+    Principal_Welcome As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =46
+
+        Principal_Welcome_Img_Background As image:
+            Height: =Parent.Height
+            Image: ='Untitled design'
+            ImagePosition: =ImagePosition.Fill
+            Visible: =varWelcome
+            Width: =Parent.Width
+            ZIndex: =36
+
+        Principal_Welcome_Lbl_WelcomeMessage As label:
+            Color: =RGBA(255, 255, 255, 1)
+            Font: ="Unity"
+            Height: =71
+            Size: =30
+            Text: =First(collAppLanguage).Principal_Welcome_Lbl_WelcomeMessage
+            VerticalAlign: =VerticalAlign.Top
+            Visible: =varWelcome
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =162
+            ZIndex: =37
+
+        Principal_Welcome_Lbl_SupportMessage As label:
+            Color: =RGBA(255, 255, 255, 1)
+            Fill: =RGBA(31, 31, 31, 0.26)
+            Font: ="Unity"
+            FontWeight: =FontWeight.Lighter
+            Height: =406
+            Overflow: =Overflow.Scroll
+            Size: =22
+            Text: |-
+                =First(collAppLanguage).Principal_Welcome_Lbl_SupportMessage_01 & Office365Users.UserProfile(User().Email).DisplayName & First(collAppLanguage).Principal_Welcome_Lbl_SupportMessage_02 & Concat(Filter(
+                        'dsf.master_role',
+                        usr_plant_in = Principal_Welcome_Cb_PlantSupport.Selected.plnt_id_in
+                    ), usr_email_vc & ";")
+            VerticalAlign: =VerticalAlign.Top
+            Visible: =varWelcomeMesaje
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =412
+            ZIndex: =38
+
+        "Principal_Welcome_Icon_Signout As icon.'3DPrinting'":
+            Color: =RGBA(0, 0, 0, 1)
+            Height: =Principal_Footer_Icon_PendingLabels.Height
+            Icon: =Icon.Key
+            OnSelect: |-
+                =Exit(true);UpdateContext({Test:false})
+            Visible: =varWelcome
+            Width: =Principal_Footer_Icon_PendingLabels.Width
+            X: =Principal_Footer_Icon_PendingLabels.X
+            Y: =Principal_Footer_Icon_PendingLabels.Y
+            ZIndex: =39
+
+        Principal_Welcome_Lbl_AppName As label:
+            AutoHeight: =true
+            Color: =RGBA(255, 255, 255, 1)
+            Font: ="Unity"
+            Height: =125
+            Size: =35
+            Text: ="Digital Standard Forms"
+            VerticalAlign: =VerticalAlign.Top
+            Visible: =varWelcome
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =232
+            ZIndex: =40
+
+        Principal_Welcome_Lbl_Signout As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Font: =stFontType
+            FontWeight: =FontWeight.Lighter
+            Height: =17
+            OnSelect: =
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: =First(collAppLanguage).Principal_Welcome_Lbl_Signout
+            VerticalAlign: =VerticalAlign.Top
+            Visible: =varWelcome
+            Width: =90
+            Wrap: =false
+            X: =(Parent.Width / 5) * 4 - (Self.Width / 2)
+            Y: =Parent.Height - Self.Height - Principal_Footer_Icon_PendingLabels.Height * 0.1
+            ZIndex: =41
+
+        "Principal_Welcome_Icon_ExitApp As icon.'3DPrinting'":
+            Color: =RGBA(0, 0, 0, 1)
+            Height: =Principal_Footer_Icon_PendingLabels.Height
+            Icon: =Icon.Lock
+            OnSelect: |-
+                =UpdateContext({Test:false})
+            Visible: =varWelcome
+            Width: =Principal_Footer_Icon_PendingLabels.Width
+            X: =Principal_Footer_Icon_Report.X
+            Y: =Principal_Footer_Icon_Report.Y
+            ZIndex: =42
+
+        Principal_Welcome_Lbl_ExitApp As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Font: =stFontType
+            FontWeight: =FontWeight.Lighter
+            Height: =17
+            OnSelect: =
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: =First(collAppLanguage).Principal_Welcome_Lbl_ExitApp
+            VerticalAlign: =VerticalAlign.Top
+            Visible: =varWelcome
+            Width: =90
+            Wrap: =false
+            X: =Principal_Footer_Lbl_Report.X
+            Y: =Principal_Footer_Lbl_Report.Y
+            ZIndex: =43
+
+        Principal_Welcome_Cb_PlantSupport As dropdown:
+            BorderColor: =RGBA(149, 149, 149, 1)
+            ChevronBackground: =RGBA(202, 202, 202, 1)
+            ChevronHoverBackground: =RGBA(59, 165, 168, 1)
+            Default: =LookUp('DSF Languages','Language Code' in varLC,Language)
+            Font: ="Unity"
+            Height: =55
+            HoverFill: =RGBA(59, 165, 168, 0.1)
+            Items: ='plant_resources.plant'
+            PressedFill: =RGBA(59, 165, 168, 0.49)
+            SelectionFill: =RGBA(219, 219, 219, 1)
+            Size: =20
+            Visible: =varWelcomeMesaje
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =843
+            ZIndex: =44
+
+        Principal_Welcome_Img_Loading As image:
+            BorderColor: =RGBA(255, 255, 255, 1)
+            Height: =150
+            Image: |-
+                ="https://aka.ms/preloadergif"
+            Visible: =!varWelcomeMesaje && varWelcome
+            Width: =150
+            X: =Parent.Width /2 - Self.Width/2
+            Y: =514
+            ZIndex: =45
+
+    Grp_Clear_Filter_1 As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =48
+
+        Image1_1 As image:
+            Height: =btn_clearFilter_1.Height
+            Image: |-
+                ="data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M0%20128h2048v219l-768%20768v805H768v-805L0%20347V128zm1920%20165v-37H128v37l768%20768v731h256v-731l768-768zm37%20987l91%2091-230%20229%20230%20229-91%2091-229-230-229%20230-91-91%20230-229-230-229%2091-91%20229%20230%20229-230z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E"
+            Tooltip: ="Clear Filter"
+            Visible: =!IsBlank(Principal_Filters_Txt_SearchBar.Text) || !IsBlank(Principal_Filters_Cb_Department.Selected) || !IsBlank(Principal_Filters_Cb_Subdepartment.Selected) || !IsBlank(Principal_Filters_Cb_Frequency.Selected) || !IsBlank(Principal_Filters_Cb_Type.Selected)
+            Width: =btn_clearFilter_1.Width
+            X: =Accion_ActualRequest_Icon_Filter_2.X-Self.Width-10
+            Y: =Accion_ActualRequest_Icon_Filter_2.Y
+            ZIndex: =29
+
+        btn_clearFilter_1 As button:
+            Color: |-
+                =ColorValue("#3BA5A8")
+            Fill: =RGBA(0, 0, 0, 0)
+            HoverFill: =Self.Fill
+            OnSelect: |-
+                =Set(colfilter1,Blank());
+                UpdateContext({varFilterReset:true});
+                UpdateContext({varFilterReset:false})
+            PressedFill: =Self.Fill
+            Size: =14
+            Text: =""
+            Tooltip: ="Clear Filter"
+            Visible: =!IsBlank(Principal_Filters_Txt_SearchBar.Text) || !IsBlank(Principal_Filters_Cb_Department.Selected) || !IsBlank(Principal_Filters_Cb_Subdepartment.Selected) || !IsBlank(Principal_Filters_Cb_Frequency.Selected) || !IsBlank(Principal_Filters_Cb_Type.Selected)
+            Width: =50
+            X: =Accion_ActualRequest_Icon_Filter_2.X-Self.Width-10
+            Y: =Accion_ActualRequest_Icon_Filter_2.Y
+            ZIndex: =30
+

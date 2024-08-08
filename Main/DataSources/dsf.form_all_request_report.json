@@ -1,0 +1,37 @@
+[
+  {
+    "ApiId": "/providers/microsoft.powerapps/apis/shared_sql",
+    "CdpRevision": {
+      "BaseUrl": "/v2",
+      "LastChangedTimeString": "2024-03-28T20:39:44.7630000Z",
+      "RevisionNumber": 2
+    },
+    "ConnectedDataSourceInfoNameMapping": {
+      "57dfb1b5-7d79-4046-a4da-fd831d5befe1-KeyId": "KeyId",
+      "createdby_dispname": "createdby_dispname",
+      "createdby_email": "createdby_email",
+      "fa_report_date_dt": "fa_report_date_dt",
+      "fq_question_type_bt": "fq_question_type_bt",
+      "fr_active_level": "fr_active_level",
+      "fr_assigned_dt": "fr_assigned_dt",
+      "fr_assignedby_in": "fr_assignedby_in",
+      "fr_completed_dt": "fr_completed_dt",
+      "fr_form_number_vc": "fr_form_number_vc",
+      "fr_is_deleted": "fr_is_deleted",
+      "fr_planta_id_in": "fr_planta_id_in",
+      "fr_reportdate_dt": "fr_reportdate_dt",
+      "fr_reportdate_in": "fr_reportdate_in",
+      "fr_status_in": "fr_status_in",
+      "fr_total_level": "fr_total_level",
+      "PO": "PO",
+      "user_dispname_vc": "user_dispname_vc",
+      "usr_email_vc": "usr_email_vc"
+    },
+    "DatasetName": "sql-tccc-cpf-test-1.database.windows.net,POF_LIR",
+    "EncodeDataset": false,
+    "IsSampleData": false,
+    "IsWritable": false,
+    "Name": "dsf.form_all_request_report",
+    "Type": "ConnectedDataSourceInfo"
+  }
+]

@@ -1,0 +1,43 @@
+[
+  {
+    "ApiId": "/providers/microsoft.powerapps/apis/shared_sql",
+    "CdpRevision": {
+      "BaseUrl": "/v2",
+      "LastChangedTimeString": "2024-05-10T14:35:28.9920000Z",
+      "RevisionNumber": 2
+    },
+    "ConnectedDataSourceInfoNameMapping": {
+      "cnf_bloburl_vc": "cnf_bloburl_vc",
+      "cnf_central_dashboard_bi": "cnf_central_dashboard_bi",
+      "cnf_char_len_in": "cnf_char_len_in",
+      "cnf_char_question_in": "cnf_char_question_in",
+      "cnf_char_subtitle_in": "cnf_char_subtitle_in",
+      "cnf_char_title_in": "cnf_char_title_in",
+      "cnf_debug_mode_bt": "cnf_debug_mode_bt",
+      "cnf_double_save_bt": "cnf_double_save_bt",
+      "cnf_editor_app_link": "cnf_editor_app_link",
+      "cnf_email_tester_vc": "cnf_email_tester_vc",
+      "cnf_etq_plant_in": "cnf_etq_plant_in",
+      "cnf_list_len_in": "cnf_list_len_in",
+      "cnf_mobile_app_link": "cnf_mobile_app_link",
+      "cnf_plant_id_in": "cnf_plant_id_in",
+      "cnf_plant_powerBI": "cnf_plant_powerBI",
+      "cnf_record_validation_bt": "cnf_record_validation_bt",
+      "cnf_refresh_target_in": "cnf_refresh_target_in",
+      "cnf_sg_editor_vc": "cnf_sg_editor_vc",
+      "cnf_sg_mobile_vc": "cnf_sg_mobile_vc",
+      "cnf_single_save_bt": "cnf_single_save_bt",
+      "cnf_submit_counter_in": "cnf_submit_counter_in",
+      "cnf_submit_mode_in": "cnf_submit_mode_in",
+      "cnf_timer_questions_in": "cnf_timer_questions_in",
+      "cnf_timer_save_in": "cnf_timer_save_in",
+      "cnf_utc_in": "cnf_utc_in"
+    },
+    "DatasetName": "sql-tccc-cpf-test-1.database.windows.net,POF_LIR",
+    "EncodeDataset": false,
+    "IsSampleData": false,
+    "IsWritable": true,
+    "Name": "dsf.plant_configuration",
+    "Type": "ConnectedDataSourceInfo"
+  }
+]

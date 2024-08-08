@@ -1,0 +1,2002 @@
+"'03_ACCIÓN' As screen":
+    Fill: =RGBA(237, 242, 242, 1)
+    OnVisible: |
+        =UpdateContext({varAccionLoading:true});
+        If(varDeeplinkComplete,
+        
+        Reset(Accion_ActualRequest_Filter_Cb_RequestedBy);
+        Reset(Accion_ActualRequest_Filter_Cb_State);
+        Reset(Accion_ActualRequest_Filter_Dtp_Date);
+        //Reset(Accion_ActualRequest_Filter_tgl_Date);
+        Reset(NextRefresh);
+        UpdateContext({varStartRefreshMode:false});
+        UpdateContext({RefreshMode:DisplayMode.Edit});
+        
+        
+        UpdateContext({varCurrentRequestFilter:false});
+        Refresh('dsf.form_questions');
+        Refresh('dsf.form_answer_attachment');
+        //Refresh('dsf.form_request_report');
+        Refresh('dsf.form_level_desc');
+        UpdateContext({varFormReportStatus: 0});
+        Set(varCompleteReader,0);
+        UpdateContext({varVisibleGrpFormRequest: false});
+        
+        ClearCollect(RequestReport,fa_request_report.Run(varPlantId,Pr_FormNumber,0));
+        Select(btn_UnlockForms);
+        Set(
+            varFormType,
+            LookUp(
+                'dsf.form_library_counters',
+                fl_form_number_vc = Pr_FormNumber &&
+                fl_plant_id_in = varPlantId
+            ).fl_form_type_in
+        );
+        Set(
+            varUserEmisorReceptor,//---Emisor por Default
+            false
+        );
+        Set(
+            TotalPending,
+            CountRows(varFormsLibraryCT)
+        );
+        
+        
+        
+        
+        
+        UpdateContext({StartTimer:true});
+        UpdateContext({varCurrentRequestFilter:true});
+        UpdateContext({varAccionLoading:false})
+        )
+
+    container_buttons As groupContainer.manualLayoutContainer:
+        Height: =256
+        Width: =Parent.Width
+        Y: =Accion_Header_Shp_NavBarTop.Y+Accion_Header_Shp_NavBarTop.Height
+        ZIndex: =1
+
+        Accion_Buttons_Shp_BtnNewForm As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =120
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:0.8;background-color:#FFFFFF;box-shadow:0 3px 6px 1px  #ccc; border-radius:90px'></div>"
+            OnSelect: =
+            Size: =24
+            Width: =(Parent.Width)*0.8
+            X: =(Parent.Width-Self.Width)/2
+            Y: =10
+            ZIndex: =1
+
+        Accion_Buttons_Lbl_BtnNewForm As label:
+            Align: =Align.Center
+            Color: =RGBA(40, 60, 97, 1)
+            Font: ="Unity"
+            Height: =Accion_Buttons_Shp_BtnNewForm.Height
+            OnSelect: |-
+                =UpdateContext({varAccionLoading:true});
+                Set(VarLoadPage,true);
+                Set(varTimerReset,true);
+                Set(varTimerReset,false);
+                Set(AutoSaveTable,false);
+                Set(varFormMode,FormMode.New);
+                Set(IsHRecord,false);
+                Set(varBackPopup,true);
+                UpdateContext({VarDate: Text(Now(),"[$-es-ES]yyyy/mm/dd hh:mm:ss")});
+                If(IsBlank(Pr_FormNumber),UpdateContext({Pr_FormNumber:Param("FN")}));
+                If(IsBlank(Pr_FormReviewMode),UpdateContext({Pr_FormReviewMode:0}));
+                
+                fa_AnswerReport.Run(
+                        "",
+                        "",
+                        User().Email,
+                        If(Pr_FormReviewMode = 0,"New","Review"),
+                        Pr_FormNumber,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        VarDate,
+                        "",
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        varPlantId,
+                        1,
+                        0,
+                        0,
+                        0,
+                        Text(Now(),"[$-es-ES]yyyy/mm/dd hh:mm:ss"),1);
+                //Notify("PowerFlow executed");
+                Refresh('dsf.answers_report');
+                Refresh('dsf.answers_report_release_process');
+                Set(varUserEmisorReceptor,false); //---Emisor
+                Clear(Q11_TemporalPictures);
+                //Reset(Q14_QuestionAttachment);
+                Navigate(
+                    '05_FORMULARIOS',
+                    ScreenTransition.Fade,
+                    {
+                        Pr_FormDescription: Pr_FormDescription,
+                        Pr_FormNumber: Pr_FormNumber,
+                        Pr_DateFilteDT:VarDate,
+                        Pr_DateFilterIn: Value(Year(DateValue(VarDate)) * 10000000000 + Month(DateValue(VarDate)) * 100000000 + Day(DateValue(VarDate)) * 1000000 + Hour(DateTimeValue(VarDate)) * 10000 + Minute(DateTimeValue(VarDate)) * 100 + Second(DateTimeValue(VarDate))),
+                        Pr_ReviewMode: 0,//Pr_FormReviewMode
+                        Pr_PartialRecord: 0
+                    }
+                );
+                Clear(coltestanswere);
+                Clear(colTableEditReason);
+                UpdateContext({VarTimerStart: true});
+                UpdateContext({varAccionLoading:false});
+            Size: =21
+            Text: =First(collAppLanguage).Button2
+            Width: =Accion_Buttons_Shp_BtnNewForm.Width
+            X: =Accion_Buttons_Shp_BtnNewForm.X
+            Y: =Accion_Buttons_Shp_BtnNewForm.Y
+            ZIndex: =2
+
+        Accion_Buttons_Shp_BtnTrend As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =120
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:0.8;background-color:#FFFFFF;box-shadow:0 3px 6px 1px  #ccc; border-radius:90px'></div>"
+            OnSelect: =
+            Width: =Accion_Buttons_Shp_BtnNewForm.Width/2
+            X: =Accion_Buttons_Shp_BtnNewForm.X
+            Y: =120
+            ZIndex: =3
+
+        Accion_Buttons_Lbl_BtnTrend As label:
+            Align: =Align.Center
+            Color: =RGBA(40, 60, 97, 1)
+            DisplayMode: |-
+                =
+                
+                If(
+                    IsBlankOrError(
+                        First(
+                            Filter(
+                                'dsf.form_library_counters',
+                                fl_form_number_vc = Pr_FormNumber
+                            )
+                        ).fl_powerbi_url_vc
+                    ),
+                    DisplayMode.Disabled,
+                    DisplayMode.Edit
+                )
+            Font: ="Unity"
+            Height: =Accion_Buttons_Shp_BtnTrend.Height
+            OnSelect: |
+                =//---------------------------------------------------------------------------------------------------- NAVEGA A REPORTE
+                If(
+                    IsBlankOrError(
+                        First(
+                            Filter(
+                                'dsf.form_library_counters',
+                                fl_form_number_vc = Pr_FormNumber
+                            )
+                        ).fl_powerbi_url_vc
+                    ),
+                    Notify(First(collAppLanguage).Accion_Buttons_Lbl_BtnTrend,NotificationType.Information,6000);,
+                    Launch(
+                        First(
+                            Filter(
+                                'dsf.form_library_counters',
+                                fl_form_number_vc = Pr_FormNumber
+                            )
+                        ).fl_powerbi_url_vc
+                    )
+                )
+                /*If(
+                    First(
+                        Filter(
+                            'dsf.form_report',
+                            rp_plant_id_in = varPlantId
+                        )
+                    ).rp_enable_bt,
+                    Launch(
+                        First(
+                            Filter(
+                                'dsf.form_report',
+                                rp_plant_id_in = varPlantId
+                            )
+                        ).rp_url_vc
+                    ),
+                    Navigate(
+                        '07_ESTADISTICAS',
+                        ScreenTransition.Fade,
+                        {
+                            Pr_FormDescriptionInd: Pr_FormDescription,
+                            Pr_FormNumberInd: Pr_FormNumber
+                        }
+                    )
+                );*/
+            Size: =21
+            Text: =First(collAppLanguage).Button2_21
+            Width: =Accion_Buttons_Shp_BtnTrend.Width
+            X: =Accion_Buttons_Shp_BtnTrend.X
+            Y: =Accion_Buttons_Shp_BtnTrend.Y
+            ZIndex: =4
+
+        Accion_Buttons_Shp_BtnHistory_request As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =120
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:0.8;background-color:#FFFFFF;box-shadow:0 3px 6px 1px  #ccc; border-radius:90px'></div>"
+            OnSelect: =
+            Width: =Accion_Buttons_Shp_BtnNewForm.Width/2
+            X: =Parent.Width/2
+            Y: =120
+            ZIndex: =5
+
+        Accion_Buttons_Lbl_Btn_History_req As label:
+            Align: =Align.Center
+            Color: =RGBA(40, 60, 97, 1)
+            Font: ="Unity"
+            Height: =Accion_Buttons_Shp_BtnHistory_request.Height
+            OnSelect: |-
+                =
+                Navigate('03B_HISTORICAL_RECORDS');
+                Set(Hr_FormNumber,Pr_FormNumber);
+                Set(Hr_FormFrequency,Pr_FormFrequency);
+            Size: =21
+            Text: ="Historical Request"
+            Width: =Accion_Buttons_Shp_BtnHistory_request.Width-20
+            X: =Accion_Buttons_Shp_BtnHistory_request.X
+            Y: =Accion_Buttons_Shp_BtnHistory_request.Y
+            ZIndex: =6
+
+    Accion_ActualRequest_Shp_ActualRequestList_1 As htmlViewer:
+        Height: |-
+            =If(varCurrentRequestFilter,
+            If(Accion_ActualRequest_Filter_Cb_ProcessOrder.Y<>Accion_ActualRequest_Filter_Dtp_Date.Y,
+            Accion_ActualRequest_Filter_Cb_ProcessOrder.Height+Accion_ActualRequest_Filter_Dtp_Date.Height+50,Accion_ActualRequest_Filter_Dtp_Date.Height+50),0)
+        HtmlText: |-
+            ="<div style ='
+            
+              margin-top:0px;
+              margin-bottom:3px;
+              margin-left:0px;
+              margin-right:0px;
+              width: "& Accion_ActualRequest_Shp_ActualRequestList_1.Width &"px;
+              height: "& Accion_ActualRequest_Shp_ActualRequestList_1.Height - 21 &"px;
+              background-color: #F0F0F0;
+              box-shadow: rgba(0, 0, 0, 0.15) 3px 6px 18px;'
+              <center>
+              </center>
+              </div>
+            "//rgba(203, 16, 18, 1)
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Visible: =varCurrentRequestFilter
+        Width: =Accion_ActualRequest_Lbl_ActualRequest.Width
+        X: =Accion_ActualRequest_Lbl_ActualRequest.X
+        Y: =Accion_ActualRequest_Shp_ActualRequest.Y+Accion_ActualRequest_Shp_ActualRequest.Height
+        ZIndex: =2
+
+    Accion_ActualRequest_Filter_Cb_RequestedBy As combobox:
+        BorderColor: =RGBA(202, 202, 202, 1)
+        ChevronBackground: =RGBA(149, 149, 149, 1)
+        ChevronDisabledBackground: =RGBA(59, 165, 168, 1)
+        ChevronHoverBackground: =RGBA(59, 165, 168, 1)
+        DisplayFields: =["Result"]
+        Font: ="Unity"
+        Height: =53
+        HoverFill: =RGBA(94, 186, 189, 1)
+        InputTextPlaceholder: =First(collAppLanguage).Title3_MSG01
+        Items: |-
+            =ForAll(Distinct(RequestReport,createdby_dispname), {Result: ThisRecord.Value})
+        OnChange: =
+        PressedFill: =RGBA(59, 165, 168, 1)
+        Reset: =varFilterReset
+        SearchFields: =["Result"]
+        SearchItems: |-
+            =Search(ForAll(Distinct(RequestReport,createdby_dispname),{Result:ThisRecord.Value}),Accion_ActualRequest_Filter_Cb_RequestedBy.SearchText,Result)
+        SelectionFill: =RGBA(149, 149, 149, 1)
+        SelectMultiple: =false
+        Size: |-
+            =//If(App.Width > 982,15,12)
+            15
+        Visible: |+
+            =varCurrentRequestFilter 
+            
+        Width: |
+            =If(
+                App.Width > 5000, (Parent.Width * 0.8) / 10 - 5,
+                App.Width > 4000, (Parent.Width * 0.8) / 9 - 5,
+                App.Width > 3000, (Parent.Width * 0.8) / 8 - 5,
+                App.Width > 2000, (Parent.Width * 0.8) / 7 - 5,
+                App.Width > 1100, (Parent.Width * 0.8) / 5 - 5,
+                App.Width > 982, (Parent.Width * 0.8) / 5 - 5,
+                (Parent.Width * 0.8) / 3 - 5
+            )
+        X: |-
+            =If(Accion_ActualRequest_Filter_Cb_ProcessOrder.Visible,
+            Accion_ActualRequest_Filter_Cb_ProcessOrder.X+Accion_ActualRequest_Filter_Cb_ProcessOrder.Width+10,Accion_ActualRequest_Filter_Cb_ProcessOrder.X)
+        Y: =Accion_ActualRequest_Filter_Cb_ProcessOrder.Y
+        ZIndex: =3
+
+    Accion_ActualRequest_Filter_Cb_ProcessOrder As combobox:
+        BorderColor: =RGBA(202, 202, 202, 1)
+        ChevronBackground: =RGBA(149, 149, 149, 1)
+        ChevronDisabledBackground: =RGBA(59, 165, 168, 1)
+        ChevronHoverBackground: =RGBA(59, 165, 168, 1)
+        DisplayFields: =["Result"]
+        Font: ="Unity"
+        Height: =55
+        HoverFill: =RGBA(94, 186, 189, 1)
+        InputTextPlaceholder: |-
+            =If(Pr_FormFrequency = "PO","PO:","CIP Object/Unique ID : ")
+        Items: |-
+            =ForAll(Distinct(RequestReport,PO), {Result: ThisRecord.Value})
+        OnChange: =
+        PressedFill: =RGBA(59, 165, 168, 1)
+        Reset: =varFilterReset
+        SearchFields: =["Result"]
+        SearchItems: |-
+            =Search(ForAll(Distinct(RequestReport,PO),{Result:ThisRecord.Value}),Accion_ActualRequest_Filter_Cb_ProcessOrder.SearchText,Result)
+        SelectionFill: =RGBA(149, 149, 149, 1)
+        SelectMultiple: =false
+        Size: =15
+        Visible: =varCurrentRequestFilter /*&& Accion_ActualRequest_Filter_Cb_ProcessOrder.Width <= 250 */ && (Pr_FormFrequency = "PO" || "25975.2" in Pr_FormNumber || "26874.1" in Pr_FormNumber)
+        Width: |
+            =If(
+                App.Width > 5000, (Parent.Width * 0.8) / 10 - 5,
+                App.Width > 4000, (Parent.Width * 0.8) / 9 - 5,
+                App.Width > 3000, (Parent.Width * 0.8) / 8 - 5,
+                App.Width > 2000, (Parent.Width * 0.8) / 7 - 5,
+                App.Width > 1100, (Parent.Width * 0.8) / 5 - 5,
+                App.Width > 982, (Parent.Width * 0.8) / 5 - 5,
+                (Parent.Width * 0.8) / 3 - 5
+            )
+        X: =Accion_ActualRequest_Lbl_ActualRequest.X+10
+        Y: =Accion_ActualRequest_Shp_ActualRequestList_1.Y+10
+        ZIndex: =5
+
+    Accion_ActualRequest_Filter_Dtp_Date As datepicker:
+        BorderColor: =RGBA(149, 149, 149, 1)
+        CalendarHeaderFill: =RGBA(3, 121, 137, 1)
+        DefaultDate: =
+        Font: ="Unity"
+        Format: ="mm/dd/yyyy"//DateTimeFormat.ShortDate
+        Height: =53
+        HoverDateFill: =RGBA(16, 65, 71, 1)
+        IconBackground: =RGBA(202, 202, 202, 1)
+        InputTextPlaceholder: ="Date"
+        Reset: =varFilterReset
+        SelectedDateFill: =RGBA(3, 121, 137, 1)
+        Size: =15
+        Visible: |+
+            =varCurrentRequestFilter 
+            
+        Width: |
+            =If(
+                App.Width > 5000, (Parent.Width * 0.8) / 10 - 5,
+                App.Width > 4000, (Parent.Width * 0.8) / 9 - 5,
+                App.Width > 3000, (Parent.Width * 0.8) / 8 - 5,
+                App.Width > 2000, (Parent.Width * 0.8) / 7 - 5,
+                App.Width > 1100, (Parent.Width * 0.8) / 5 - 5,
+                App.Width > 982, (Parent.Width * 0.8) / 5 - 5,
+                (Parent.Width * 0.8) / 3 - 5
+            )
+        X: |
+            =If(App.Width>982 || !(Accion_ActualRequest_Filter_Cb_ProcessOrder.Visible),
+            Accion_ActualRequest_Filter_Cb_State.X+Accion_ActualRequest_Filter_Cb_State.Width+10,Accion_ActualRequest_Filter_Cb_ProcessOrder.X)
+        Y: |-
+            =If(App.Width>982 || !(Accion_ActualRequest_Filter_Cb_ProcessOrder.Visible),
+            Accion_ActualRequest_Filter_Cb_ProcessOrder.Y,Accion_ActualRequest_Filter_Cb_ProcessOrder.Y+Accion_ActualRequest_Filter_Cb_ProcessOrder.Height+10)
+        ZIndex: =6
+
+    Accion_ActualRequest_Filter_Cb_State As combobox:
+        BorderColor: =RGBA(202, 202, 202, 1)
+        ChevronBackground: =RGBA(149, 149, 149, 1)
+        ChevronDisabledBackground: =RGBA(59, 165, 168, 1)
+        ChevronHoverBackground: =RGBA(59, 165, 168, 1)
+        DisplayFields: =["Value"]
+        Font: ="Unity"
+        Height: =55
+        HoverFill: =RGBA(94, 186, 189, 1)
+        InputTextPlaceholder: =First(collAppLanguage).Lbl_Date_1
+        Items: |+
+            =//[First(collAppLanguage).Sts_01,First(collAppLanguage).Sts_02,First(collAppLanguage).Sts_04]
+            Sort(
+            Distinct(
+            ForAll(RequestReport,{Value:If(ThisRecord.fr_status_in<>2,"Pending by User "&ThisRecord.fr_active_level,First(collAppLanguage).Sts_04),ActiveLevel:ThisRecord.fr_active_level}),Value),Value,SortOrder.Ascending)
+            
+            
+        OnChange: =
+        PressedFill: =RGBA(59, 165, 168, 1)
+        Reset: =varFilterReset
+        SearchFields: =["Value"]
+        SearchItems: |-
+            =Search(Sort(Distinct(ForAll(RequestReport,{Value:If(ThisRecord.fr_status_in<>2,"Pending by User "&ThisRecord.fr_active_level,First(collAppLanguage).Sts_04),ActiveLevel:ThisRecord.fr_active_level}),Value),Value,SortOrder.Ascending),Accion_ActualRequest_Filter_Cb_State.SearchText,Value)
+        SelectionFill: =RGBA(149, 149, 149, 1)
+        SelectMultiple: =false
+        Size: =15
+        Visible: |
+            =varCurrentRequestFilter 
+        Width: |
+            =If(
+                App.Width > 5000, (Parent.Width * 0.8) / 10 - 5,
+                App.Width > 4000, (Parent.Width * 0.8) / 9 - 5,
+                App.Width > 3000, (Parent.Width * 0.8) / 8 - 5,
+                App.Width > 2000, (Parent.Width * 0.8) / 7 - 5,
+                App.Width > 1100, (Parent.Width * 0.8) / 5 - 5,
+                App.Width > 982, (Parent.Width * 0.8) / 5 - 5,
+                (Parent.Width * 0.8) / 3 - 5
+            )
+        X: =Accion_ActualRequest_Filter_Cb_RequestedBy.X+Accion_ActualRequest_Filter_Cb_RequestedBy.Width+10
+        Y: =Accion_ActualRequest_Filter_Cb_ProcessOrder.Y
+        ZIndex: =7
+
+    Label7 As label:
+        Height: =70
+        Size: =21
+        Text: |-
+            =If(Accion_ActualRequest_Filter_Cb_State.Selected.Value=First(collAppLanguage).Sts_04,2,Accion_ActualRequest_Filter_Cb_State.Selected.Value ="Pending by User "&1,-1,IsBlank(Accion_ActualRequest_Filter_Cb_State.Selected.Value),"",1)
+            /*If(Accion_ActualRequest_Filter_Cb_State.Selected.Value=First(collAppLanguage).Sts_04,2,Accion_ActualRequest_Filter_Cb_State.Selected.Value ="Pending by User "&1,-1,"Pending by User " in Accion_ActualRequest_Filter_Cb_State.Selected.Value,1)*/
+        Visible: =false
+        Width: =560
+        X: =16
+        Y: =1048
+        ZIndex: =8
+
+    Label8 As label:
+        Height: =70
+        Size: =21
+        Text: =Text(Year(Accion_ActualRequest_Filter_Dtp_Date.SelectedDate)*10000000000 + Month(Accion_ActualRequest_Filter_Dtp_Date.SelectedDate)*100000000 + Day(Accion_ActualRequest_Filter_Dtp_Date.SelectedDate) * 1000000)
+        Visible: =false
+        Width: =560
+        X: =10
+        Y: =934
+        ZIndex: =9
+
+    Accion_ActualRequest_Filter_Cb_ProcessOrder_1 As combobox:
+        BorderColor: =RGBA(202, 202, 202, 1)
+        ChevronBackground: =RGBA(149, 149, 149, 1)
+        ChevronDisabledBackground: =RGBA(59, 165, 168, 1)
+        ChevronHoverBackground: =RGBA(59, 165, 168, 1)
+        DisplayFields: =["Result"]
+        Font: ="Unity"
+        Height: =55
+        HoverFill: =RGBA(94, 186, 189, 1)
+        InputTextPlaceholder: =""
+        IsSearchable: =false
+        Items: |-
+            =ForAll(Distinct(RequestReport,PO), {Result: ThisRecord.Value})
+        OnChange: =
+        PressedFill: =RGBA(59, 165, 168, 1)
+        SearchFields: =["Result"]
+        SearchItems: =[]
+        SelectionFill: =RGBA(149, 149, 149, 1)
+        SelectMultiple: =false
+        Size: =15
+        Visible: |-
+            =//!varCurrentRequestFilter && Self.Width > 250 && (Pr_FormFrequency = "PO" || "25975.2" in Pr_FormNumber || "26874.1" in Pr_FormNumber)
+            false
+        Width: =Accion_ActualRequest_Lbl_ActualRequest.Width * 0.20
+        X: =Accion_ActualRequest_Icon_Filter.X - Self.Width - 20
+        Y: =Accion_ActualRequest_Lbl_ActualRequest.Y + Accion_ActualRequest_Lbl_ActualRequest.Height/2 - Self.Height/2
+        ZIndex: =28
+
+    Accion_ActualRequest As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =28
+
+        Accion_ActualRequest_Shp_ActualRequest As htmlViewer:
+            Height: =69
+            HtmlText: |-
+                ="<div style ='
+                
+                  margin-top:0px;
+                  margin-bottom:3px;
+                  margin-left:0px;
+                  margin-right:0px;
+                  width: "& Accion_ActualRequest_Shp_ActualRequest.Width &"px;
+                  height: "& Accion_ActualRequest_Shp_ActualRequest.Height - 21 &"px;
+                  background-color: #3BA5A8;
+                  box-shadow: rgba(0, 0, 0, 0.15) 3px 6px 18px;'
+                  <center>
+                  </center>
+                  </div>
+                "//rgba(203, 16, 18, 1)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Width: =Parent.Width-20
+            X: =10
+            Y: =container_buttons.Y+container_buttons.Height
+            ZIndex: =10
+
+        Accion_ActualRequest_Lbl_ActualRequest As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =
+            Height: =54
+            OnSelect: =
+            Size: =21
+            Text: =First(collAppLanguage).'Left Button Screen 4' & " (" & CountRows(Accion_ActualRequestList.AllItems) & ")"
+            Visible: =true//varIsFormType2
+            Width: =Accion_ActualRequest_Shp_ActualRequest.Width
+            X: =Accion_ActualRequest_Shp_ActualRequest.X
+            Y: =Accion_ActualRequest_Shp_ActualRequest.Y
+            ZIndex: =11
+
+        "Accion_ActualRequestList As gallery.'BrowseLayout_Vertical_TwoTextVariant_ver4.0'":
+            '#CopilotOverlayLabel': ="Filtered"
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Height: =Parent.Height-Self.Y-10
+            Items: |-
+                =Sort(
+                Filter(
+                    RequestReport,
+                    createdby_dispname =  Accion_ActualRequest_Filter_Cb_RequestedBy.Selected.Result || IsBlank(Accion_ActualRequest_Filter_Cb_RequestedBy.Selected.Result),
+                    If(Value(Label7.Text)=2,(fr_status_in=2),IsBlank(Label7.Text)||Value(Label7.Text))
+                    ,
+                    (If(Value(Label7.Text) <> 2, 
+                            (fr_active_level = Value(Mid(Accion_ActualRequest_Filter_Cb_State.Selected.Value, Len("Pending by User ")))), 
+                            true) || IsBlank(Accion_ActualRequest_Filter_Cb_State.Selected.Value))
+                ,
+                    fr_reportdate_in >= Value(Label8.Text),
+                    fr_reportdate_in <= If(!IsBlank(Accion_ActualRequest_Filter_Dtp_Date.SelectedDate),Value(Label8.Text) + 999999,30000000000000),
+                    PO = Accion_ActualRequest_Filter_Cb_ProcessOrder.Selected.Result || IsBlank(Accion_ActualRequest_Filter_Cb_ProcessOrder.Selected.Result),
+                    PO = Accion_ActualRequest_Filter_Cb_ProcessOrder_1.Selected.Result || IsBlank(Accion_ActualRequest_Filter_Cb_ProcessOrder_1.Selected.Result))
+                ,fa_report_date_dt,SortOrder.Descending)
+                /*Sort(
+                Filter(
+                    RequestReport,
+                    createdby_dispname =  Accion_ActualRequest_Filter_Cb_RequestedBy.Selected.Result || IsBlank(Accion_ActualRequest_Filter_Cb_RequestedBy.Selected.Result),
+                    fr_status_in = Value(Label7.Text) || IsBlank(Label7.Text),
+                    fr_active_level= Value(Mid(Accion_ActualRequest_Filter_Cb_State.Selected.Value,Len("Pending by User ")))||(IsBlank(Accion_ActualRequest_Filter_Cb_State.Selected.Value)),
+                    fr_reportdate_in >= If(Accion_ActualRequest_Filter_tgl_Date.Value = true,Value(Label8.Text),0),
+                    fr_reportdate_in <= If(Accion_ActualRequest_Filter_tgl_Date.Value = true,Value(Label8.Text) + 999999,30000000000000),
+                    PO = Accion_ActualRequest_Filter_Cb_ProcessOrder.Selected.Result || IsBlank(Accion_ActualRequest_Filter_Cb_ProcessOrder.Selected.Result),
+                    PO = Accion_ActualRequest_Filter_Cb_ProcessOrder_1.Selected.Result || IsBlank(Accion_ActualRequest_Filter_Cb_ProcessOrder_1.Selected.Result))
+                ,fa_report_date_dt,SortOrder.Descending)
+                */
+            Layout: =Layout.Vertical
+            TemplatePadding: =0
+            TemplateSize: =If((Pr_FormFrequency = "PO" || "25975.2" in Pr_FormNumber || "26874.1" in Pr_FormNumber), 250,210)
+            Width: =Parent.Width
+            X: =10
+            Y: =Accion_ActualRequest_Shp_ActualRequestList_1.Y+Accion_ActualRequest_Shp_ActualRequestList_1.Height+1
+            ZIndex: =12
+
+            Shp_BackgroudRequest As htmlViewer:
+                Fill: =RGBA(0, 0, 0, 0)
+                Height: =Accion_ActualRequestList.TemplateHeight
+                HtmlText: |-
+                    ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:0.8;background-color: " & If(ThisItem.fr_status_in = 2,"#FFFFFF","#FFFFFF") &" ;box-shadow:0 3px 6px 1px  #ccc; border-radius:30px'></div>"
+                Width: =Accion_ActualRequestList.TemplateWidth - 5
+                ZIndex: =1
+
+            Lbl_RequestedBy As label:
+                BorderColor: =RGBA(0, 0, 0, 1)
+                Color: =RGBA(40, 60, 97, 1)
+                Font: =
+                FontWeight: =FontWeight.Semibold
+                Height: =Self.Size * 1.8
+                OnSelect: =Select(Parent)
+                PaddingBottom: =0
+                PaddingLeft: =0
+                PaddingRight: =0
+                PaddingTop: =0
+                Size: =18
+                Text: =First(collAppLanguage).Title3_MSG01
+                VerticalAlign: =VerticalAlign.Top
+                Width: =185
+                Wrap: =false
+                X: =Lbl_State.X + Lbl_State.Width + (Accion_ActualRequestList.TemplateWidth/620) * 20
+                Y: =24
+                ZIndex: =2
+
+            Lbl_Date As label:
+                BorderColor: =RGBA(0, 0, 0, 1)
+                Color: =RGBA(40, 60, 97, 1)
+                Font: =
+                FontWeight: =FontWeight.Semibold
+                Height: =Self.Size * 1.8
+                OnSelect: =Select(Parent)
+                PaddingBottom: =0
+                PaddingLeft: =0
+                PaddingRight: =0
+                PaddingTop: =0
+                Size: =18
+                Text: =First(collAppLanguage).Subtitle3
+                VerticalAlign: =VerticalAlign.Top
+                Width: =185
+                Wrap: =false
+                X: =Lbl_RequestedBy.X
+                Y: =102
+                ZIndex: =3
+
+            Btn_OpenRequest As icon.ChevronRight:
+                AccessibleLabel: =Self.Tooltip
+                Color: =RGBA(59, 165, 168, 1)
+                DisabledColor: =RGBA(202, 202, 202, 1)
+                DisplayMode: |-
+                    =If(
+                        (ThisItem.fr_status_in = 2) Or ((ThisItem.fr_status_in = -1 Or ThisItem.fr_status_in = 0  Or  ThisItem.fr_status_in = 1) And ThisItem.fr_active_level=1) Or (( ThisItem.fr_status_in = 1 ||ThisItem.fr_status_in = 0) And !IsBlank(
+                            Find(
+                                Lower(User().Email),
+                                LookUp(
+                                    'dsf.form_level_desc',
+                                    nu_form_number_vc = Pr_FormNumber And nu_plant_id_in = varPlantId And nu_user_level=ThisItem.fr_active_level
+                                ).nu_users_email_tx
+                            )
+                        )) ,
+                        DisplayMode.Edit,
+                        DisplayMode.Disabled
+                    )
+                    /*If(
+                        (ThisItem.fr_status_in = 2) Or (ThisItem.fr_status_in = -1) Or (ThisItem.fr_status_in = 0 And !IsBlank(
+                            Find(
+                                Lower(User().Email),
+                                LookUp(
+                                    'dsf.notify_users',
+                                    nu_form_number_vc = Pr_FormNumber And nu_planta_id_in = varPlantId
+                                ).nu_users_email_tx
+                            )
+                        )),
+                        DisplayMode.Edit,
+                        DisplayMode.Disabled
+                    )*/
+                FocusedBorderThickness: =0
+                Height: =Accion_ActualRequestList.TemplateHeight
+                Icon: |-
+                    =If(
+                        ThisItem.fr_status_in = 2,
+                        Icon.CheckBadge,
+                        If(
+                            IsBlank(ThisItem.user_dispname_vc),
+                            Icon.ChevronRight,
+                            Icon.Lock
+                        )
+                    )
+                OnSelect: |-
+                    =UpdateContext({varAccionLoading:true});
+                    
+                    If(ThisItem.fr_status_in = 2,Set(VarSavedTemplate,true),Set(VarSavedTemplate,false));
+                    Set(varTimerReset,true);
+                    Set(varTimerReset,false);
+                    Set(IsHRecord,false);
+                        
+                        Set(varItemStatus,ThisItem.fr_status_in);
+                    Set(varBackPopup,true);
+                    Set(varFormMode,FormMode.Edit);
+                    //Refresh('dsf.form_request_report');
+                    ClearCollect(RequestReport,fa_request_report.Run(varPlantId,Pr_FormNumber,0));
+                    Set(VarLoadPage,true);
+                    If(IsBlank(ThisItem.usr_email_vc) Or Upper(ThisItem.usr_email_vc) = Upper(User().Email),
+                    //----------------------------------------------------------Copia el registro pendiente
+                    UpdateContext({varFormReqItem: ThisItem});
+                    //----------------------------------------------------------Indica la etapa del formulario (Emisor/Receptor)
+                    If(varFormReqItem.fr_status_in = -1,
+                    Set(varUserEmisorReceptor,false),
+                    Set(varUserEmisorReceptor,true));
+                    //----------------------------------------------------------Modo lectura cuando el formulario esta completado
+                    If(ThisItem.fr_status_in = 2, Set(varCompleteReader,1),Set(varCompleteReader,0));
+                    //----------------------------------------------------------
+                    UpdateContext(
+                        {
+                            varUpdateFR: nf_Update_Form_Requestv2.Run(
+                                varFormReqItem.fr_planta_id_in,
+                                varFormReqItem.fr_form_number_vc,
+                                Text(
+                                    varFormReqItem.fr_reportdate_dt,
+                                    "yyyy-mm-dd hh:mm:ss.fff"
+                                ),
+                                varUserId,
+                                1,
+                                Text(Now(),"[$-es-ES]yyyy/mm/dd hh:mm:ss")
+                            )
+                        }
+                    );
+                    If(
+                        !IsBlankOrError(varUpdateFR),
+                        Notify(
+                            First(collAppLanguage).Btn_LeftBtn_1_MSG01,
+                            NotificationType.Success
+                        );
+                        ,
+                        Notify(
+                            First(collAppLanguage).Btn_LeftBtn_1_MSG02,
+                            NotificationType.Error
+                        )
+                    );
+                    UpdateContext({varVisibleGrpFormRequest: false});
+                    Refresh('dsf.form_request');
+                    //Refresh('dsf.form_request_report');
+                    Refresh('dsf.answers_report');
+                    UpdateContext(
+                        {
+                            varFormDesc: LookUp(
+                                'dsf.form_library_counters',
+                                fl_form_number_vc = varFormReqItem.fr_form_number_vc &&
+                                fl_plant_id_in = varPlantId
+                            ).fl_form_description_vc
+                        }
+                    );
+                    UpdateContext(
+                        {
+                            varReportDate: Text(
+                                varFormReqItem.fr_reportdate_dt,
+                                "[$-es-ES]yyyy/mm/dd hh:mm:ss"
+                            )
+                        }
+                    );
+                    
+                    
+                    
+                    //==========--Get 5000 attachments-----==========
+                     /*   
+                    If(1=1,
+                    UpdateContext({Loading:true});
+                    Set(varFirstPageAzureBlob,Blank());
+                    Set(varFirstPageAzureBlobDummy,"");
+                    Clear(colPhotoxxx);
+                    Collect(colPhotoxxx,AzureBlobStorage.ListFolderV4(BlobAccount,BlobIdGemba,
+                    {nextPageMarker:varFirstPageAzureBlob,useFlatListing: true}).value);
+                    
+                    Set(varFirstPageAzureBlob, 
+                    AzureBlobStorage.ListFolderV4(BlobAccount,BlobIdGemba,
+                    {nextPageMarker:varFirstPageAzureBlob,useFlatListing: true}).nextPageMarker);
+                    Set(StartTimerBlob,true));*/
+                    //======================================================================
+                    
+                    Clear(Q11_TemporalPictures);
+                    //Reset(Q14_QuestionAttachment);
+                    Navigate(
+                        '05_FORMULARIOS',
+                        ScreenTransition.Fade,
+                        {
+                            Pr_FormDescription: varFormDesc,
+                            Pr_FormNumber: varFormReqItem.fr_form_number_vc,
+                            Pr_DateFilteDT: varReportDate,
+                            Pr_DateFilterIn: Value(Year(DateValue(varReportDate)) * 10000000000 + Month(DateValue(varReportDate)) * 100000000 + Day(DateValue(varReportDate)) * 1000000 + Hour(DateTimeValue(varReportDate)) * 10000 + Minute(DateTimeValue(varReportDate)) * 100 + Second(DateTimeValue(varReportDate))),
+                            Pr_ReviewMode: 0,
+                            Pr_PartialRecord: 1
+                        }
+                    );
+                    Clear(coltestanswere);
+                    Clear(colTableEditReason);
+                    
+                    ,Notify(First(collAppLanguage).Btn_OpenRequest & ThisItem.user_dispname_vc & ".",NotificationType.Error));
+                    Set(AutoSaveTable,false);
+                    
+                    UpdateContext({varAccionLoading:false});
+                PaddingBottom: =10
+                PaddingLeft: =10
+                PaddingRight: =10
+                PaddingTop: =10
+                TabIndex: =0
+                Visible: |
+                    =true/*If(
+                        ThisItem.fr_status_in <> 2 And ThisItem.fq_question_type_bt = 1 And !IsBlank(
+                            Find(
+                                Lower(User().Email),
+                                LookUp(
+                                    'dsf.notify_users',
+                                    nu_form_number_vc = Pr_FormNumber And nu_planta_id_in = varPlantId
+                                ).nu_users_email_tx
+                            )
+                        ),
+                        true,
+                        If(
+                            ThisItem.fr_status_in <> 2 And ThisItem.fq_question_type_bt = 0,
+                            true,
+                            false
+                        )
+                    )*/
+                Width: =65
+                X: =Accion_ActualRequestList.Width - Self.Width - 20
+                ZIndex: =4
+
+            Lbl_PendingRequested As label:
+                BorderColor: =RGBA(0, 0, 0, 1)
+                DisabledColor: =RGBA(40, 60, 97, 1)
+                DisplayMode: =If(ThisItem.fr_status_in = 2,DisplayMode.Disabled,DisplayMode.Edit)
+                Font: =
+                Height: =Self.Size * 1.8
+                OnSelect: =Select(Parent)
+                PaddingBottom: =0
+                PaddingLeft: =0
+                PaddingRight: =0
+                PaddingTop: =0
+                Size: =18
+                Text: =ThisItem.createdby_dispname
+                Tooltip: =Self.Text
+                VerticalAlign: =VerticalAlign.Top
+                Width: = Btn_OpenRequest.X - Self.X - 5
+                Wrap: =false
+                X: =Lbl_RequestedBy.X + Lbl_RequestedBy.Width + (Accion_ActualRequestList.TemplateWidth/620) * 10
+                Y: =24
+                ZIndex: =5
+
+            Lbl_PendingDate As label:
+                BorderColor: =RGBA(0, 0, 0, 1)
+                DisabledColor: =RGBA(40, 60, 97, 1)
+                DisplayMode: =If(ThisItem.fr_status_in = 2,DisplayMode.Disabled,DisplayMode.Edit)
+                Font: =
+                Height: =32
+                OnSelect: =Select(Parent)
+                PaddingBottom: =0
+                PaddingLeft: =0
+                PaddingRight: =0
+                PaddingTop: =0
+                Size: =18
+                Text: |-
+                    =Text(
+                        DateTimeValue(ThisItem.fr_reportdate_dt),
+                        "[$-en-US] mmm dd, yyyy hh:mm:ss"
+                    )
+                Tooltip: =Self.Text
+                VerticalAlign: =VerticalAlign.Top
+                Width: = Btn_OpenRequest.X - Self.X - 5
+                Wrap: =false
+                X: =Lbl_RequestedBy.X + Lbl_RequestedBy.Width - 5 + (Accion_ActualRequestList.TemplateWidth/620) * 10
+                Y: =102
+                ZIndex: =6
+
+            Lbl_AquiredBy As label:
+                BorderColor: =RGBA(0, 0, 0, 1)
+                Color: =RGBA(40, 60, 97, 1)
+                Font: =
+                FontWeight: =FontWeight.Semibold
+                Height: =Self.Size * 1.8
+                OnSelect: =Select(Parent)
+                PaddingBottom: =0
+                PaddingLeft: =0
+                PaddingRight: =0
+                PaddingTop: =0
+                Size: =18
+                Text: =First(collAppLanguage).Title3_MSG02 
+                VerticalAlign: =VerticalAlign.Top
+                Width: =185
+                Wrap: =false
+                X: =Lbl_RequestedBy.X
+                Y: =63
+                ZIndex: =7
+
+            Lbl_PendingAcquired As label:
+                BorderColor: =RGBA(0, 0, 0, 1)
+                DisabledColor: =RGBA(40, 60, 97, 1)
+                DisplayMode: =If(ThisItem.fr_status_in = 2,DisplayMode.Disabled,DisplayMode.Edit)
+                Font: =
+                Height: =Self.Size * 1.8
+                OnSelect: =Select(Parent)
+                PaddingBottom: =0
+                PaddingLeft: =0
+                PaddingRight: =0
+                PaddingTop: =0
+                Size: =18
+                Text: =If(IsBlank(ThisItem.user_dispname_vc),First(collAppLanguage).Lbl_PendingAcquired,ThisItem.user_dispname_vc)
+                Tooltip: =Self.Text
+                VerticalAlign: =VerticalAlign.Top
+                Width: = Btn_OpenRequest.X - Self.X - 5
+                Wrap: =false
+                X: =Lbl_RequestedBy.X + Lbl_RequestedBy.Width + (Accion_ActualRequestList.TemplateWidth/620) * 10
+                Y: =63
+                ZIndex: =8
+
+            Img_ActualRequest As image:
+                Height: =86
+                Image: =request
+                OnSelect: =Select(Parent)
+                Width: =75
+                ZIndex: =9
+
+            Btn_OpenRequest_1 As icon.ChevronRight:
+                AccessibleLabel: =Self.Tooltip
+                Color: =RGBA(59, 165, 168, 1)
+                Fill: =RGBA(237, 237, 237, 1)
+                FocusedBorderThickness: =0
+                Height: =47
+                Icon: =Icon.Settings
+                OnSelect: |-
+                    =UpdateContext({varRecordTrackingVisible:true});
+                    ClearCollect(AnswerTracking,fa_answer_tracking_report.Run(ThisItem.fr_planta_id_in,ThisItem.fr_form_number_vc,ThisItem.fr_reportdate_in))
+                PaddingBottom: =10
+                PaddingLeft: =10
+                PaddingRight: =10
+                PaddingTop: =10
+                TabIndex: =0
+                Width: =46
+                X: =15
+                Y: =85
+                ZIndex: =10
+
+            Lbl_State As label:
+                Align: =Align.Center
+                BorderColor: =RGBA(0, 0, 0, 1)
+                Color: =If(ThisItem.fr_status_in = 0,RGBA(203, 102, 102, 1),RGBA(128, 128, 128, 1))
+                Font: ="Unity"
+                FontWeight: =FontWeight.Semibold
+                Height: =15
+                OnSelect: =Select(Parent)
+                PaddingBottom: =0
+                PaddingLeft: =0
+                PaddingTop: =0
+                Size: =8
+                Text: ="Log"
+                Width: =42
+                X: =21
+                Y: =123
+                ZIndex: =11
+
+            Lbl_Date_1 As label:
+                BorderColor: =RGBA(0, 0, 0, 1)
+                Color: =RGBA(40, 60, 97, 1)
+                Font: =
+                FontWeight: =FontWeight.Semibold
+                Height: =Self.Size * 1.8
+                OnSelect: =Select(Parent)
+                PaddingBottom: =0
+                PaddingLeft: =0
+                PaddingRight: =0
+                PaddingTop: =0
+                Size: =18
+                Text: =First(collAppLanguage).Lbl_Date_1
+                VerticalAlign: =VerticalAlign.Top
+                Width: =185
+                Wrap: =false
+                X: =Lbl_RequestedBy.X
+                Y: =143
+                ZIndex: =12
+
+            Lbl_PendingAcquired_1 As label:
+                BorderColor: =RGBA(0, 0, 0, 1)
+                DisabledColor: =RGBA(59, 165, 168, 1)
+                DisplayMode: =If(ThisItem.fr_status_in = 2,DisplayMode.Disabled,DisplayMode.Edit)
+                Font: =
+                Height: =Self.Size * 1.8
+                OnSelect: =Select(Parent)
+                PaddingBottom: =0
+                PaddingLeft: =0
+                PaddingRight: =0
+                PaddingTop: =0
+                Size: =18
+                Text: |-
+                    =//Switch(ThisItem.fr_status_in, 0, First(collAppLanguage).Sts_02,1, First(collAppLanguage).Sts_03,2,First(collAppLanguage).Sts_04)
+                    If(ThisItem.fr_status_in<>2,"Pending by User "&ThisItem.fr_active_level,First(collAppLanguage).Sts_04)
+                    //Switch(ThisItem.fr_status_in, -1,First(collAppLanguage).Sts_01, 0, First(collAppLanguage).Sts_02,1, First(collAppLanguage).Sts_03,2,First(collAppLanguage).Sts_04)-1=Pending by User01, 0=User 01 Completed, 1=User 02 In Progress, 2= Completed
+                Tooltip: =Self.Text
+                VerticalAlign: =VerticalAlign.Top
+                Width: = Btn_OpenRequest.X - Self.X - 5
+                Wrap: =false
+                X: =Lbl_RequestedBy.X + Lbl_RequestedBy.Width + (Accion_ActualRequestList.TemplateWidth/620) * 10
+                Y: =143
+                ZIndex: =13
+
+            Lbl_Date_2 As label:
+                BorderColor: =RGBA(0, 0, 0, 1)
+                Color: =RGBA(40, 60, 97, 1)
+                Font: =
+                FontWeight: =FontWeight.Bold
+                Height: =Self.Size * 1.8
+                OnSelect: =Select(Parent)
+                PaddingBottom: =0
+                PaddingLeft: =0
+                PaddingRight: =0
+                PaddingTop: =0
+                Size: =18
+                Text: |-
+                    =If(Pr_FormFrequency = "PO","PO:","CIP Object: ")
+                VerticalAlign: =VerticalAlign.Top
+                Visible: =(Pr_FormFrequency = "PO" || "25975.2" in Pr_FormNumber || "26874.1" in Pr_FormNumber)
+                Width: =185
+                Wrap: =false
+                X: =Lbl_RequestedBy.X
+                Y: =188
+                ZIndex: =14
+
+            Lbl_PendingRequested_1 As label:
+                BorderColor: =RGBA(0, 0, 0, 1)
+                DisabledColor: =RGBA(40, 60, 97, 1)
+                DisplayMode: =If(ThisItem.fr_status_in = 2,DisplayMode.Disabled,DisplayMode.Edit)
+                Font: =
+                FontWeight: =FontWeight.Bold
+                Height: =Self.Size * 1.8
+                OnSelect: =Select(Parent)
+                PaddingBottom: =0
+                PaddingLeft: =0
+                PaddingRight: =0
+                PaddingTop: =0
+                Size: =18
+                Text: =ThisItem.PO
+                Tooltip: =Self.Text
+                VerticalAlign: =VerticalAlign.Top
+                Visible: =(Pr_FormFrequency = "PO" || "25975.2" in Pr_FormNumber || "26874.1" in Pr_FormNumber)
+                Width: = Btn_OpenRequest.X - Self.X - 5
+                Wrap: =false
+                X: =Lbl_RequestedBy.X + Lbl_RequestedBy.Width + (Accion_ActualRequestList.TemplateWidth/620) * 10
+                Y: =188
+                ZIndex: =15
+
+            icn_delete_request_1 As icon.Trash:
+                Color: =RGBA(255, 0, 0, 1)
+                Height: =35
+                Icon: =Icon.Trash
+                OnSelect: |-
+                    =UpdateContext({varLevel1User:Blank()});
+                    If(!IBMS,UpdateContext({varLevel1User:
+                    dsf_get_level1_user_details.Run(varPlantId,ThisItem.fr_form_number_vc,Text(
+                                    ThisItem.fr_reportdate_dt,
+                                    "yyyy-mm-dd hh:mm:ss.fff"
+                                ))}));
+                    If(IBMS || (varUserId=First(varLevel1User).sf_user_id_bin),
+                    UpdateContext({varDeletePopup:true}),
+                    Notify("You don't have sufficient rights to delete this",NotificationType.Warning))
+                PaddingLeft: =10
+                Width: =45
+                X: =Btn_OpenRequest_3.X
+                Y: =Btn_OpenRequest_3.Y+Btn_OpenRequest_3.Height+10
+                ZIndex: =16
+
+        Accion_ActualRequest_Icon_Filter As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =If(Tick && (CountRows(Accion_ActualRequest_Filter_Cb_RequestedBy.SelectedItems) > 0 || CountRows(Accion_ActualRequest_Filter_Cb_State.SelectedItems) > 0 || !IsBlank(Accion_ActualRequest_Filter_Dtp_Date.SelectedDate)), RGBA(255, 191, 0, 1), RGBA(255, 255, 255, 1))
+            FocusedBorderThickness: =0
+            Height: =37
+            Icon: =Icon.Filter
+            OnSelect: |-
+                =UpdateContext({varCurrentRequestFilter:!varCurrentRequestFilter})
+            Tooltip: ="Pending Task"
+            Visible: =true//If(CountRows(Accion_ActualRequestList.AllItems) = 0 Or IsBlankOrError(CountRows(Accion_ActualRequestList.AllItems)),false,true)
+            Width: =59
+            X: =Accion_ActualRequest_Shp_ActualRequest.Width-Self.Width-5
+            Y: =Accion_ActualRequest_Shp_ActualRequest.Y+5
+            ZIndex: =20
+
+    Accion_Header As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =20
+        ZIndex: =31
+
+        Accion_Header_Shp_NavBarTop As htmlViewer:
+            Height: =202
+            HtmlText: |-
+                ="<div style ='
+                
+                  margin-top:0px;
+                  margin-bottom:3px;
+                  margin-left:0px;
+                  margin-right:0px;
+                  width: "& Accion_Header_Shp_NavBarTop.Width &"px;
+                  height: "& Accion_Header_Shp_NavBarTop.Height - 21 &"px;
+                  background-color: #3BA5A8;
+                  box-shadow: rgba(0, 0, 0, 0.15) 3px 6px 18px;'
+                  <center>
+                  </center>
+                  </div>
+                "//rgba(203, 16, 18, 1)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Width: =Parent.Width
+            ZIndex: =13
+
+        Accion_Header_Lbl_ScreenTitle As label:
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =//"Arial Rounded MT"
+            Height: =67
+            Size: =32
+            Text: =Right(First(collAppLanguage).'Title Screen 8', Len(First(collAppLanguage).'Title Screen 8') -3) 
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =Principal_Header_Lbl_ScreenSubTitle.Y - Self.Height
+            ZIndex: =14
+
+        Accion_Header_Lbl_ScreenSubTitle As label:
+            Color: =RGBA(241, 244, 249, 1)
+            Font: ="Unity"
+            FontWeight: =FontWeight.Lighter
+            Height: =29
+            PaddingBottom: =20
+            PaddingTop: =0
+            Size: =12
+            Text: =Pr_FormDescription & If(Pr_FormReviewMode = 1, " (Release Process)","")
+            Width: =Parent.Width - 60
+            Wrap: =false
+            X: =30
+            Y: =Accion_Header_Shp_NavBarTop.Height - Self.Height - 25
+            ZIndex: =15
+
+        Accion_Header_Btn_NotificationNav As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.Bell
+            OnSelect: =Navigate('04_NOTIFICACIONES',ScreenTransition.Cover)
+            Tooltip: ="Pending Task"
+            Width: =59
+            X: =Parent.Width - Self.Width - 30
+            Y: =33
+            ZIndex: =16
+
+        Accion_Header_Btn_ProfileNav As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.ArrowLeft
+            OnSelect: =Navigate('01_PRINCIPAL',ScreenTransition.CoverRight)
+            Width: =59
+            X: =30
+            Y: =33
+            ZIndex: =17
+
+        Accion_Header_Shp_PendingIndicator As circle:
+            BorderColor: =RGBA(220, 153, 153, 1)
+            BorderThickness: =2
+            Fill: =RGBA(203, 102, 102, 1)
+            Height: =28
+            OnSelect: =Navigate('04_NOTIFICACIONES',ScreenTransition.Cover)
+            Visible: =If(TotalPending = 0 Or IsBlankOrError(TotalPending),false,true)
+            Width: =28
+            X: =Parent.Width - Self.Width - 30
+            Y: =30
+            ZIndex: =18
+
+        Accion_Header_Lbl_PendingIndicator As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =
+            FontWeight: =FontWeight.Bold
+            Height: =28
+            OnSelect: =Navigate('04_NOTIFICACIONES',ScreenTransition.Cover)
+            Size: =10
+            Text: |-
+                =//----------------------------------------------------------------------------------------------------MUESTRA CANTIDAD DE PENDIENTES
+                If(TotalPending > 9,"+9",TotalPending)
+            Visible: =If(TotalPending = 0 Or IsBlankOrError(TotalPending),false,true)
+            Width: =28
+            X: =Parent.Width - Self.Width - 30
+            Y: =31
+            ZIndex: =19
+
+    Accion_AcquireForm As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =31
+
+        Accion_AcquireForm_Shp_AcquireGrayBackground As rectangle:
+            DisabledFill: =Accion_AcquireForm_Shp_AcquireGrayBackground.Fill
+            Fill: =RGBA(96, 96, 98, 0.64)
+            FocusedBorderColor: =Accion_AcquireForm_Shp_AcquireGrayBackground.BorderColor
+            Height: =Parent.Height
+            HoverFill: =Accion_AcquireForm_Shp_AcquireGrayBackground.Fill
+            PressedFill: =Accion_AcquireForm_Shp_AcquireGrayBackground.Fill
+            Visible: =varVisibleGrpFormRequest
+            Width: =Parent.Width
+            ZIndex: =21
+
+        Accion_AcquireForm_Shp_AcquireBackground As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: |
+                =Accion_AcquireForm_Shp_AquireAccept.Y + Accion_AcquireForm_Shp_AquireAccept.Height - Self.Y +30
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:1;background-color:#FFFFFF;box-shadow:0 3px 6px 1px  #ccc; border-radius:8px'></div>"
+            Visible: =varVisibleGrpFormRequest
+            Width: =Parent.Width * 0.9
+            X: =(Parent.Width - Self.Width)/2
+            Y: =Parent.Height/2 - 300
+            ZIndex: =22
+
+        Accion_AcquireForm_Shp_AquireAccept As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =90
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:0.8;background-color:#F0F0F0;box-shadow:0 3px 6px 1px  #ccc; border-radius:90px'></div>"
+            OnSelect: =
+            Visible: =varVisibleGrpFormRequest
+            Width: =(Accion_AcquireForm_Shp_AcquireBackground.Width/2) *0.8
+            X: =Accion_AcquireForm_Lbl_AcquireMessage.X
+            Y: =Accion_AcquireForm_Lbl_AcquireMessage.Y + Accion_AcquireForm_Lbl_AcquireMessage.Height + 15
+            ZIndex: =23
+
+        Accion_AcquireForm_Lbl_AcquireMessage As label:
+            AutoHeight: =true
+            Color: =RGBA(45, 45, 45, 1)
+            FocusedBorderColor: =Accion_AcquireForm_Lbl_AcquireMessage.BorderColor
+            Font: ="Unity"
+            HoverBorderColor: =Accion_AcquireForm_Lbl_AcquireMessage.BorderColor
+            HoverColor: =Accion_AcquireForm_Lbl_AcquireMessage.Color
+            HoverFill: =Accion_AcquireForm_Lbl_AcquireMessage.Fill
+            PressedBorderColor: =Accion_AcquireForm_Lbl_AcquireMessage.BorderColor
+            PressedColor: =Accion_AcquireForm_Lbl_AcquireMessage.Color
+            PressedFill: =Accion_AcquireForm_Lbl_AcquireMessage.Fill
+            Size: =21
+            Text: =First(collAppLanguage).lblDescription_3
+            VerticalAlign: =VerticalAlign.Top
+            Visible: =varVisibleGrpFormRequest
+            Width: =Accion_AcquireForm_Shp_AcquireBackground.Width * 0.9
+            X: =(Parent.Width - Self.Width)/2
+            Y: =Accion_AcquireForm_Lbl_AcquireTitle.Y+Accion_AcquireForm_Lbl_AcquireTitle.Height + 15
+            ZIndex: =24
+
+        Accion_AcquireForm_Lbl_AcquireTitle As label:
+            Align: =Align.Center
+            AutoHeight: =true
+            FocusedBorderColor: =Accion_AcquireForm_Lbl_AcquireTitle.BorderColor
+            Font: =
+            FontWeight: =FontWeight.Bold
+            Height: =43
+            HoverBorderColor: =Accion_AcquireForm_Lbl_AcquireTitle.BorderColor
+            HoverColor: =Accion_AcquireForm_Lbl_AcquireTitle.Color
+            HoverFill: =Accion_AcquireForm_Lbl_AcquireTitle.Fill
+            PressedBorderColor: =Accion_AcquireForm_Lbl_AcquireTitle.BorderColor
+            PressedColor: =Accion_AcquireForm_Lbl_AcquireTitle.Color
+            PressedFill: =Accion_AcquireForm_Lbl_AcquireTitle.Fill
+            Size: =30
+            Text: =First(collAppLanguage).lblTitle_3
+            Visible: =varVisibleGrpFormRequest
+            Width: =Accion_AcquireForm_Shp_AcquireBackground.Width * 0.9
+            X: =(Parent.Width - Self.Width)/2
+            Y: =Accion_AcquireForm_Shp_AcquireBackground.Y + 25
+            ZIndex: =25
+
+        Accion_AcquireForm_Shp_AcquireCancel As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =90
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:0.8;background-color:#F0F0F0;box-shadow:0 3px 6px 1px  #ccc; border-radius:90px'></div>"
+            OnSelect: =
+            Visible: =varVisibleGrpFormRequest
+            Width: =(Accion_AcquireForm_Shp_AcquireBackground.Width/2) *0.8
+            X: =Accion_AcquireForm_Lbl_AcquireMessage.X + Accion_AcquireForm_Lbl_AcquireMessage.Width - Self.Width
+            Y: =Accion_AcquireForm_Lbl_AcquireMessage.Y + Accion_AcquireForm_Lbl_AcquireMessage.Height + 15
+            ZIndex: =26
+
+        Accion_AcquireForm_Btn_AcquireCancel As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(40, 60, 97, 1)
+            Font: ="U"
+            Height: =Accion_AcquireForm_Shp_AcquireCancel.Height
+            OnSelect: |-
+                =UpdateContext({varVisibleGrpFormRequest: false})
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =20
+            Text: =First(collAppLanguage).Btn_RightBtn_3
+            Visible: =varVisibleGrpFormRequest
+            Width: =Accion_AcquireForm_Shp_AcquireCancel.Width
+            X: =Accion_AcquireForm_Shp_AcquireCancel.X
+            Y: =Accion_AcquireForm_Shp_AcquireCancel.Y
+            ZIndex: =27
+
+        Accion_AcquireForm_Btn_AcquireAccept As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(40, 60, 97, 1)
+            Font: ="U"
+            Height: =Accion_AcquireForm_Shp_AquireAccept.Height
+            OnSelect: |
+                =//----------------------------------------------------------Indica la etapa del formulario (Emisor/Receptor)
+                If(varFormReqItem.fr_status_in = -1,
+                Set(varUserEmisorReceptor,false),
+                Set(varUserEmisorReceptor,true));
+                
+                
+                UpdateContext(
+                    {
+                        varUpdateFR: nf_Update_Form_Requestv2.Run(
+                            varFormReqItem.fr_planta_id_in,
+                            varFormReqItem.fr_form_number_vc,
+                            Text(
+                                varFormReqItem.fr_reportdate_dt,
+                                "yyyy-mm-dd hh:mm:ss.fff"
+                            ),
+                            varUserId,
+                            1,
+                            Text(Now(),"[$-es-ES]yyyy/mm/dd hh:mm:ss")
+                        )
+                    }
+                );
+                If(
+                    !IsBlankOrError(varUpdateFR),
+                    Notify(
+                        First(collAppLanguage).Btn_LeftBtn_1_MSG01,
+                        NotificationType.Success
+                    );
+                    ,
+                    Notify(
+                        First(collAppLanguage).Btn_LeftBtn_1_MSG02,
+                        NotificationType.Error
+                    )
+                );
+                UpdateContext({varVisibleGrpFormRequest: false});
+                Refresh('dsf.form_request');
+                //Refresh('dsf.form_request_report');
+                Refresh('dsf.answers_report');
+                UpdateContext(
+                    {
+                        varFormDesc: LookUp(
+                            'dsf.form_library_counters',
+                            fl_form_number_vc = varFormReqItem.fr_form_number_vc
+                        ).fl_form_description_vc
+                    }
+                );
+                UpdateContext(
+                    {
+                        varReportDate: Text(
+                            varFormReqItem.fr_reportdate_dt,
+                            "[$-es-ES]yyyy/mm/dd hh:mm:ss"
+                        )
+                    }
+                );
+                Navigate(
+                    '05_FORMULARIOS',
+                    ScreenTransition.Fade,
+                    {
+                        Pr_FormDescription: varFormDesc,
+                        Pr_FormNumber: varFormReqItem.fr_form_number_vc,
+                        Pr_DateFilteDT: varReportDate,
+                        Pr_DateFilterIn: Value(Year(DateValue(varReportDate)) * 10000000000 + Month(DateValue(varReportDate)) * 100000000 + Day(DateValue(varReportDate)) * 1000000 + Hour(DateTimeValue(varReportDate)) * 10000 + Minute(DateTimeValue(varReportDate)) * 100 + Second(DateTimeValue(varReportDate))),
+                        Pr_ReviewMode: 0,
+                        Pr_PartialRecord: 1
+                    }
+                );
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =20
+            Text: =First(collAppLanguage).Btn_LeftBtn_1
+            Visible: =varVisibleGrpFormRequest
+            Width: =Accion_AcquireForm_Shp_AquireAccept.Width
+            X: =Accion_AcquireForm_Shp_AquireAccept.X
+            Y: =Accion_AcquireForm_Shp_AquireAccept.Y
+            ZIndex: =29
+
+    Accion_RecordTracking As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =34
+
+        Accion_RecordTracking_Shp_SubBackground As rectangle:
+            Fill: =RGBA(237, 242, 242, 0.9)
+            Height: =Parent.Height
+            Visible: =varRecordTrackingVisible
+            Width: =Parent.Width
+            ZIndex: =30
+
+        Accion_RecordTracking_Shp_Background As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =Parent.Height - 30
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:1;background-color:#FFFFFF;box-shadow:0 3px 6px 1px  #ccc; border-radius:10px'></div>"
+            Visible: =varRecordTrackingVisible
+            Width: =Parent.Width - 20
+            X: =10
+            Y: =15
+            ZIndex: =31
+
+        Accion_RecordTracking_Lbl_Title As label:
+            Align: =Align.Center
+            Fill: =RGBA(43, 105, 107, 0.1)
+            Font: =//"Arial Rounded MT"
+            Height: =100
+            Size: =32
+            Text: =First(collAppLanguage).Accion_RecordTracking_Lbl_Title
+            Visible: =varRecordTrackingVisible
+            Width: =Parent.Width - 26 - Self.X
+            X: =26
+            Y: =29
+            ZIndex: =32
+
+        Accion_RecordTracking_Btn_Close As icon.Add:
+            Color: =RGBA(184, 0, 0, 1)
+            Height: =41
+            Icon: =Icon.CancelBadge
+            OnSelect: |-
+                =UpdateContext({varRecordTrackingVisible:false})
+            Visible: =varRecordTrackingVisible
+            Width: =34
+            X: =Accion_RecordTracking_Lbl_Title.X + Accion_RecordTracking_Lbl_Title.Width - Self.Width - 10
+            Y: =36
+            ZIndex: =33
+
+        Accion_RecordTracking_DataTable As dataTable.datatable:
+            BorderStyle: =BorderStyle.Solid
+            DisplayMode: =DisplayMode.Edit
+            Fill: =RGBA(203, 241, 242, 0.05)
+            Font: ="Unity"
+            HeadingFill: =RGBA(59, 165, 168, 1)
+            HeadingFont: ="Unity"
+            HeadingSize: =18
+            Height: =Accion_RecordTracking_Shp_Background.Height - Accion_RecordTracking_Shp_Background.Y  - Self.Y
+            HoverFill: =RGBA(241, 244, 249, 1)
+            Items: |-
+                =SortByColumns(AnswerTracking,"fat_question_pos_in",SortOrder.Ascending,"fat_child_pos_in",SortOrder.Ascending,"fat_change_datetime_dt",SortOrder.Descending)
+                
+                //Filter('dsf.form_answer_tracking_report',fat_report_date_in = Accion_ActualRequestList.Selected.fr_reportdate_in)
+            NoDataText: =First(collAppLanguage).Accion_RecordTracking_DataTable
+            SelectedFill: =RGBA(59, 165, 168, 0.17)
+            Size: =14
+            Visible: =varRecordTrackingVisible
+            Width: =Accion_RecordTracking_Lbl_Title.Width - 20
+            X: =Accion_RecordTracking_Lbl_Title.X + 10
+            Y: =Accion_RecordTracking_Lbl_Title.Y + Accion_RecordTracking_Lbl_Title.Height + 10
+            ZIndex: =34
+
+            usr_email_vc_Column1 As dataTableColumn.emailColumn:
+                AutoWidth: =false
+                DisplayMode: =DisplayMode.Edit
+                FieldDisplayName: =First(collAppLanguage).lan_usr_email_vc_column1
+                FieldName: ="usr_email_vc"
+                FieldVariantName: ="emailColumn"
+                Height: =Parent.Height
+                LayoutHeight: =Parent.Height
+                Order: =2
+                Text: =ThisItem.usr_email_vc
+                Width: =325
+                X: =215
+                Y: =0
+                ZIndex: =1
+
+            fat_change_datetime_dt_Column2 As dataTableColumn.dateTimeColumn:
+                AutoWidth: =false
+                DisplayMode: =DisplayMode.Edit
+                FieldDisplayName: =First(collAppLanguage).fat_change_datetime_dt_Column2
+                FieldName: ="fat_change_datetime_dt"
+                FieldVariantName: ="dateTimeColumn"
+                Height: =Parent.Height
+                LayoutHeight: =Parent.Height
+                Order: =1
+                Text: |-
+                    =//Text(ThisItem.fat_change_datetime_dt,"[$-en-US] mmm dd, yyyy hh:mm:ss AM/PM")
+                    Text(
+                            DateAdd(ThisItem.fat_change_datetime_dt,0,TimeUnit.Minutes),
+                            "[$-en-US] mmm dd, yyyy hh:mm:ss"
+                        )
+                Width: =300
+                X: =0
+                Y: =0
+                ZIndex: =15
+
+            fat_question_description_vc_Column2 As dataTableColumn.textualColumn:
+                AutoWidth: =true
+                DisplayMode: =DisplayMode.Edit
+                FieldDisplayName: =First(collAppLanguage).fat_question_description_vc_Column2
+                FieldName: ="fat_question_description_vc"
+                FieldVariantName: ="textualColumn"
+                Height: =Parent.Height
+                LayoutHeight: =Parent.Height
+                Order: =5
+                Text: =ThisItem.fat_question_description_vc
+                Width: =600
+                X: =0
+                Y: =0
+                ZIndex: =16
+
+            fat_question_answer_vc_Column2 As dataTableColumn.textualColumn:
+                AutoWidth: =true
+                DisplayMode: =DisplayMode.Edit
+                FieldDisplayName: =First(collAppLanguage).fat_question_answer_vc_Column2
+                FieldName: ="fat_question_answer_vc"
+                FieldVariantName: ="textualColumn"
+                Height: =Parent.Height
+                LayoutHeight: =Parent.Height
+                Order: =6
+                Text: =ThisItem.fat_question_answer_vc
+                Width: =1300
+                X: =0
+                Y: =0
+                ZIndex: =17
+
+            fat_question_pos_in_Column2 As dataTableColumn.numberColumn:
+                AutoWidth: =false
+                DisplayMode: =DisplayMode.Edit
+                FieldDisplayName: ="Question position"
+                FieldName: ="fat_question_pos_in"
+                FieldVariantName: ="numberColumn"
+                Height: =Parent.Height
+                LayoutHeight: =Parent.Height
+                Order: =3
+                Text: =ThisItem.fat_question_pos_in
+                Width: =86
+                X: =0
+                Y: =0
+                ZIndex: =18
+
+            fat_record_type_vc_Column1 As dataTableColumn.textualColumn:
+                AutoWidth: =false
+                DisplayMode: =DisplayMode.Edit
+                FieldDisplayName: =First(collAppLanguage).fat_record_type_vc_Column1
+                FieldName: ="fat_record_type_vc"
+                FieldVariantName: ="textualColumn"
+                Height: =Parent.Height
+                LayoutHeight: =Parent.Height
+                Order: =8
+                Text: =ThisItem.fat_record_type_vc
+                Width: =100
+                X: =0
+                Y: =0
+                ZIndex: =19
+
+            fat_change_reason_vc_Column2 As dataTableColumn.textualColumn:
+                AutoWidth: =false
+                DisplayMode: =DisplayMode.Edit
+                FieldDisplayName: =First(collAppLanguage).fat_change_reason_vc_Column2
+                FieldName: ="fat_change_reason_vc"
+                FieldVariantName: ="textualColumn"
+                Height: =Parent.Height
+                LayoutHeight: =Parent.Height
+                Order: =7
+                Text: =ThisItem.fat_change_reason_vc
+                Width: =400
+                X: =0
+                Y: =0
+                ZIndex: =20
+
+            fat_child_pos_in_Column1 As dataTableColumn.textualColumn:
+                DisplayMode: =DisplayMode.Edit
+                FieldDisplayName: ="Child position"
+                FieldName: ="fat_child_pos_in"
+                FieldVariantName: ="textualColumn"
+                Height: =Parent.Height
+                LayoutHeight: =Parent.Height
+                Order: =4
+                Text: =ThisItem.fat_child_pos_in
+                Width: =100
+                X: =408
+                Y: =0
+                ZIndex: =21
+
+    Accion_Footer_Shp_ProgressBarUpdate As rectangle:
+        Fill: =RGBA(25, 178, 209, 1)
+        Height: =5
+        Width: =Parent.Width * (Accion_Other_Tmr_RefreshTimer.Value/Accion_Other_Tmr_RefreshTimer.Duration)
+        Y: =Parent.Height - Accion_Footer_Shp_ProgressBarUpdate.Height
+        ZIndex: =35
+
+    Accion_Other_Tmr_RefreshTimer As timer:
+        AutoPause: =false
+        Duration: =15000
+        Height: =49
+        OnTimerEnd: |
+            =//---------------------------------------------------------------------------------------------------------------------------------------- LISTA DE FORMULARIOS
+            //---------------------------------------------------------------------------------------------------- REFRESCA TABLAS
+            ClearCollect(RequestReport,fa_request_report.Run(varPlantId,Pr_FormNumber,0));
+        OnTimerStart: =
+        Text: =Text(Time(0, 0, Self.Value/1000), "ss")
+        Visible: =false
+        Width: =88
+        X: =121
+        Y: =10
+        ZIndex: =36
+
+    Timer2 As timer:
+        AutoPause: =false
+        AutoStart: =true
+        BorderColor: =RGBA(255, 191, 0, 1)
+        Duration: =1000
+        Height: =70
+        OnTimerEnd: |-
+            =If(Tick,UpdateContext({Tick:false}),UpdateContext({Tick:true}))
+        Repeat: =true
+        Text: =Text(Time(0, 0, Self.Value/1000), "ss")
+        Visible: =false
+        Width: =123
+        X: =506
+        Y: =295
+        ZIndex: =37
+
+    Accion_ActualRequest_Icon_Filter_1 As icon.Filter:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        Color: =If(Tick && (CountRows(Accion_ActualRequest_Filter_Cb_RequestedBy.SelectedItems) > 0 || CountRows(Accion_ActualRequest_Filter_Cb_State.SelectedItems) > 0 || !IsBlank(Accion_ActualRequest_Filter_Dtp_Date.SelectedDate)), RGBA(255, 191, 0, 1), RGBA(255, 255, 255, 1))
+        DisabledColor: =RGBA(202, 202, 202, 1)
+        DisplayMode: =RefreshMode
+        FocusedBorderThickness: =0
+        Height: =40
+        Icon: =Icon.Reload
+        OnSelect: |-
+            =UpdateContext({varAccionLoading:true});
+            UpdateContext({varStartRefreshMode:true});
+            Refresh('dsf.form_level_desc');
+            Refresh('dsf.form_answer_attachment');
+            
+            ClearCollect(RequestReport,fa_request_report.Run(varPlantId,Pr_FormNumber,0));
+            UpdateContext({varAccionLoading:false});
+            Select(btn_UnlockForms);
+        Tooltip: ="Refresh"
+        Visible: =true//If(CountRows(Accion_ActualRequestList.AllItems) = 0 Or IsBlankOrError(CountRows(Accion_ActualRequestList.AllItems)),false,true)
+        Width: =50
+        X: =Accion_ActualRequest_Lbl_ActualRequest.X + 20
+        Y: =Accion_ActualRequest_Shp_ActualRequest.Y+5
+        ZIndex: =38
+
+    Accion_Loading As Lir_Loading_1:
+        Height: =Parent.Height
+        IsLoading: =varAccionLoading
+        Text: =First(collAppLanguage).LoadingText
+        Visible: =Accion_Loading.IsLoading
+        Width: =Parent.Width
+        ZIndex: =39
+
+    NextRefresh As timer:
+        Duration: =30000
+        FontWeight: =FontWeight.Lighter
+        Height: =49
+        OnTimerEnd: |-
+            =UpdateContext({RefreshMode:DisplayMode.Edit});
+            UpdateContext({varStartRefreshMode:false});
+        OnTimerStart: |-
+            =UpdateContext({RefreshMode:DisplayMode.Disabled})
+        Start: =varStartRefreshMode
+        Text: =Text(Time(0, 0, Self.Value/1000), "ss")
+        Visible: =false
+        Width: =88
+        X: =288
+        Y: =10
+        ZIndex: =40
+
+    btn_UnlockForms As button:
+        Height: =51
+        OnSelect: |+
+            =//ClearCollect(RequestReport,fa_request_report.Run(varPlantId,Pr_FormNumber));
+            ClearCollect(col15minearlier,
+            Filter(
+            
+                RequestReport,DateDiff(fr_assigned_dt,Now(),TimeUnit.Minutes)>15 && !IsBlank(user_dispname_vc) && fr_status_in <> 2 ));
+            ForAll(col15minearlier As Record,fa_AnswerReport_Opt.Run(
+                    Record.usr_email_vc,
+                    "",
+                    Record.fr_form_number_vc,
+                    Record.fr_reportdate_dt,
+                    99,
+                    0, 
+                    Text(Now(),"[$-es-ES]yyyy/mm/dd hh:mm:ss"),Record.fr_active_level,Record.fr_total_level
+                );
+            
+            );
+            ClearCollect(RequestReport,fa_request_report.Run(varPlantId,Pr_FormNumber,0));
+            
+        Size: =18
+        Text: ="unlock forms"
+        Visible: =false
+        Width: =192
+        X: =6
+        Y: =412
+        ZIndex: =43
+
+    cont_Delete_PopUp_1 As groupContainer.horizontalAutoLayoutContainer:
+        Fill: =RGBA(0,0,0,0.4)
+        Height: =App.Height
+        LayoutAlignItems: =LayoutAlignItems.Center
+        LayoutDirection: =LayoutDirection.Vertical
+        LayoutJustifyContent: =LayoutJustifyContent.Center
+        LayoutMode: =LayoutMode.Auto
+        Visible: =varDeletePopup
+        Width: =App.Width
+        ZIndex: =44
+
+        Container4_3 As groupContainer.verticalAutoLayoutContainer:
+            AlignInContainer: =AlignInContainer.SetByContainer
+            BorderThickness: =1
+            DropShadow: =DropShadow.Semibold
+            Fill: =RGBA(255, 255, 255, 1)
+            FillPortions: =0
+            Height: =350
+            LayoutAlignItems: =LayoutAlignItems.Center
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutJustifyContent: =LayoutJustifyContent.Center
+            LayoutMinHeight: =112
+            LayoutMinWidth: =200
+            LayoutMode: =LayoutMode.Auto
+            Width: =If(App.Width<=700,600,App.Width>700 &&App.Width<=1200,700,App.Width>1200,1200)
+            ZIndex: =1
+
+            Icon2_3 As icon.CancelBadge:
+                AlignInContainer: =AlignInContainer.End
+                Color: =RGBA(255, 0, 0, 0.59)
+                Height: =70
+                Icon: =Icon.CancelBadge
+                OnSelect: |-
+                    =UpdateContext({varDeletePopup:false})
+                PaddingRight: =10
+                PaddingTop: =10
+                Width: =60
+                ZIndex: =1
+
+            Container5_3 As groupContainer.horizontalAutoLayoutContainer:
+                Height: =225
+                LayoutDirection: =LayoutDirection.Vertical
+                LayoutMinHeight: =112
+                LayoutMinWidth: =250
+                LayoutMode: =LayoutMode.Auto
+                ZIndex: =2
+
+                Label9_4 As label:
+                    Align: =Align.Center
+                    AlignInContainer: =AlignInContainer.Center
+                    FontWeight: =FontWeight.Bold
+                    Height: =70
+                    LayoutMinHeight: =70
+                    LayoutMinWidth: =560
+                    Size: =22
+                    Text: ="Are You Sure?"
+                    Width: =560
+                    ZIndex: =1
+
+                Label9_5 As label:
+                    Align: =Align.Center
+                    AlignInContainer: =AlignInContainer.Center
+                    Color: =RGBA(255, 0, 0, 1)
+                    FontWeight: =FontWeight.Bold
+                    Height: =70
+                    LayoutMinHeight: =70
+                    LayoutMinWidth: =560
+                    Size: =22
+                    Text: ="Do You Want to Delete this Request?"
+                    Width: =560
+                    ZIndex: =2
+
+                Container7_3 As groupContainer.horizontalAutoLayoutContainer:
+                    FillPortions: =0
+                    Height: =225
+                    LayoutGap: =60
+                    LayoutJustifyContent: =LayoutJustifyContent.Center
+                    LayoutMinHeight: =112
+                    LayoutMinWidth: =250
+                    LayoutMode: =LayoutMode.Auto
+                    PaddingTop: =40
+                    ZIndex: =3
+
+                    btn_delete_deletepopup_1 As button:
+                        Fill: =RGBA(203, 102, 102, 1)
+                        Height: =50
+                        HoverFill: =ColorFade(Self.Fill, -20%)
+                        LayoutMinHeight: =70
+                        LayoutMinWidth: =280
+                        OnSelect: |-
+                            =UpdateContext({varResponse:
+                            dsf_execute_sql_query.Run(
+                                "update dsf.form_request
+                            set fr_is_deleted=1
+                            Where fr_planta_id_in="&varPlantId&" and fr_form_number_vc='"&Pr_FormNumber&"' and fr_reportdate_dt='"&Text(
+                                        Accion_ActualRequestList.Selected.fr_reportdate_dt,
+                                        "[$-es-ES]yyyy/mm/dd hh:mm:ss"
+                                    )&"'"
+                            )});
+                            If(varResponse.response="Success",Notify("Request Deleted Successfully",NotificationType.Warning);UpdateContext({varAccionLoading:true});
+                            UpdateContext({varAccionLoading:true});
+                            UpdateContext({varStartRefreshMode:true});
+                            
+                            ClearCollect(RequestReport,fa_request_report.Run(varPlantId,Pr_FormNumber,0));
+                            UpdateContext({varAccionLoading:false});
+                            UpdateContext({varDeletePopup:false})
+                            ,Notify("Error! Please try later.",NotificationType.Warning))
+                        RadiusBottomLeft: =12
+                        RadiusBottomRight: =12
+                        RadiusTopLeft: =12
+                        RadiusTopRight: =12
+                        Size: =18
+                        Text: ="Delete"
+                        Width: =180
+                        ZIndex: =1
+
+                    btn_Cancel_deletepopup_1 As button:
+                        Fill: |-
+                            =ColorValue("#3BA5A8")
+                        Height: =50
+                        HoverFill: |-
+                            =ColorFade(ColorValue("#3BA5A8"), -20%)
+                        LayoutMinHeight: =70
+                        LayoutMinWidth: =280
+                        OnSelect: |-
+                            =UpdateContext({varDeletePopup:false})
+                        RadiusBottomLeft: =12
+                        RadiusBottomRight: =12
+                        RadiusTopLeft: =12
+                        RadiusTopRight: =12
+                        Size: =18
+                        Text: ="Cancel"
+                        Width: =180
+                        ZIndex: =2
+
+    tmr_deep_link As timer:
+        Duration: =2000
+        Height: =70
+        OnTimerEnd: |+
+            =If(Param("screen")="form"&&!varDeeplinkComplete&&CountRows(Accion_ActualRequestList.AllItems)=0,
+            UpdateContext({varAccionLoading:true});
+            UpdateContext({Pr_FormNumber:Param("FN")});
+            
+            ClearCollect(RequestReport,fa_request_report.Run(varPlantId,Param("FN"),0));
+            UpdateContext({varRequest:
+                LookUp(RequestReport,fr_form_number_vc=Param("FN") && fr_planta_id_in=varPlantId && fr_reportdate_in=Int(Param("RD")))});
+            If(
+                (varRequest.fr_status_in = 2) Or ((varRequest.fr_status_in = -1 Or varRequest.fr_status_in = 0  Or  varRequest.fr_status_in = 1) And varRequest.fr_active_level=1) Or (( varRequest.fr_status_in = 1 ||varRequest.fr_status_in = 0) And !IsBlank(
+                    Find(
+                        Lower(User().Email),
+                        LookUp(
+                            'dsf.form_level_desc',
+                            nu_form_number_vc = Param("FN") And nu_plant_id_in = varPlantId And nu_user_level=varRequest.fr_active_level
+                        ).nu_users_email_tx
+                    )
+                )),
+            
+            If(varRequest.fr_status_in = 2,Set(VarSavedTemplate,true),Set(VarSavedTemplate,false));
+            Set(varTimerReset,true);
+            Set(varTimerReset,false);
+            Set(IsHRecord,false);
+                
+                Set(varItemStatus,varRequest.fr_status_in);
+            Set(varBackPopup,true);
+            Set(varFormMode,FormMode.Edit);
+            //Refresh('dsf.form_request_report');
+            
+            Set(VarLoadPage,true);
+            If(IsBlank(varRequest.usr_email_vc) Or Upper(varRequest.usr_email_vc) = Upper(User().Email),
+            //----------------------------------------------------------Copia el registro pendiente
+            UpdateContext({varFormReqItem: varRequest});
+            //----------------------------------------------------------Indica la etapa del formulario (Emisor/Receptor)
+            If(varFormReqItem.fr_status_in = -1,
+            Set(varUserEmisorReceptor,false),
+            Set(varUserEmisorReceptor,true));
+            //----------------------------------------------------------Modo lectura cuando el formulario esta completado
+            If(varRequest.fr_status_in = 2, Set(varCompleteReader,1),Set(varCompleteReader,0));
+            //----------------------------------------------------------
+            UpdateContext(
+                {
+                    varUpdateFR: nf_Update_Form_Requestv2.Run(
+                        varFormReqItem.fr_planta_id_in,
+                        varFormReqItem.fr_form_number_vc,
+                        Text(
+                            varFormReqItem.fr_reportdate_dt,
+                            "yyyy-mm-dd hh:mm:ss.fff"
+                        ),
+                        varUserId,
+                        1,
+                        Text(Now(),"[$-es-ES]yyyy/mm/dd hh:mm:ss")
+                    )
+                }
+            );
+            If(
+                !IsBlankOrError(varUpdateFR),
+                Notify(
+                    First(collAppLanguage).Btn_LeftBtn_1_MSG01,
+                    NotificationType.Success,3000
+                );
+                ,
+                Notify(
+                    First(collAppLanguage).Btn_LeftBtn_1_MSG02,
+                    NotificationType.Error,3000
+                )
+            );
+            UpdateContext({varVisibleGrpFormRequest: false});
+            Refresh('dsf.form_request');
+            //Refresh('dsf.form_request_report');
+            Refresh('dsf.answers_report');
+            UpdateContext(
+                {
+                    varFormDesc: LookUp(
+                        'dsf.form_library_counters',
+                        fl_form_number_vc = varFormReqItem.fr_form_number_vc &&
+                        fl_plant_id_in = varPlantId
+                    ).fl_form_description_vc
+                }
+            );
+            UpdateContext(
+                {
+                    varReportDate: Text(
+                        varFormReqItem.fr_reportdate_dt,
+                        "[$-es-ES]yyyy/mm/dd hh:mm:ss"
+                    )
+                }
+            );
+            Set(
+                varFormType,
+                LookUp(
+                    'dsf.form_library_counters',
+                    fl_form_number_vc = Pr_FormNumber &&
+                    fl_plant_id_in = varPlantId
+                ).fl_form_type_in
+            );
+            
+            
+            
+            
+            Clear(Q11_TemporalPictures);
+            UpdateContext({Pr_FormDescription: LookUp(
+                        'dsf.form_library_counters',
+                        fl_form_number_vc = varFormReqItem.fr_form_number_vc &&
+                        fl_plant_id_in = varPlantId
+                    ).fl_form_description_vc});
+            
+            
+            Navigate(
+                '05_FORMULARIOS',
+                ScreenTransition.Fade,
+                {
+                    Pr_FormDescription: LookUp(
+                        'dsf.form_library_counters',
+                        fl_form_number_vc = varFormReqItem.fr_form_number_vc &&
+                        fl_plant_id_in = varPlantId
+                    ).fl_form_description_vc,
+                    Pr_FormNumber: varFormReqItem.fr_form_number_vc,
+                    Pr_DateFilteDT: varReportDate,
+                    Pr_DateFilterIn: Value(Year(DateValue(varReportDate)) * 10000000000 + Month(DateValue(varReportDate)) * 100000000 + Day(DateValue(varReportDate)) * 1000000 + Hour(DateTimeValue(varReportDate)) * 10000 + Minute(DateTimeValue(varReportDate)) * 100 + Second(DateTimeValue(varReportDate))),
+                    Pr_ReviewMode: 0,
+                    Pr_PartialRecord: 1
+                }
+            );
+            Clear(coltestanswere);
+            
+            ,Notify(First(collAppLanguage).Btn_OpenRequest & varRequest.user_dispname_vc & ".",NotificationType.Error)));
+            
+            
+            
+            )
+            
+            
+        OnTimerStart: =
+        Repeat: =Param("screen")="form"&&!varDeeplinkComplete&&CountRows(Accion_ActualRequestList.AllItems)=0
+        Start: =Param("screen")="form"&&!varDeeplinkComplete
+        Visible: =false
+        Width: =280
+        X: =291
+        Y: =107
+        ZIndex: =45
+
+    Grp_Clear_Filter As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =48
+
+        Image1 As image:
+            Height: =btn_clearFilter.Height
+            Image: |-
+                ="data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M0%20128h2048v219l-768%20768v805H768v-805L0%20347V128zm1920%20165v-37H128v37l768%20768v731h256v-731l768-768zm37%20987l91%2091-230%20229%20230%20229-91%2091-229-230-229%20230-91-91%20230-229-230-229%2091-91%20229%20230%20229-230z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E"
+            Tooltip: ="Clear Filter"
+            Visible: =!IsBlank(Accion_ActualRequest_Filter_Cb_ProcessOrder.Selected.Result) || !IsBlank(Accion_ActualRequest_Filter_Dtp_Date.SelectedDate) || !IsBlank(Accion_ActualRequest_Filter_Cb_State.Selected.Value) || !IsBlank(Accion_ActualRequest_Filter_Cb_RequestedBy.Selected.Result)
+            Width: =btn_clearFilter.Width
+            X: =btn_clearFilter.X
+            Y: =btn_clearFilter.Y
+            ZIndex: =41
+
+        btn_clearFilter As button:
+            Color: |-
+                =ColorValue("#3BA5A8")
+            Fill: =RGBA(0, 0, 0, 0)
+            HoverFill: =Self.Fill
+            OnSelect: |-
+                =UpdateContext({varFilterReset:true});
+                UpdateContext({varFilterReset:false})
+            PressedFill: =Self.Fill
+            Size: =14
+            Text: =""
+            Tooltip: ="Clear Filter"
+            Visible: =!IsBlank(Accion_ActualRequest_Filter_Cb_ProcessOrder.Selected.Result) || !IsBlank(Accion_ActualRequest_Filter_Dtp_Date.SelectedDate) || !IsBlank(Accion_ActualRequest_Filter_Cb_State.Selected.Value) || !IsBlank(Accion_ActualRequest_Filter_Cb_RequestedBy.Selected.Result)
+            Width: =50
+            X: =Accion_ActualRequest_Icon_Filter.X-Self.Width-10
+            Y: =Accion_ActualRequest_Icon_Filter.Y
+            ZIndex: =42
+

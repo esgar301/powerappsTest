@@ -1,0 +1,107 @@
+<application xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:service="https://unitedstates-002.azure-apim.net/apim/logicflows" xmlns:siena="http://schemas.microsoft.com/MicrosoftProjectSiena/WADL/2014/11" siena:serviceId="nf_form_data" xmlns="http://wadl.dev.java.net/2009/02">
+  <doc title="nf_form_data" />
+  <grammars>
+    <jsonTypes targetNamespace="https://unitedstates-002.azure-apim.net/apim/logicflows" xmlns="http://schemas.microsoft.com/MicrosoftProjectSiena/WADL/2014/11">
+      <string name="ManualTriggerInput_ApprovalEmail_Value_def" />
+      <string name="ManualTriggerInput_Event_Value_def" />
+      <string name="ManualTriggerInput_Approver_Value_def" />
+      <string name="ManualTriggerInput_AreaAssigned_Value_def" />
+      <string name="ManualTriggerInput_CreatedDate_Value_def" />
+      <string name="ManualTriggerInput_FormDescription_Value_def" />
+      <string name="ManualTriggerInput_Norm_Value_def" />
+      <string name="ManualTriggerInput_FormNumber_Value_def" />
+      <string name="ManualTriggerInput_Reviewer_Value_def" />
+      <string name="ManualTriggerInput_CreatedBy_Value_def" />
+      <string name="ManualTriggerInput_User_Value_def" />
+      <string name="ManualTriggerInput_Initializevariable_Value_def" />
+      <boolean name="ManualTriggerInput_Ejecutarprocedimientoalmacenado_ux28_V2_ux29__param_form_single_parameters_bt_def" />
+      <integer name="ManualTriggerInput_Ejecutarprocedimientoalmacenado_ux28_V2_ux29__param_form_state_in_def" />
+      <integer name="ManualTriggerInput_Ejecutarprocedimientoalmacenado_ux28_V2_ux29__param_form_type_in_def" />
+      <integer name="ManualTriggerInput_Ejecutarprocedimientoalmacenado_ux28_V2_ux29__param_form_version_tin_def" />
+      <integer name="ManualTriggerInput_Ejecutarprocedimientoalmacenado_ux28_V2_ux29__param_plant_id_in_def" />
+      <boolean name="ManualTriggerInput_Ejecutarprocedimientoalmacenado_ux28_V2_ux29__param_form_enable_bt_def" />
+      <string name="ManualTriggerInput_Classification_Value_def" />
+      <string name="ManualTriggerInput_Frequency_Value_def" />
+      <string name="ManualTriggerInput_Subarea_Value_def" />
+      <string name="ManualTriggerInput_PowerBiUrl_Value_def" />
+      <integer name="ManualTriggerInput_Ejecutarprocedimientoalmacenado_ux28_V2_ux29__param_table_id_in_def" />
+      <string name="ManualTriggerInput_DataRetention_Value_def" />
+      <string name="ManualTriggerInput_RecordDate_Value_def" />
+      <object name="ManualTriggerInput">
+        <property name="ApprovalEmail_Value" type="string" />
+        <property name="Event_Value" type="string" />
+        <property name="Approver_Value" type="string" />
+        <property name="AreaAssigned_Value" type="string" />
+        <property name="CreatedDate_Value" type="string" />
+        <property name="FormDescription_Value" type="string" />
+        <property name="Norm_Value" type="string" />
+        <property name="FormNumber_Value" type="string" />
+        <property name="Reviewer_Value" type="string" />
+        <property name="CreatedBy_Value" type="string" />
+        <property name="User_Value" type="string" />
+        <property name="Initializevariable_Value" type="string" />
+        <property name="Ejecutarprocedimientoalmacenado(V2)_param_form_single_parameters_bt" type="boolean" />
+        <property name="Ejecutarprocedimientoalmacenado(V2)_param_form_state_in" type="integer" />
+        <property name="Ejecutarprocedimientoalmacenado(V2)_param_form_type_in" type="integer" />
+        <property name="Ejecutarprocedimientoalmacenado(V2)_param_form_version_tin" type="integer" />
+        <property name="Ejecutarprocedimientoalmacenado(V2)_param_plant_id_in" type="integer" />
+        <property name="Ejecutarprocedimientoalmacenado(V2)_param_form_enable_bt" type="boolean" />
+        <property name="Classification_Value" type="string" />
+        <property name="Frequency_Value" type="string" />
+        <property name="Subarea_Value" type="string" />
+        <property name="PowerBiUrl_Value" type="string" />
+        <property name="Ejecutarprocedimientoalmacenado(V2)_param_table_id_in" type="integer" />
+        <property name="DataRetention_Value" type="string" />
+        <property name="RecordDate_Value" type="string" />
+      </object>
+    </jsonTypes>
+  </grammars>
+  <resources siena:authenticationProviderHref="#PowerAppAuth" base="https://unitedstates-002.azure-apim.net/apim/logicflows">
+    <resource path="/{connectionId}/triggers/manual/run">
+      <param style="template" name="connectionId" type="xs:string" required="true" />
+      <method siena:requiresAuthentication="true" name="POST" id="Run">
+        <doc title="Runs a logic flow trigger." />
+        <request>
+          <param style="query" name="api-version" type="xs:string" required="true" fixed="2015-02-01-preview">
+            <doc title="The api version" />
+          </param>
+          <representation mediaType="application/json">
+            <param style="plain" name="ApprovalEmail_Value" path="/ApprovalEmail_Value" type="xs:string" required="true" />
+            <param style="plain" name="Event_Value" path="/Event_Value" type="xs:string" required="true" />
+            <param style="plain" name="Approver_Value" path="/Approver_Value" type="xs:string" required="true" />
+            <param style="plain" name="AreaAssigned_Value" path="/AreaAssigned_Value" type="xs:string" required="true" />
+            <param style="plain" name="CreatedDate_Value" path="/CreatedDate_Value" type="xs:string" required="true" />
+            <param style="plain" name="FormDescription_Value" path="/FormDescription_Value" type="xs:string" required="true" />
+            <param style="plain" name="Norm_Value" path="/Norm_Value" type="xs:string" required="true" />
+            <param style="plain" name="FormNumber_Value" path="/FormNumber_Value" type="xs:string" required="true" />
+            <param style="plain" name="Reviewer_Value" path="/Reviewer_Value" type="xs:string" required="true" />
+            <param style="plain" name="CreatedBy_Value" path="/CreatedBy_Value" type="xs:string" required="true" />
+            <param style="plain" name="User_Value" path="/User_Value" type="xs:string" required="true" />
+            <param style="plain" name="Initializevariable_Value" path="/Initializevariable_Value" type="xs:string" required="true" />
+            <param style="plain" name="Ejecutarprocedimientoalmacenado(V2)_param_form_single_parameters_bt" path="/Ejecutarprocedimientoalmacenado(V2)_param_form_single_parameters_bt" type="xs:boolean" required="true" />
+            <param style="plain" name="Ejecutarprocedimientoalmacenado(V2)_param_form_state_in" path="/Ejecutarprocedimientoalmacenado(V2)_param_form_state_in" type="xs:long" required="true" />
+            <param style="plain" name="Ejecutarprocedimientoalmacenado(V2)_param_form_type_in" path="/Ejecutarprocedimientoalmacenado(V2)_param_form_type_in" type="xs:long" required="true" />
+            <param style="plain" name="Ejecutarprocedimientoalmacenado(V2)_param_form_version_tin" path="/Ejecutarprocedimientoalmacenado(V2)_param_form_version_tin" type="xs:long" required="true" />
+            <param style="plain" name="Ejecutarprocedimientoalmacenado(V2)_param_plant_id_in" path="/Ejecutarprocedimientoalmacenado(V2)_param_plant_id_in" type="xs:long" required="true" />
+            <param style="plain" name="Ejecutarprocedimientoalmacenado(V2)_param_form_enable_bt" path="/Ejecutarprocedimientoalmacenado(V2)_param_form_enable_bt" type="xs:boolean" required="true" />
+            <param style="plain" name="Classification_Value" path="/Classification_Value" type="xs:string" required="true" />
+            <param style="plain" name="Frequency_Value" path="/Frequency_Value" type="xs:string" required="true" />
+            <param style="plain" name="Subarea_Value" path="/Subarea_Value" type="xs:string" required="true" />
+            <param style="plain" name="PowerBiUrl_Value" path="/PowerBiUrl_Value" type="xs:string" required="true" />
+            <param style="plain" name="Ejecutarprocedimientoalmacenado(V2)_param_table_id_in" path="/Ejecutarprocedimientoalmacenado(V2)_param_table_id_in" type="xs:long" required="true" />
+            <param style="plain" name="DataRetention_Value" path="/DataRetention_Value" type="xs:string" required="true" />
+            <param style="plain" name="RecordDate_Value" path="/RecordDate_Value" type="xs:string" required="true" />
+          </representation>
+        </request>
+      </method>
+    </resource>
+  </resources>
+  <authenticationProviders xmlns="http://schemas.microsoft.com/MicrosoftProjectSiena/WADL/2014/11">
+    <connectionProvider id="PowerAppAuth" siena:connectionProviderId="logicflows" />
+  </authenticationProviders>
+  <template xmlns="http://schemas.microsoft.com/MicrosoftProjectSiena/WADL/2014/11">
+    <variable name="connectionId">
+      <modifyParams style="template" name="connectionId" attribute="fixed" />
+    </variable>
+  </template>
+</application>

@@ -1,0 +1,10 @@
+[
+  {
+    "ApiId": "/providers/microsoft.powerapps/apis/shared_logicflows",
+    "FlowNameId": "9396f4e2-7492-4438-bb9c-ea2d3cc4463e",
+    "Name": "dsf.send_back",
+    "ServiceKind": "ConnectedWadl",
+    "Type": "ServiceInfo",
+    "WorkflowEntityId": "bcdb77c9-5eb0-ee11-a569-6045bd0331f5"
+  }
+]

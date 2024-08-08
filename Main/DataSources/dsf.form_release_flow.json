@@ -1,0 +1,22 @@
+[
+  {
+    "ApiId": "/providers/microsoft.powerapps/apis/shared_sql",
+    "CdpRevision": {
+      "BaseUrl": "/v2",
+      "LastChangedTimeString": "2023-04-28T15:53:39.0550000Z",
+      "RevisionNumber": 2
+    },
+    "ConnectedDataSourceInfoNameMapping": {
+      "rm_message_vc": "rm_message_vc",
+      "rm_plant_id_in": "rm_plant_id_in",
+      "rm_status_id_in": "rm_status_id_in",
+      "rm_subject_vc": "rm_subject_vc"
+    },
+    "DatasetName": "sql-tccc-cpf-test-1.database.windows.net,POF_LIR",
+    "EncodeDataset": false,
+    "IsSampleData": false,
+    "IsWritable": true,
+    "Name": "dsf.form_release_flow",
+    "Type": "ConnectedDataSourceInfo"
+  }
+]

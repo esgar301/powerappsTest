@@ -1,0 +1,10 @@
+[
+  {
+    "ApiId": "/providers/microsoft.powerapps/apis/shared_logicflows",
+    "FlowNameId": "2ed79cea-c857-48c4-b651-bf09af87d6af",
+    "Name": "nf_submit_flag",
+    "ServiceKind": "ConnectedWadl",
+    "Type": "ServiceInfo",
+    "WorkflowEntityId": "f1cbd8b4-3c01-ed11-82e4-00224808281d"
+  }
+]

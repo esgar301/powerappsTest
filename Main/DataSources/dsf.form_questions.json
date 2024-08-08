@@ -1,0 +1,47 @@
+[
+  {
+    "ApiId": "/providers/microsoft.powerapps/apis/shared_sql",
+    "CdpRevision": {
+      "BaseUrl": "/v2",
+      "LastChangedTimeString": "2024-07-05T17:20:37.3400000Z",
+      "RevisionNumber": 2
+    },
+    "ConnectedDataSourceInfoNameMapping": {
+      "57dfb1b5-7d79-4046-a4da-fd831d5befe1-KeyId": "KeyId",
+      "fq_answer_characters_in": "fq_answer_characters_in",
+      "fq_answer_list_vc": "fq_answer_list_vc",
+      "fq_answer_max_dc": "fq_answer_max_dc",
+      "fq_answer_min_dc": "fq_answer_min_dc",
+      "fq_answer_type_in": "fq_answer_type_in",
+      "fq_child_criteria": "fq_child_criteria",
+      "fq_child_pos_in": "fq_child_pos_in",
+      "fq_edition_id_in": "fq_edition_id_in",
+      "fq_form_number_vc": "fq_form_number_vc",
+      "fq_label_off_vc": "fq_label_off_vc",
+      "fq_label_on_vc": "fq_label_on_vc",
+      "fq_mandatory_bt": "fq_mandatory_bt",
+      "fq_parent_changed_vc": "fq_parent_changed_vc",
+      "fq_parent_id_in": "fq_parent_id_in",
+      "fq_parent_question_pos_in": "fq_parent_question_pos_in",
+      "fq_plant_id_in": "fq_plant_id_in",
+      "fq_question_description_vc": "fq_question_description_vc",
+      "fq_question_enable_bt": "fq_question_enable_bt",
+      "fq_question_equipment_bt": "fq_question_equipment_bt",
+      "fq_question_pos_in": "fq_question_pos_in",
+      "fq_question_required_bt": "fq_question_required_bt",
+      "fq_question_type_bt": "fq_question_type_bt",
+      "fq_table_id_in": "fq_table_id_in",
+      "fq_title_description_vc": "fq_title_description_vc",
+      "fq_title_hide_bt": "fq_title_hide_bt",
+      "fq_title_name_vc": "fq_title_name_vc",
+      "fq_total_level": "fq_total_level",
+      "fq_user_type": "fq_user_type"
+    },
+    "DatasetName": "sql-tccc-cpf-test-1.database.windows.net,POF_LIR",
+    "EncodeDataset": false,
+    "IsSampleData": false,
+    "IsWritable": false,
+    "Name": "dsf.form_questions",
+    "Type": "ConnectedDataSourceInfo"
+  }
+]

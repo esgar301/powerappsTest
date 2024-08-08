@@ -1,0 +1,159 @@
+Lir_Camera As CanvasComponent:
+    CamVisible: =isCamOpen
+    Fill: =RGBA(96, 96, 98, 0.63)
+    FotoCapturada: =VarLabelPictureTest
+    Height: =1136
+    OnReset: =Set(varIndexCamera,2);Set(VarCamera,Last(FirstN([0,2], varIndexCamera)));Clear(VarLabelPictureTest)
+    OpenClose: =true
+    Width: =640
+    X: =0
+    Y: =0
+    ZIndex: =1
+
+    Rectangle2_10 As rectangle:
+        Fill: =RGBA(151, 0, 0, 0.58)
+        Height: =56
+        Width: =Parent.Width
+        Y: =Gallery1.Height+Gallery1.Y*2
+        ZIndex: =1
+
+    Rectangle2_4 As rectangle:
+        Fill: =RGBA(151, 0, 0, 0.58)
+        Height: =56
+        Width: =Parent.Width
+        Y: =Parent.Height-Rectangle2_4.Height
+        ZIndex: =2
+
+    Camera As camera:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        Camera: =Dropdown2.SelectedText.'data-ADB4D7A662F548B49FAC2B986E348A1BId'
+        Height: =(Parent.Height/100)*42
+        OnSelect: |-
+            =Set(
+                VarCameraVisible,
+                false
+            );
+            If(
+                CountRows(VarLabelPictureTest) < 2,
+                Collect(
+                    VarLabelPictureTest,
+                    {
+                        Label: Camera.Photo,
+                        Id: CountRows(VarLabelPictureTest) + 1
+                    }
+                ),
+                ""
+            )
+        Width: =Parent.Width
+        Y: =Gallery1.Height + Rectangle2_10.Height*1.7 + Gallery1.Y
+        ZIndex: =3
+
+    Toggle2_2 As toggleSwitch:
+        Default: =Lir_Camera.OpenClose
+        FalseHoverFill: =ColorFade(Toggle2_2.FalseFill, 15%)
+        FocusedBorderColor: =Toggle2_2.BorderColor
+        Height: =22
+        HoverBorderColor: =ColorFade(Toggle2_2.BorderColor, 15%)
+        OnChange: =
+        OnCheck: =Set(isCamOpen, true)
+        OnUncheck: =Set(isCamOpen, false)
+        PressedBorderColor: =ColorFade(Toggle2_2.BorderColor, -15%)
+        Size: =21
+        TrueHoverFill: =ColorFade(Toggle2_2.TrueFill, 15%)
+        Visible: =false
+        Width: =53
+        X: =Parent.Width-Toggle2_2.Width
+        Y: =85
+        ZIndex: =4
+
+    Btn_AcceptPicture As icon.Add:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        Color: =RGBA(255, 255, 255, 1)
+        Height: =39
+        Icon: =Icon.Check
+        OnSelect: =Set(isCamOpen,false)
+        Width: =44
+        X: =Parent.Width-Btn_AcceptPicture.Width-(Parent.Width/100)*2
+        Y: =Parent.Height-(Rectangle2_4.Height/2) - Btn_AcceptPicture.Height/2
+        ZIndex: =5
+
+    Btn_NewPicture_2 As icon.Add:
+        BorderColor: =RGBA(0, 0, 0, 0)
+        Color: =RGBA(255, 255, 255, 1)
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        Height: =39
+        Icon: =Icon.Settings
+        OnSelect: |-
+            =If(varIndexCamera>1,Set(varIndexCamera,1),Set(varIndexCamera,varIndexCamera+1));
+            Set(VarCamera,Last(FirstN([0,2], varIndexCamera)))
+        Width: =44
+        X: =12
+        Y: =Parent.Height-(Rectangle2_4.Height/2) - Btn_NewPicture_2.Height/2
+        ZIndex: =6
+
+    "Gallery1 As gallery.'BrowseLayout_Horizontal_TwoTextOneImageVariant_ver4.0'":
+        '#CopilotOverlayLabel': ="Filtered"
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderThickness: =1
+        Height: =(Parent.Height/100)*40.2
+        Items: =VarLabelPictureTest
+        ShowNavigation: =true
+        TemplatePadding: =0
+        TemplateSize: =640
+        Width: =Parent.Width
+        Y: =23
+        ZIndex: =7
+
+        Image2 As image:
+            Fill: =RGBA(96, 96, 98, 0.56)
+            Height: =Parent.Height
+            Image: =ThisItem.Label
+            OnSelect: =Select(Parent)
+            Width: =Gallery1.Width/2
+            X: =(Gallery1.Width-Image2.Width)/2
+            ZIndex: =1
+
+        Icon4 As icon.Add:
+            Color: =RGBA(255, 255, 255, 1)
+            Height: =40
+            Icon: =Icon.Trash
+            OnSelect: =Remove(VarLabelPictureTest,ThisItem)
+            Width: =40
+            X: =Image2.X+Image2.Width+Icon4.Width/2
+            Y: =Parent.Height-Icon4.Height*1.6
+            ZIndex: =2
+
+    Icon6 As icon.Add:
+        Color: =RGBA(255, 255, 255, 1)
+        Height: =56
+        Icon: =Icon.ChevronUp
+        Width: =87
+        X: =Parent.Width/2-(Icon6.Width/2)
+        Y: =Rectangle2_10.Y
+        ZIndex: =8
+
+    Label2 As label:
+        Align: =Align.Center
+        Color: =RGBA(255, 255, 255, 1)
+        Height: =70
+        Size: =21
+        Text: =First(collAppLanguage).Label2
+        Visible: =If(CountRows(VarLabelPictureTest)=0,true,false)
+        Width: =560
+        X: =(Parent.Width-Label2.Width)/2
+        Y: =Gallery1.Y+(Gallery1.Height-Label2.Height)/2
+        ZIndex: =9
+
+    Dropdown2 As dropdown:
+        BorderColor: =RGBA(172, 62, 11, 1)
+        ChevronBackground: =RGBA(172, 62, 11, 1)
+        ChevronHoverBackground: =RGBA(172, 62, 11, 1)
+        Height: =56
+        Items: =Sort(Camera.AvailableDevices, Name)
+        SelectionFill: =RGBA(172, 62, 11, 1)
+        Size: =21
+        Width: =323
+        X: =Btn_NewPicture_2.X+Btn_NewPicture_2.Width
+        Y: =Parent.Height-(Rectangle2_4.Height/2) - Dropdown2.Height/2
+        ZIndex: =10
+

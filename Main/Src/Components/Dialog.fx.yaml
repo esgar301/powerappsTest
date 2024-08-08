@@ -1,0 +1,143 @@
+Dialog As CanvasComponent:
+    Buttons: |-
+        =Table({Label: "Cancelar", Fill:"#828D9E", Color:"#FFFFFF"} ,{Label: "OK", Fill:"#828D9E", Color:"#FFFFFF"})
+    Description: ="At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis ?"
+    Fill: =RGBA(0, 0, 0, 0)
+    Height: =1136
+    IsOpen: =isDialogOpen
+    OnReset: =
+    OpenClose: =true
+    OverlayColor: =RGBA(0, 0, 0, 0.8)
+    SelectedButton: =ButtonsGallery.Selected
+    Styles: |-
+        =Table({Key:"Fill", Value:"#0086D0"})
+    Title: ="Title"
+    Visible: =Dialog.IsOpen
+    Width: =640
+    X: =0
+    Y: =0
+    ZIndex: =3
+
+    rectOverlay As rectangle:
+        DisabledFill: =rectOverlay.Fill
+        Fill: =RGBA(96, 96, 98, 0.64)
+        FocusedBorderColor: =rectOverlay.BorderColor
+        Height: =Parent.Height
+        HoverFill: =rectOverlay.Fill
+        PressedFill: =rectOverlay.Fill
+        Width: =Parent.Width
+        ZIndex: =1
+
+    Controls As groupContainer:
+        Height: =247
+        Visible: =Dialog.IsOpen
+        Width: =Parent.Width - (Parent.Width/100)*10
+        X: =(Parent.Width/100)*5
+        Y: =(Parent.Height - Controls.Height)/2
+        ZIndex: =2
+
+        rectDialog As rectangle:
+            DisabledFill: =rectDialog.Fill
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderColor: =rectDialog.BorderColor
+            Height: =Parent.Height
+            HoverFill: =rectDialog.Fill
+            PressedFill: =rectDialog.Fill
+            Width: =Parent.Width
+            ZIndex: =2
+
+        lblTitle As label:
+            AutoHeight: =true
+            FocusedBorderColor: =lblTitle.BorderColor
+            Font: =If(!IsBlank(LookUp(Dialog.Styles, Key = "Font").Value),LookUp(Dialog.Styles, Key = "Font").Value, Font.'Segoe UI') 
+            FontWeight: =FontWeight.Semibold
+            Height: =44
+            HoverBorderColor: =lblTitle.BorderColor
+            HoverColor: =lblTitle.Color
+            HoverFill: =lblTitle.Fill
+            PressedBorderColor: =lblTitle.BorderColor
+            PressedColor: =lblTitle.Color
+            PressedFill: =lblTitle.Fill
+            Size: =If(!IsBlank(LookUp(Dialog.Styles, Key = "DialogTitleFontSize").Value),LookUp(Dialog.Styles, Key = "DialogTitleFontSize").Value, 20) 
+            Text: =Dialog.Title
+            Width: =rectDialog.Width
+            Y: =10
+            ZIndex: =5
+
+        lblDescription As label:
+            AutoHeight: =true
+            Color: =RGBA(45, 45, 45, 1)
+            FocusedBorderColor: =lblDescription.BorderColor
+            Font: =If(!IsBlank(LookUp(Dialog.Styles, Key = "Font").Value),LookUp(Dialog.Styles, Key = "Font").Value, Font.'Segoe UI') 
+            Height: =174
+            HoverBorderColor: =lblDescription.BorderColor
+            HoverColor: =lblDescription.Color
+            HoverFill: =lblDescription.Fill
+            PressedBorderColor: =lblDescription.BorderColor
+            PressedColor: =lblDescription.Color
+            PressedFill: =lblDescription.Fill
+            Size: =If(!IsBlank(LookUp(Dialog.Styles, Key = "DialogDescriptionFontSize").Value),LookUp(Dialog.Styles, Key = "DialogDescriptionFontSize").Value, 16) 
+            Text: =Dialog.Description
+            VerticalAlign: =VerticalAlign.Top
+            Width: =525
+            X: =(rectDialog.Width-lblDescription.Width)/2
+            Y: =66
+            ZIndex: =6
+
+        Toggle2 As toggleSwitch:
+            Default: =Dialog.OpenClose
+            FalseHoverFill: =ColorFade(Toggle2.FalseFill, 15%)
+            FocusedBorderColor: =Toggle2.BorderColor
+            Font: =Font.'Segoe UI'
+            Height: =19
+            HoverBorderColor: =ColorFade(Toggle2.BorderColor, 15%)
+            OnChange: =
+            OnCheck: |-
+                =Set(isButtonSelected, false);
+                Set(isDialogOpen, true)
+            OnUncheck: =Set(isDialogOpen, false)
+            PressedBorderColor: =ColorFade(Toggle2.BorderColor, -15%)
+            Size: =21
+            TrueHoverFill: =ColorFade(Toggle2.TrueFill, 15%)
+            Visible: =false
+            Width: =17
+            X: =rectDialog.Width-Toggle2.Width-10
+            ZIndex: =7
+
+        ButtonsGallery As gallery.galleryHorizontal:
+            '#CopilotOverlayLabel': ="Filtered"
+            DisabledBorderColor: =ButtonsGallery.BorderColor
+            DisabledFill: =ButtonsGallery.Fill
+            Height: =86
+            HoverBorderColor: =ButtonsGallery.BorderColor
+            HoverFill: =ButtonsGallery.Fill
+            Items: =Dialog.Buttons
+            OnSelect: =Set(isButtonSelected, true);Set(selectedButton, ThisItem);Set(isDialogOpen,false)
+            PressedBorderColor: =ButtonsGallery.BorderColor
+            PressedFill: =ButtonsGallery.Fill
+            ShowScrollbar: =false
+            TemplateSize: =ButtonsGallery.Width / CountRows(ButtonsGallery.AllItems)
+            Width: =Parent.Width
+            Y: =140
+            ZIndex: =8
+
+            btnControl As label:
+                Align: =LayoutAlignItems.Center
+                Color: =ColorValue(ThisItem.Color)
+                Fill: =ColorValue(ThisItem.Fill)
+                FocusedBorderColor: =btnControl.BorderColor
+                Font: =If(!IsBlank(LookUp(Dialog.Styles, Key = "Font").Value),LookUp(Dialog.Styles, Key = "Font").Value, Font.'Segoe UI') 
+                Height: =64
+                HoverBorderColor: =btnControl.BorderColor
+                HoverColor: =btnControl.Color
+                HoverFill: =btnControl.Fill
+                OnSelect: =Select(Parent)
+                PressedBorderColor: =btnControl.BorderColor
+                PressedColor: =btnControl.Color
+                PressedFill: =btnControl.Fill
+                Size: =18
+                Text: =ThisItem.Label
+                Width: =ButtonsGallery.TemplateWidth
+                Y: =5
+                ZIndex: =1
+

@@ -1,0 +1,10 @@
+[
+  {
+    "ApiId": "/providers/microsoft.powerapps/apis/shared_logicflows",
+    "FlowNameId": "75710a1c-57bf-44ae-bb77-8bc3ac96ca54",
+    "Name": "nf_build_table",
+    "ServiceKind": "ConnectedWadl",
+    "Type": "ServiceInfo",
+    "WorkflowEntityId": "62d6d982-b52c-ee11-bdf4-002248081803"
+  }
+]

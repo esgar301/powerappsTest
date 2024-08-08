@@ -1,0 +1,220 @@
+App As appinfo:
+    BackEnabled: =false
+    ConfirmExitMessage: =First(collAppLanguage).ConfirmExitMessage
+    OnError: ="System Error"
+    OnStart: |
+        =
+        Set(varToggle,false);
+        Set(varWelcome,true);
+        Set(varWelcomeMesaje,false);
+        Set(VarAutoNavigationQR,true);
+        
+        Set(colfilter1,Split(LookUp('dsf.user_configuration',fl_user_email_id=varUserEmail).fl_default_filter_principal,"~"));
+        //---------------------------------------------------------------------------------------------------- Carga variables del Blob
+        Set(
+            BlobId,
+            LookUp(
+                'Environment Variable Values',
+                'Environment Variable Definition'.'Schema Name' = "dsf_DSF_BlobID_EV"
+            ).Value
+        );
+        Set(
+            BlobAccount,
+            LookUp(
+                'Environment Variable Values',
+                'Environment Variable Definition'.'Schema Name' = "dsf_DSF_BlobAccount_EV"
+            ).Value
+        );
+        Set(
+            BlobPath,
+            LookUp(
+                'Environment Variable Values',
+                'Environment Variable Definition'.'Schema Name' = "dsf_DSF_BlobPath_EV"
+            ).Value
+        );
+        Set(
+            BlobIdGemba,
+            LookUp(
+                'Environment Variable Values',
+                'Environment Variable Definition'.'Schema Name' = "dsf_DSF_BlobIDGemba_EV"
+            ).Value
+        );
+        Set(
+            BlobPathGemba,
+            LookUp(
+                'Environment Variable Values',
+                'Environment Variable Definition'.'Schema Name' = "dsf_DSF_BlobPathGemba_EV"
+            ).Value
+        );
+        //---------------------------------------------------------------------------------------------------- CORREO DEL USUARIO
+        Set(
+            varUserEmail,
+            User().Email
+        );
+        //---------------------------------------------------------------------------------------------------- PLANTA DEL USUARIO
+        Set(
+            varPlantId,
+            LookUp(
+                'users.users',
+                varUserEmail = usr_email_vc
+            ).usr_plant_in
+        );
+        //---------------------------------------------------------------------------------------------------- ID DEL USUARIO
+        Set(
+            varUserId,
+            LookUp(
+                'users.users',
+                varUserEmail = usr_email_vc
+            ).usr_id_bin
+        );
+        //---------------------------------------------------------------------------------------------------- LENGUAJE DEL USUARIO
+        Set(
+            varUL,
+            LookUp(
+                'users.users',
+                varUserEmail = usr_email_vc
+            ).user_applang_vc
+        );
+        //---------------------------------------------------------------------------------------------------- DEFAULT DE LENGUAJE (EN)
+        Set(
+            varLC,
+            If(
+                !IsBlank(varUL),
+                varUL,
+                If(
+                    IsBlank(Language()),
+                    "EN",
+                    Left(
+                        Language(),
+                        2
+                    )
+                )
+            )
+        );
+        Set(colfilter1,Split(LookUp('dsf.user_configuration',fl_user_email_id=varUserEmail).fl_default_filter_principal,"~"));
+        //---------------------------------------------------------------------------------------------------- LIMPIA COLECCION DE LENGUAJE
+        Clear(collAppLanguage);
+        //---------------------------------------------------------------------------------------------------- CARGA COLECCION DE LENGUAJE 
+        ClearCollect(
+            collAppLanguage,
+            LookUp(
+                'DSF Languages',
+                'Language Code' in varLC
+            )
+        );
+        //---------------------------------------------------------------------------------------------------- EN CASO DE NO TENER LENGUAJE GUARDA DEFAULT (EN)
+        If(
+            IsBlank(varUL),
+            Patch(
+                'users.users',
+                LookUp(
+                    'users.users',
+                    varUserEmail = usr_email_vc
+                ),
+                {user_applang_vc: varLC}
+            )
+        );
+        //---------------------------------------------------------------------------------------------------- CARGA COLECCION CON USUARIOS IBMS
+        ClearCollect(
+            collIBMS,
+            Filter(
+                'dsf.master_role',
+                usr_plant_in = varPlantId
+            ).usr_email_vc
+        );
+        //----------------------------------------------------------------------------------------------------IDENTIFICA SI ES IBMS
+        If(
+            varUserEmail in collIBMS.usr_email_vc,
+            Set(
+                IBMS,
+                true
+            ),
+            Set(
+                IBMS,
+                false
+            )
+        );
+        //---------------------------------------------------------------------------------------------------- POPULA LA LISTA DE FORMULARIOS
+        ClearCollect(
+            varFormsLibrary,
+            Filter(
+                'dsf.form_library_counters',
+                fl_plant_id_in = varPlantId,
+                fl_form_enable_bt = true,
+                fl_form_state_in <> 7
+            )
+        );
+        //---------------------------------------------------------------------------------------------------------------------------------------- INDICADORE DE PENDIENTES
+        //----------------------------------------------------------------------------------------------------DETERMINA CUALES FORMULARIOS MOSTRAR
+        ClearCollect(
+            varFormsLibraryCT,
+            Filter(
+                'dsf.form_library_counters',
+                fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant,
+                fl_form_state_in = 2,
+                varUserEmail = fl_reviewer_vc Or IBMS = true
+            )
+        );
+        Collect(
+            varFormsLibraryCT,
+            Filter(
+                'dsf.form_library_counters',
+                fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant,
+                fl_form_state_in = 3,
+                IBMS = true
+            )
+        );
+        Collect(
+            varFormsLibraryCT,
+            Filter(
+                'dsf.form_library_counters',
+                fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant,
+                fl_form_state_in = 4,
+                varUserEmail = fl_approver_vc Or IBMS = true
+            )
+        );
+        //----------------------------------------------------------------------------------------------------ACTUALIZA EL INDICADOR DE PENDIENTES
+        Set(
+            TotalPending,
+            CountRows(varFormsLibraryCT)
+        );
+        Set(varToggle,true);
+        //----------------------------------------------------------------------------------------------------
+        Refresh('dsf.plant_configuration');
+        Set(varDoubleSave,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_double_save_bt);
+        Set(varRecordValidation,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_record_validation_bt);
+        Set(varTimerQuestion,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_timer_questions_in);
+        Set(varTimerSave,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_timer_save_in);
+        Set(varDebugBit,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_debug_mode_bt);
+        Set(varDebugEmail,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_email_tester_vc);
+        Set(varSingleValidation,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_single_save_bt);
+        Set(varSubmitCounter,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_submit_counter_in);
+        Set(varSubmitMode,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_submit_mode_in);
+        Set(BlobUrl,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_bloburl_vc);
+        Set(varPlant_Report,LookUp('dsf.plant_configuration',cnf_plant_id_in = varPlantId).cnf_plant_powerBI);
+        Set(varCentral_DashBoard_Report,LookUp('dsf.plant_configuration',cnf_plant_id_in = varPlantId).cnf_central_dashboard_bi);
+        Set(varAutoSavingTime,LookUp('dsf.plant_configuration',cnf_plant_id_in=varPlantId).cnf_timer_save_in*60);
+        Set(varGlobalPlant,99999);
+        //----------------------------------------------------------------------------------------------------
+        Set(stBackgroudColor,RGBA(237, 242, 242, 1));
+        Set(stIconWidth,70);
+        Set(stIconHeigh,55);
+        Set(stFontType,"Unity");
+        //----------------------------------------------------------------------------------------------------
+        
+        If(
+            IsBlank(varPlantId),
+            Set(varWelcome,true);Set(varWelcomeMesaje,true),
+            Set(varWelcome,false)
+        );
+    StartScreen: |
+        =If(LookUp('dsf.app_maintenance',appname="Mobile").is_under_maintenance,'10_Maintenance Screen',Param("screen")="documentapproval",'04_NOTIFICACIONES',Param("screen")="form",'03_ACCIÓN','01_PRINCIPAL')
+    Theme: =PowerAppsTheme
+
+    Host As hostControl.DefaultHostControlVariant:
+        OnCancel: =false
+        OnEdit: =false
+        OnNew: =false
+        OnSave: =false
+        OnView: =false
+

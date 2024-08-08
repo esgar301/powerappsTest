@@ -1,0 +1,967 @@
+"'04_NOTIFICACIONES' As screen":
+    Fill: =RGBA(237, 242, 242, 1)
+    OnVisible: |-
+        =UpdateContext({varApprovalLoading:true});
+        Refresh('dsf.form_library_counters');
+        //---------------------------------------------------------------------------------------------------------------------------------------- INDICADORE DE PENDIENTES
+        //----------------------------------------------------------------------------------------------------DETERMINA CUALES FORMULARIOS MOSTRAR
+        ClearCollect(
+            varFormsLibraryCT,
+            Filter(
+                'dsf.form_library_counters',(
+                (fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant) &&
+                fl_form_state_in = 2 &&
+                (varUserEmail = fl_reviewer_vc Or  IBMS = true)) || ((fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant) &&
+                fl_form_state_in = 3 &&
+                IBMS = true) || ( (fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant) &&
+                fl_form_state_in = 4 &&
+                (varUserEmail = fl_approver_vc Or IBMS = true))
+            )
+        );
+        
+        //----------------------------------------------------------------------------------------------------ACTUALIZA EL INDICADOR DE PENDIENTES
+        Set(TotalPending,CountRows(varFormsLibraryCT));
+        UpdateContext({varApprovalLoading:false});
+
+    "Notificacion_PendingApprovalList As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver4.0'":
+        '#CopilotOverlayLabel': ="Filtered"
+        BorderStyle: =BorderStyle.None
+        Height: =Parent.Height - Self.Y
+        Items: |-
+            =Sort(
+                varFormsLibraryCT,
+                fl_table_id_in,
+                SortOrder.Ascending
+            )
+        Layout: =Layout.Vertical
+        TemplatePadding: =0
+        TemplateSize: =304
+        Width: =Parent.Width
+        WrapCount: =0
+        Y: =Notificacion_Header_Shp_NavBarTop.Height
+        ZIndex: =9
+
+        Shp_BackgroudRequest_1 As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =304
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:0.8;background-color:#FFFFFF;box-shadow:0 3px 6px 1px  #ccc; border-radius:30px'></div>"
+            Width: =Notificacion_PendingApprovalList.TemplateWidth
+            ZIndex: =1
+
+        Shp_BtnTrend_2 As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =90
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:0.8;background-color:#F0F0F0;box-shadow:0 3px 6px 1px  #ccc; border-radius:90px'></div>"
+            OnSelect: =
+            Width: =206
+            X: =Shp_BtnTrend_1.X + Shp_BtnTrend_1.Width + 42
+            Y: =201
+            ZIndex: =2
+
+        Shp_BtnTrend_1 As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =90
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:0.8;background-color:#F0F0F0;box-shadow:0 3px 6px 1px  #ccc; border-radius:90px'></div>"
+            OnSelect: =
+            Width: =206
+            X: =Img_Picture_2.X + Img_Picture_2.Width + 15
+            Y: =201
+            ZIndex: =3
+
+        Img_Picture_2 As image:
+            Height: =86
+            Image: =ready
+            OnSelect: =
+            Width: =75
+            X: =8
+            ZIndex: =4
+
+        Lbl_Number_3 As label:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(128, 128, 128, 1)
+            Font: ="Unity"
+            Height: =Self.Size * 1.8
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =15
+            Text: =ThisItem.fl_form_number_vc  & " / " & First(collAppLanguage).Label2_28 & " " & ThisItem.fl_plant_id_in
+            VerticalAlign: =VerticalAlign.Top
+            Width: =Parent.Width - Btn_Open_3.Width - Lbl_Number_3.X - 15
+            Wrap: =false
+            X: =Img_Picture_2.X + Img_Picture_2.Width + 15
+            Y: =74
+            ZIndex: =5
+
+        Btn_Open_3 As icon.ChevronRight:
+            AccessibleLabel: =Self.Tooltip
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(59, 165, 168, 1)
+            Height: =Shp_BackgroudRequest_1.Height
+            Icon: =Icon.ChevronRight
+            OnSelect: |-
+                =Set(VarLoadPage,true);
+                Set(varTimerReset,true);
+                Set(varTimerReset,false);
+                Set(varBackPopup,true);
+                Set(varCompleteReader,0);
+                Clear(coltestanswere);
+                UpdateContext(
+                    {
+                        VarDate: Text(
+                            Now(),
+                            "[$-es-ES]yyyy/mm/dd hh:mm:ss"
+                        )
+                    }
+                );
+                
+                fa_AnswerReport.Run(
+                        "",
+                        "",
+                        User().Email,
+                        "Review",
+                        ThisItem.fl_form_number_vc,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        VarDate,
+                        "",
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        ThisItem.fl_plant_id_in,
+                        1,
+                        0,
+                        0,
+                        0,
+                        Text(Now(),"[$-es-ES]yyyy/mm/dd hh:mm:ss"),With({total_level:LookUp('dsf.form_questions_release_process',fq_form_number_vc=ThisItem.fl_form_number_vc).fq_total_level},If(!IsBlank(total_level),total_level,1)));
+                Refresh('dsf.answers_report');
+                Refresh('dsf.answers_report_release_process');
+                Set(varUserEmisorReceptor,false); //---Emisor
+                Navigate(
+                    '05_FORMULARIOS',
+                    ScreenTransition.Fade,
+                    {
+                        Pr_FormDescription: ThisItem.fl_form_description_vc,
+                        Pr_FormNumber: ThisItem.fl_form_number_vc,
+                        Pr_DateFilteDT:VarDate,
+                        Pr_DateFilterIn: Value(Year(DateValue(VarDate)) * 10000000000 + Month(DateValue(VarDate)) * 100000000 + Day(DateValue(VarDate)) * 1000000 + Hour(DateTimeValue(VarDate)) * 10000 + Minute(DateTimeValue(VarDate)) * 100 + Second(DateTimeValue(VarDate))),
+                        Pr_ReviewMode: 1,
+                        Pr_PartialRecord: 0
+                    }
+                );
+            PaddingBottom: =10
+            PaddingLeft: =10
+            PaddingRight: =10
+            PaddingTop: =10
+            TabIndex: =0
+            Tooltip: ="Ver los detalles del elemento"
+            Width: =76
+            X: =Parent.Width-85
+            ZIndex: =6
+
+        Lbl_Description_2 As label:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(40, 60, 97, 1)
+            Font: =
+            FontWeight: =FontWeight.Bold
+            Height: =58
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =20
+            Text: =ThisItem.fl_form_description_vc 
+            VerticalAlign: =VerticalAlign.Bottom
+            Width: =Btn_Open_3.X - Self.X
+            Wrap: =false
+            X: =Img_Picture_2.X + Img_Picture_2.Width + 15
+            Y: =16
+            ZIndex: =7
+
+        Lbl_Number_4 As label:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(128, 128, 128, 1)
+            Font: ="Unity"
+            Height: =66
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =18
+            Text: |-
+                =First(collAppLanguage).Lbl_Number_2_MSG01 & " " & Switch(
+                    ThisItem.fl_form_state_in,
+                    2,
+                    "Review",
+                    3,
+                    "Document Control",
+                    4,
+                    "Approval"
+                ) & Char(10) &
+                First(collAppLanguage).Lbl_Number_2_MSG02 & " " &  Switch(
+                    ThisItem.fl_form_state_in,
+                    2,
+                    ThisItem.fl_reviewer_vc,
+                    3,
+                    Concat(
+                        Filter(
+                        'dsf.master_role',
+                        usr_plant_in = ThisItem.fl_plant_id_in
+                        ),
+                        usr_email_vc,
+                        ";"
+                    ),
+                    4,
+                    ThisItem.fl_approver_vc
+                )
+            VerticalAlign: =VerticalAlign.Top
+            Width: =Lbl_Number_3.Width
+            X: =Img_Picture_2.X + Img_Picture_2.Width + 15
+            Y: =130
+            ZIndex: =8
+
+        Lbl_Approved_1 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(40, 60, 97, 1)
+            DisplayMode: |-
+                =If(
+                    User().Email in Switch(
+                        ThisItem.fl_form_state_in,
+                        2,
+                        ThisItem.fl_reviewer_vc,
+                        3,
+                        Concat(
+                            Filter(
+                                'dsf.master_role',
+                                usr_plant_in = ThisItem.fl_plant_id_in),
+                            usr_email_vc,
+                            ";"
+                        ),
+                        4,
+                        ThisItem.fl_approver_vc
+                    ),
+                    DisplayMode.Edit,
+                    DisplayMode.Disabled
+                )
+            Font: ="U"
+            Height: =Shp_BtnTrend_1.Height
+            OnSelect: |
+                =Reset(Notificacion_ConfirmationMessage_Txt_CommentApprovalReject);
+                UpdateContext({VarButton: "Aceptar"});
+                Set(
+                    VarRejectComment,
+                    true
+                )
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =20
+            Text: =First(collAppLanguage).Lbl_Approved
+            Width: =Shp_BtnTrend_1.Width
+            X: =Shp_BtnTrend_1.X
+            Y: =Shp_BtnTrend_1.Y
+            ZIndex: =9
+
+        Lbl_Description_4 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(40, 60, 97, 1)
+            DisplayMode: |-
+                =If(
+                    User().Email in Switch(
+                        ThisItem.fl_form_state_in,
+                        2,
+                        ThisItem.fl_reviewer_vc,
+                        3,
+                        Concat(
+                            Filter(
+                            'dsf.master_role',
+                            usr_plant_in = ThisItem.fl_plant_id_in
+                            ),
+                            usr_email_vc,
+                            ";"
+                        ),
+                        4,
+                        ThisItem.fl_approver_vc
+                    ),
+                    DisplayMode.Edit,
+                    DisplayMode.Disabled
+                )
+            Font: ="U"
+            Height: =Shp_BtnTrend_2.Height
+            OnSelect: |-
+                =Reset(Notificacion_ConfirmationMessage_Txt_CommentApprovalReject);
+                UpdateContext({VarButton: "Rechazar"});
+                Set(
+                    VarRejectComment,
+                    true
+                )
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =20
+            Text: =First(collAppLanguage).Btn_Approved
+            Width: =Shp_BtnTrend_2.Width
+            X: =Shp_BtnTrend_2.X
+            Y: =Shp_BtnTrend_2.Y
+            ZIndex: =10
+
+    Tmr_LoadingTimer As timer:
+        AutoStart: =true
+        Height: =63
+        OnTimerEnd: |-
+            =//---------------------------------------------------------------------------------------------------- REFRESCA TABLAS
+            UpdateContext({varApprovalLoading:true});
+            Refresh('dsf.form_library_counters');
+            //---------------------------------------------------------------------------------------------------------------------------------------- INDICADORE DE PENDIENTES
+            //----------------------------------------------------------------------------------------------------DETERMINA CUALES FORMULARIOS MOSTRAR
+            ClearCollect(
+                varFormsLibraryCT,
+                Filter(
+                    'dsf.form_library_counters',(
+                    (fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant) &&
+                    fl_form_state_in = 2 &&
+                    (varUserEmail = fl_reviewer_vc Or  IBMS = true)) || ((fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant) &&
+                    fl_form_state_in = 3 &&
+                    IBMS = true) || ( (fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant) &&
+                    fl_form_state_in = 4 &&
+                    (varUserEmail = fl_approver_vc Or IBMS = true))
+                )
+            );
+            
+            //----------------------------------------------------------------------------------------------------ACTUALIZA EL INDICADOR DE PENDIENTES
+            Set(TotalPending,CountRows(varFormsLibraryCT));
+            UpdateContext({varApprovalLoading:false});
+            /*old code before 29-03-2024
+            //---------------------------------------------------------------------------------------------------------------------------------------- INDICADORE DE PENDIENTES
+            UpdateContext({varApprovalLoading:true});
+            //---------------------------------------------------------------------------------------------------- REFRESCA TABLAS
+            Refresh('dsf.form_library_counters');
+            //----------------------------------------------------------------------------------------------------DETERMINA CUALES FORMULARIOS MOSTRAR
+            ClearCollect(
+                varFormsLibraryCT,
+                Filter(
+                    'dsf.form_library_counters',
+                    fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant,
+                    fl_form_state_in = 2,
+                    varUserEmail = fl_reviewer_vc Or IBMS = true
+                )
+            );
+            Collect(
+                varFormsLibraryCT,
+                Filter(
+                    'dsf.form_library_counters',
+                    fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant,
+                    fl_form_state_in = 3,
+                    IBMS = true
+                )
+            );
+            Collect(
+                varFormsLibraryCT,
+                Filter(
+                    'dsf.form_library_counters',
+                    fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant,
+                    fl_form_state_in = 4,
+                    varUserEmail = fl_approver_vc Or IBMS = true
+                )
+            );
+            //----------------------------------------------------------------------------------------------------ACTUALIZA EL INDICADOR DE PENDIENTES
+            Set(TotalPending,CountRows(varFormsLibraryCT));
+            UpdateContext({varApprovalLoading:false});*/
+        Repeat: =true
+        Text: =Text(Time(0, 0, Self.Value/1000), "ss")
+        Visible: =false
+        Width: =85
+        X: =555
+        Y: =972
+        ZIndex: =10
+
+    Shp_LoadingBar As rectangle:
+        Fill: =RGBA(25, 178, 209, 1)
+        Height: =5
+        Width: =Parent.Width * (Tmr_LoadingTimer.Value/Tmr_LoadingTimer.Duration)
+        Y: =Parent.Height - Shp_LoadingBar.Height
+        ZIndex: =11
+
+    Notificacion_Loading As Lir_Loading_1:
+        Height: =Parent.Height
+        IsLoading: =varApprovalLoading
+        Text: =First(collAppLanguage).LoadingText
+        Visible: =Notificacion_Loading.IsLoading
+        Width: =Parent.Width
+        ZIndex: =21
+
+    Notificacion_ConfirmationMessage As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =24
+
+        Notificacion_ConfirmationMessage_Shp_GrayBackgroundComment As rectangle:
+            DisabledFill: =Notificacion_ConfirmationMessage_Shp_GrayBackgroundComment.Fill
+            Fill: =RGBA(116, 116, 116, 0.79)
+            FocusedBorderColor: =Notificacion_ConfirmationMessage_Shp_GrayBackgroundComment.BorderColor
+            Height: =Parent.Height
+            HoverFill: =Notificacion_ConfirmationMessage_Shp_GrayBackgroundComment.Fill
+            PressedFill: =Notificacion_ConfirmationMessage_Shp_GrayBackgroundComment.Fill
+            Visible: =VarRejectComment
+            Width: =Parent.Width
+            ZIndex: =12
+
+        Notificacion_ConfirmationMessage_Shp_BackgroudComment As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =793
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:1;background-color:#FFFFFF;box-shadow:0 3px 6px 1px  #ccc; border-radius:8px'></div>"
+            Visible: =VarRejectComment
+            Width: =Parent.Width * 0.9
+            X: =(Parent.Width - Self.Width)/2
+            Y: =136
+            ZIndex: =13
+
+        Notificacion_ConfirmationMessage_Lbl_CommentTitle As label:
+            Align: =Align.Center
+            FocusedBorderColor: =Notificacion_ConfirmationMessage_Lbl_CommentTitle.BorderColor
+            Font: =
+            FontWeight: =FontWeight.Semibold
+            Height: =59
+            HoverBorderColor: =Notificacion_ConfirmationMessage_Lbl_CommentTitle.BorderColor
+            HoverColor: =Notificacion_ConfirmationMessage_Lbl_CommentTitle.Color
+            HoverFill: =Notificacion_ConfirmationMessage_Lbl_CommentTitle.Fill
+            PressedBorderColor: =Notificacion_ConfirmationMessage_Lbl_CommentTitle.BorderColor
+            PressedColor: =Notificacion_ConfirmationMessage_Lbl_CommentTitle.Color
+            PressedFill: =Notificacion_ConfirmationMessage_Lbl_CommentTitle.Fill
+            Size: =30
+            Text: =First(collAppLanguage).lblTitle_5
+            Visible: =VarRejectComment
+            Width: =Notificacion_ConfirmationMessage_Shp_BackgroudComment.Width * 0.9
+            X: =(Parent.Width - Self.Width)/2
+            Y: =Notificacion_ConfirmationMessage_Shp_BackgroudComment.Y + 25
+            ZIndex: =14
+
+        Notificacion_ConfirmationMessage_Lbl_CommentNote As label:
+            AutoHeight: =true
+            Color: =RGBA(45, 45, 45, 1)
+            FocusedBorderColor: =Notificacion_ConfirmationMessage_Lbl_CommentNote.BorderColor
+            Font: ="Unity"
+            HoverBorderColor: =Notificacion_ConfirmationMessage_Lbl_CommentNote.BorderColor
+            HoverColor: =Notificacion_ConfirmationMessage_Lbl_CommentNote.Color
+            HoverFill: =Notificacion_ConfirmationMessage_Lbl_CommentNote.Fill
+            PressedBorderColor: =Notificacion_ConfirmationMessage_Lbl_CommentNote.BorderColor
+            PressedColor: =Notificacion_ConfirmationMessage_Lbl_CommentNote.Color
+            PressedFill: =Notificacion_ConfirmationMessage_Lbl_CommentNote.Fill
+            Size: =21
+            Text: =First(collAppLanguage).lblDescription_5 
+            VerticalAlign: =VerticalAlign.Top
+            Visible: =VarRejectComment
+            Width: =Notificacion_ConfirmationMessage_Shp_BackgroudComment.Width * 0.9
+            X: =(Parent.Width - Self.Width)/2
+            Y: =Notificacion_ConfirmationMessage_Lbl_CommentTitle.Y + Notificacion_ConfirmationMessage_Lbl_CommentTitle.Height + 15
+            ZIndex: =15
+
+        Notificacion_ConfirmationMessage_Txt_CommentApprovalReject As text:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            BorderThickness: =1
+            Clear: =true
+            Default: =""
+            Fill: =RGBA(241, 244, 249, 1)
+            Font: =
+            Height: =464
+            HintText: =""
+            HoverBorderColor: =RGBA(166, 166, 166, 1)
+            HoverFill: =RGBA(241, 244, 249, 1)
+            MaxLength: =4000
+            Mode: =TextMode.MultiLine
+            Size: =21
+            Visible: =VarRejectComment
+            Width: =Notificacion_ConfirmationMessage_Shp_BackgroudComment.Width * 0.9
+            X: =(Parent.Width - Self.Width)/2
+            Y: =Notificacion_ConfirmationMessage_Lbl_CommentNote.Y + Notificacion_ConfirmationMessage_Lbl_CommentNote.Height + 15
+            ZIndex: =16
+
+        Notificacion_ConfirmationMessage_Shp_MessageAccept As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =90
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:0.8;background-color:#F0F0F0;box-shadow:0 3px 6px 1px  #ccc; border-radius:90px'></div>"
+            OnSelect: =
+            Visible: =VarRejectComment
+            Width: =(Notificacion_ConfirmationMessage_Shp_BackgroudComment.Width/2) *0.8
+            X: =Notificacion_ConfirmationMessage_Txt_CommentApprovalReject.X
+            Y: =Notificacion_ConfirmationMessage_Txt_CommentApprovalReject.Y + Notificacion_ConfirmationMessage_Txt_CommentApprovalReject.Height +15
+            ZIndex: =17
+
+        Notificacion_ConfirmationMessage_Shp_MessageCancel As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =90
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:0.8;background-color:#F0F0F0;box-shadow:0 3px 6px 1px  #ccc; border-radius:90px'></div>"
+            OnSelect: =
+            Visible: =VarRejectComment
+            Width: =(Notificacion_ConfirmationMessage_Shp_BackgroudComment.Width/2) *0.8
+            X: =Notificacion_ConfirmationMessage_Txt_CommentApprovalReject.X + Notificacion_ConfirmationMessage_Txt_CommentApprovalReject.Width - Self.Width
+            Y: =Notificacion_ConfirmationMessage_Txt_CommentApprovalReject.Y + Notificacion_ConfirmationMessage_Txt_CommentApprovalReject.Height +15
+            ZIndex: =18
+
+        Notificacion_ConfirmationMessage_Btn_MessageAccept As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(40, 60, 97, 1)
+            DisplayMode: =If(Notificacion_ConfirmationMessage_Txt_CommentApprovalReject.Text <> "",DisplayMode.Edit,DisplayMode.Disabled)
+            Font: ="U"
+            Height: =Notificacion_ConfirmationMessage_Shp_MessageAccept.Height
+            OnSelect: |-
+                =UpdateContext({varApprovalLoading: true});
+                If(
+                    VarButton = "Aceptar",
+                    //----------------------------------------------------------------------------------------------------
+                    Set(VarRejectComment,false);
+                    //----------------------------------------------------------------------------------------------------
+                UpdateContext(
+                        {
+                            VarState: First(
+                                Filter(
+                                    'dsf.form_library_counters',
+                                    Notificacion_PendingApprovalList.Selected.fl_form_number_vc = fl_form_number_vc,
+                                    Notificacion_PendingApprovalList.Selected.fl_plant_id_in = fl_plant_id_in
+                                )
+                            ).fl_form_state_in
+                        }
+                    );
+                    nf_form_data.Run(
+                        User().Email,
+                        "Edit",
+                        Notificacion_PendingApprovalList.Selected.fl_approver_vc,
+                        Notificacion_PendingApprovalList.Selected.fl_area_assigned_vc,
+                        /*Text(
+                            Notificacion_PendingApprovalList.Selected.fl_created_date_dt;
+                            "[$-en-US] yyyy-mm-dd hh:mm:ss"
+                        )*/"",
+                        //Notificacion_PendingApprovalList.Selected.fl_created_date_dt,
+                        Notificacion_PendingApprovalList.Selected.fl_form_description_vc,
+                        Notificacion_PendingApprovalList.Selected.fl_norm_vc,
+                        Notificacion_PendingApprovalList.Selected.fl_form_number_vc,
+                        Notificacion_PendingApprovalList.Selected.fl_reviewer_vc,
+                        Notificacion_PendingApprovalList.Selected.fl_created_by_vc,
+                        User().Email,
+                        Notificacion_ConfirmationMessage_Txt_CommentApprovalReject.Text,
+                        Notificacion_PendingApprovalList.Selected.fl_single_parameters_bt,
+                        Notificacion_PendingApprovalList.Selected.fl_form_state_in + 1,
+                        Notificacion_PendingApprovalList.Selected.fl_form_type_in,
+                        Notificacion_PendingApprovalList.Selected.fl_form_version_tin,
+                        Notificacion_PendingApprovalList.Selected.fl_plant_id_in,
+                        If(
+                            Notificacion_PendingApprovalList.Selected.fl_form_state_in + 1 = 5,
+                            1,
+                            Notificacion_PendingApprovalList.Selected.fl_form_enable_bt
+                        ),
+                        Notificacion_PendingApprovalList.Selected.fl_classification,
+                        Notificacion_PendingApprovalList.Selected.fl_frequency_vc,
+                        Notificacion_PendingApprovalList.Selected.fl_subarea_assigned_vc,
+                        Notificacion_PendingApprovalList.Selected.fl_powerbi_url_vc,
+                        Notificacion_PendingApprovalList.Selected.fl_table_id_in,
+                        Notificacion_PendingApprovalList.Selected.fl_data_retention_vc,
+                        Text(Now(),"[$-es-ES]yyyy/mm/dd hh:mm:ss")
+                    );
+                    //---------------------------------------------------------------------------- Notificacion cambio de estado
+                    //------------------------------------------EMAIL - SUBJECT
+                UpdateContext(
+                        {
+                            varSubject: First(
+                                Filter(
+                                    'dsf.form_release_flow',
+                                    rm_status_id_in = VarState,
+                                    rm_plant_id_in = Value(varPlantId)
+                                )
+                            ).rm_subject_vc & Notificacion_PendingApprovalList.Selected.fl_form_number_vc
+                        }
+                    );
+                    //------------------------------------------EMAIL - MESSAGE 
+                UpdateContext(
+                        {
+                            varMessage: First(
+                                Filter(
+                                    'dsf.form_release_flow',
+                                    rm_status_id_in = VarState And rm_plant_id_in = Value(varPlantId)
+                                )
+                            ).rm_message_vc
+                        }
+                    );
+                    //------------------------------------------DESTINATION
+                UpdateContext(
+                        {
+                            varDestination: Notificacion_PendingApprovalList.Selected.fl_created_by_vc
+                        }
+                    );
+                    UpdateContext(
+                        {
+                            varDestination2: Concat(
+                                Filter(
+                                'dsf.master_role',
+                                usr_plant_in = Notificacion_PendingApprovalList.Selected.fl_plant_id_in)
+                                ,
+                                usr_email_vc,
+                                ";"
+                            )
+                        }
+                    );
+                    //------------------------------------------ EMAIL
+                    If(!IsBlankOrError(varDestination & ";" & varDestination2) And !IsBlankOrError(varSubject) And !IsBlankOrError(varMessage),
+                Office365Outlook.SendEmail(
+                        varDestination & ";" & varDestination2,
+                        varSubject,
+                        varMessage,
+                        {Importance: "High"}
+                    ));
+                    //---------------------------------------------------------------------------- Notificacion de accion
+                    //------------------------------------------EMAIL - SUBJECT
+                UpdateContext(
+                        {
+                            varSubject: First(
+                                Filter(
+                                    'dsf.form_release_flow',
+                                    rm_status_id_in = 110 And rm_plant_id_in = Value(varPlantId)
+                                )
+                            ).rm_subject_vc & Notificacion_PendingApprovalList.Selected.fl_form_number_vc
+                        }
+                    );
+                    //------------------------------------------EMAIL - MESSAGE 
+                UpdateContext(
+                        {
+                            varMessage: First(
+                                Filter(
+                                    'dsf.form_release_flow',
+                                    rm_status_id_in = 110 And rm_plant_id_in = Value(varPlantId)
+                                )
+                            ).rm_message_vc
+                        }
+                    );
+                    //------------------------------------------DESTINATION
+                If(
+                        VarState = 3,
+                        UpdateContext(
+                            {
+                                varDestination: Notificacion_PendingApprovalList.Selected.fl_approver_vc
+                            }
+                        ),
+                        UpdateContext({varDestination: ""})
+                    );
+                    UpdateContext(
+                        {
+                            varDestination2: Concat(
+                                Filter(
+                                'dsf.master_role',
+                                usr_plant_in = Notificacion_PendingApprovalList.Selected.fl_plant_id_in),
+                                usr_email_vc,
+                                ";"
+                            )
+                        }
+                    );
+                    //------------------------------------------ EMAIL
+                If(
+                        VarState <= 3 And !IsBlankOrError(varDestination & ";" & varDestination2) And !IsBlankOrError(varSubject) And !IsBlankOrError(varMessage),
+                        Office365Outlook.SendEmail(
+                            varDestination & ";" & varDestination2,
+                            varSubject,
+                            varMessage,
+                            {Importance: "High"}
+                        ),
+                        ""
+                    );
+                    //---------------------------------------------------------------------------- Notificacion de confirmación exitosa
+                Notify(
+                        First(collAppLanguage).Lbl_Approved_MSG,
+                        NotificationType.Success,
+                        3000
+                    );
+                    //---------------------------------------------------------------------------------------------------- REFRESCA TABLAS
+                Refresh('dsf.form_library_counters');
+                    //---------------------------------------------------------------------------------------------------------------------------------------- INDICADORE DE PENDIENTES
+                    //----------------------------------------------------------------------------------------------------DETERMINA CUALES FORMULARIOS MOSTRAR
+                Select(Notificacion_Header_Btn_RefreshList);
+                UpdateContext({varApprovalLoading:true}),
+                    //----------------------------------------------------------------------------------------------------
+                    Set(
+                        VarRejectComment,
+                        false
+                    );
+                    //----------------------------------------------------------------------------------------------------
+                nf_form_data.Run(
+                        User().Email,
+                        "Edit",
+                        Notificacion_PendingApprovalList.Selected.fl_approver_vc,
+                        Notificacion_PendingApprovalList.Selected.fl_area_assigned_vc,
+                        /*Text(
+                            Notificacion_PendingApprovalList.Selected.fl_created_date_dt;
+                            "[$-es-ES]yyyy-mm-dd hh:mm:ss"
+                        )*/ "",
+                        //Notificacion_PendingApprovalList.Selected.fl_created_date_dt,
+                        Notificacion_PendingApprovalList.Selected.fl_form_description_vc,
+                        Notificacion_PendingApprovalList.Selected.fl_norm_vc,
+                        Notificacion_PendingApprovalList.Selected.fl_form_number_vc,
+                        Notificacion_PendingApprovalList.Selected.fl_reviewer_vc,
+                        Notificacion_PendingApprovalList.Selected.fl_created_by_vc,
+                        User().Email,
+                        Notificacion_ConfirmationMessage_Txt_CommentApprovalReject.Text,
+                        Notificacion_PendingApprovalList.Selected.fl_single_parameters_bt,
+                        1,
+                        Notificacion_PendingApprovalList.Selected.fl_form_type_in,
+                        Notificacion_PendingApprovalList.Selected.fl_form_version_tin,
+                        Notificacion_PendingApprovalList.Selected.fl_plant_id_in,
+                        Notificacion_PendingApprovalList.Selected.fl_form_enable_bt,
+                        Notificacion_PendingApprovalList.Selected.fl_classification,
+                        Notificacion_PendingApprovalList.Selected.fl_frequency_vc,
+                        Notificacion_PendingApprovalList.Selected.fl_subarea_assigned_vc,
+                        Notificacion_PendingApprovalList.Selected.fl_powerbi_url_vc,
+                        Notificacion_PendingApprovalList.Selected.fl_table_id_in,
+                        Notificacion_PendingApprovalList.Selected.fl_data_retention_vc,
+                        Text(Now(),"[$-es-ES]yyyy/mm/dd hh:mm:ss")
+                    );
+                    //--------------------------------------SUBJECT
+                UpdateContext(
+                        {
+                            varSubject: First(
+                                Filter(
+                                    'dsf.form_release_flow',
+                                    rm_status_id_in = 1 And rm_plant_id_in = Value(varPlantId)
+                                )
+                            ).rm_subject_vc & Notificacion_PendingApprovalList.Selected.fl_form_number_vc
+                        }
+                    );
+                    //--------------------------------------MESSAGE    
+                UpdateContext(
+                        {
+                            varMessage: First(
+                                Filter(
+                                    'dsf.form_release_flow',
+                                    rm_status_id_in = 1 And rm_plant_id_in = Value(varPlantId)
+                                )
+                            ).rm_message_vc & " " & Char(13) & " " & Notificacion_ConfirmationMessage_Txt_CommentApprovalReject.Text
+                        }
+                    );
+                    //------------------------------------------DESTINATION
+                UpdateContext({varDestination: Notificacion_PendingApprovalList.Selected.fl_created_by_vc});
+                    UpdateContext(
+                        {
+                            varDestination2: Concat(
+                                Filter(
+                                'dsf.master_role',
+                                usr_plant_in = Notificacion_PendingApprovalList.Selected.fl_plant_id_in),
+                                usr_email_vc,
+                                ";"
+                            )
+                        }
+                    );
+                    //------------------------------------------ EMAIL
+                    If(!IsBlankOrError(varDestination & ";" & varDestination2) And !IsBlankOrError(varSubject) And !IsBlankOrError(varMessage),
+                Office365Outlook.SendEmail(
+                        varDestination & ";" & varDestination2,
+                        varSubject,
+                        varMessage,
+                        {/*From:"x39670@coca-cola.com",*/
+                            Importance: "High"}
+                    ));
+                    //---------------------------------------------------------------------------- Notificacion de confirmación exitosa
+                Notify(
+                        First(collAppLanguage).Btn_RightBtn_4,
+                        NotificationType.Success,
+                        3000
+                    );
+                    //---------------------------------------------------------------------------------------------------- REFRESCA TABLAS
+                Select(Notificacion_Header_Btn_RefreshList);
+                UpdateContext({varApprovalLoading:true})
+                );
+                UpdateContext({varApprovalLoading: false})
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =20
+            Text: =First(collAppLanguage).Btn_LeftBtn
+            Visible: =VarRejectComment
+            Width: =Notificacion_ConfirmationMessage_Shp_MessageAccept.Width
+            X: =Notificacion_ConfirmationMessage_Shp_MessageAccept.X
+            Y: =Notificacion_ConfirmationMessage_Shp_MessageAccept.Y
+            ZIndex: =19
+
+        Notificacion_ConfirmationMessage_Btn_MessageCancel As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(40, 60, 97, 1)
+            Font: ="U"
+            Height: =Notificacion_ConfirmationMessage_Shp_MessageCancel.Height
+            OnSelect: =Set(VarRejectComment,false)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =20
+            Text: =First(collAppLanguage).Btn_RightBtn
+            Visible: =VarRejectComment
+            Width: =Notificacion_ConfirmationMessage_Shp_MessageCancel.Width
+            X: =Notificacion_ConfirmationMessage_Shp_MessageCancel.X
+            Y: =Notificacion_ConfirmationMessage_Shp_MessageCancel.Y
+            ZIndex: =20
+
+    Notificacion_Header As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =28
+
+        Notificacion_Header_Shp_NavBarTop As htmlViewer:
+            Height: =202
+            HtmlText: |-
+                ="<div style ='
+                
+                  margin-top:0px;
+                  margin-bottom:3px;
+                  margin-left:0px;
+                  margin-right:0px;
+                  width: "& Notificacion_Header_Shp_NavBarTop.Width &"px;
+                  height: "& Notificacion_Header_Shp_NavBarTop.Height - 21 &"px;
+                  background-color: #3BA5A8;
+                  box-shadow: rgba(0, 0, 0, 0.15) 3px 6px 18px;'
+                  <center>
+                  </center>
+                  </div>
+                "//rgba(203, 16, 18, 1)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Width: =Parent.Width
+            ZIndex: =1
+
+        Notificacion_Header_Lbl_ScreenTitle As label:
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =//"Arial Rounded MT"
+            Height: =67
+            Size: =32
+            Text: =First(collAppLanguage).Label4
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =Notificacion_Header_Lbl_ScreenSubTitle.Y - Self.Height
+            ZIndex: =2
+
+        Notificacion_Header_Lbl_ScreenSubTitle As label:
+            Color: =RGBA(241, 244, 249, 1)
+            Font: ="Unity"
+            FontWeight: =FontWeight.Lighter
+            Height: =29
+            Size: =12
+            Text: ="List of pending approvals"
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =Notificacion_Header_Shp_NavBarTop.Height - Self.Height - 25
+            ZIndex: =3
+
+        Notificacion_Header_Btn_NotificationNav As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.Bell
+            OnSelect: =
+            Tooltip: ="Pending Task"
+            Width: =59
+            X: =Parent.Width - Self.Width - 30
+            Y: =33
+            ZIndex: =4
+
+        Notificacion_Header_Btn_ProfileNav As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.ArrowLeft
+            OnSelect: |
+                =Back(ScreenTransition.CoverRight)
+            Width: =59
+            X: =30
+            Y: =33
+            ZIndex: =5
+
+        Notificacion_Header_Shp_PendingIndicator As circle:
+            BorderColor: =RGBA(220, 153, 153, 1)
+            BorderThickness: =2
+            Fill: =RGBA(203, 102, 102, 1)
+            Height: =28
+            OnSelect: =
+            Visible: =If(TotalPending = 0 Or IsBlankOrError(TotalPending),false,true)
+            Width: =28
+            X: =Parent.Width - Self.Width - 30
+            Y: =30
+            ZIndex: =6
+
+        Notificacion_Header_Lbl_PendingIndicator As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =
+            FontWeight: =FontWeight.Bold
+            Height: =28
+            OnSelect: =
+            Size: =10
+            Text: |-
+                =//----------------------------------------------------------------------------------------------------MUESTRA CANTIDAD DE PENDIENTES
+                If(TotalPending > 9,"+9",TotalPending)
+            Visible: =If(TotalPending = 0 Or IsBlankOrError(TotalPending),false,true)
+            Width: =28
+            X: =Parent.Width - Self.Width - 30
+            Y: =31
+            ZIndex: =7
+
+        Notificacion_Header_Btn_RefreshList As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.Reload
+            OnSelect: |-
+                =//---------------------------------------------------------------------------------------------------- REFRESCA TABLAS
+                UpdateContext({varApprovalLoading:true});
+                Refresh('dsf.form_library_counters');
+                //---------------------------------------------------------------------------------------------------------------------------------------- INDICADORE DE PENDIENTES
+                //----------------------------------------------------------------------------------------------------DETERMINA CUALES FORMULARIOS MOSTRAR
+                ClearCollect(
+                    varFormsLibraryCT,
+                    Filter(
+                        'dsf.form_library_counters',(
+                        (fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant) &&
+                        fl_form_state_in = 2 &&
+                        (varUserEmail = fl_reviewer_vc Or  IBMS = true)) || ((fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant) &&
+                        fl_form_state_in = 3 &&
+                        IBMS = true) || ( (fl_plant_id_in = varPlantId Or fl_plant_id_in = varGlobalPlant) &&
+                        fl_form_state_in = 4 &&
+                        (varUserEmail = fl_approver_vc Or IBMS = true))
+                    )
+                );
+                
+                //----------------------------------------------------------------------------------------------------ACTUALIZA EL INDICADOR DE PENDIENTES
+                Set(TotalPending,CountRows(varFormsLibraryCT));
+                UpdateContext({varApprovalLoading:false});
+            Tooltip: ="Refresh"
+            Width: =59
+            X: =Notificacion_Header_Btn_NotificationNav.X - Self.Width - 30
+            Y: =33
+            ZIndex: =8
+

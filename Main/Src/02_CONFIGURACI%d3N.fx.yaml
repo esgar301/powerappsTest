@@ -1,0 +1,730 @@
+"'02_CONFIGURACIÓN' As screen":
+    Fill: =stBackgroudColor
+    OnVisible: |-
+        =//---------------------------------------------------------------------------------------------------- ESPECIALIDADES DEL USUARIO
+        ClearCollect(
+            collUserSpec,
+            Filter(
+                'users.email_specialties',
+                varUserEmail = epe_usr_email_vc
+            ).epe_spe_id_bin
+        );
+        //----------------------------------------------------------------------------------------------------
+        Clear(collCurrentSpec);
+        If(
+            CountRows(collUserSpec) > 0,
+            ForAll(
+                collUserSpec As Spec,
+                Collect(
+                    collCurrentSpec,
+                    Filter(
+                        'users.specialty_names',
+                        spn_usr_plant_in = varPlantId,
+                        spn_spe_id_bin = Spec.epe_spe_id_bin
+                    )
+                )
+            )
+        );
+        //----------------------------------------------------------------------------------------------------
+        ClearCollect(
+            collEscalationUser,
+            Filter(
+                'users.user_specialties',
+                usp_user_id_bin = varUserId
+            )
+        );
+        Clear(collCurrentEsc);
+        If(
+            CountRows(collEscalationUser) > 0,
+            ForAll(
+                collEscalationUser As Escal,
+                Collect(
+                    collCurrentEsc,
+                    Filter(
+                        'users.specialty_sups_VIEW',
+                        usr_id_bin = Escal.usp_escalation_user_bin,
+                        usr_plant_in = varPlantId
+                    )
+                )
+            )
+        );
+        
+        //----------------------------------------------------------------------------------------------------
+        If(CountRows(collCurrentSpec) > 0,UpdateContext({Spec1: First(collCurrentSpec).spn_spe_id_bin}));
+        If(CountRows(collCurrentSpec) > 1,UpdateContext({Spec2: Last(FirstN(collCurrentSpec,2)).spn_spe_id_bin}));
+        If(CountRows(collCurrentSpec) > 2,UpdateContext({Spec3: Last(FirstN(collCurrentSpec,3)).spn_spe_id_bin}));
+        
+        //----------------------------------------------------------------------------------------------------
+        UpdateContext({userEscal1: LookUp(collEscalationUser, usp_spe_id_bin = Spec1).usp_escalation_user_bin});
+        UpdateContext({userEscal2: LookUp(collEscalationUser, usp_spe_id_bin = Spec2).usp_escalation_user_bin});
+        UpdateContext({userEscal3: LookUp(collEscalationUser, usp_spe_id_bin = Spec3).usp_escalation_user_bin});
+        
+        //----------------------------------------------------------------------------------------------------
+        If(!IsBlank(userEscal1),UpdateContext({escal1: LookUp(collCurrentEsc, usp_user_id_bin = userEscal1)}));
+        If(!IsBlank(userEscal2),UpdateContext({escal2: LookUp(collCurrentEsc, usp_user_id_bin = userEscal2)}));
+        If(!IsBlank(userEscal3),UpdateContext({escal3: LookUp(collCurrentEsc, usp_user_id_bin = userEscal3)}));
+
+    Configuration_Footer As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =36
+
+        Configuration_Footer_Shp_NavBarBottom_02 As rectangle:
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =Parent.Height * 0.08
+            Width: =Parent.Width
+            Y: =Parent.Height - Self.Height
+            ZIndex: =1
+
+        Configuration_Footer_Icon_RefreshConfig As icon.Add:
+            Color: =RGBA(40, 60, 97, 1)
+            FocusedBorderThickness: =3
+            Height: =Configuration_Footer_Shp_NavBarBottom_02.Height * 0.6 
+            Icon: =Icon.Reload
+            OnSelect: |
+                =//---------------------------------------------------------------------------------------------------- POPULA LA LISTA DE FORMULARIOS
+                ClearCollect(
+                    varFormsLibrary,
+                    Filter(
+                        'dsf.form_library_counters',
+                        fl_form_state_in = 5 Or fl_form_enable_bt = true
+                    )
+                );
+                
+                //---------------------------------------------------------------------------------------------------- CORREO DEL USUARIO
+                Set(
+                    varUserEmail,
+                    User().Email
+                );
+                //---------------------------------------------------------------------------------------------------- PLANTA DEL USUARIO
+                Set(
+                    varPlantId,
+                    LookUp(
+                        'users.users',
+                        varUserEmail = usr_email_vc
+                    ).usr_plant_in
+                );
+                //---------------------------------------------------------------------------------------------------- ID DEL USUARIO
+                Set(
+                    varUserId,
+                    LookUp(
+                        'users.users',
+                        varUserEmail = usr_email_vc
+                    ).usr_id_bin
+                );
+                
+                //---------------------------------------------------------------------------------------------------- LENGUAJE DEL USUARIO
+                Set(
+                    varUL,
+                    LookUp(
+                        'users.users',
+                        varUserEmail = usr_email_vc
+                    ).user_applang_vc
+                );
+                
+                //---------------------------------------------------------------------------------------------------- DEFAULT DE LENGUAJE (EN)
+                Set(
+                    varLC,
+                    If(
+                        !IsBlank(varUL),
+                        varUL,
+                        If(
+                            IsBlank(Language()),
+                            "EN",
+                            Left(
+                                Language(),
+                                2
+                            )
+                        )
+                    )
+                );
+                
+                //---------------------------------------------------------------------------------------------------- LIMPIA COLECCION DE LENGUAJE
+                Clear(collAppLanguage);
+                
+                //---------------------------------------------------------------------------------------------------- CARGA COLECCION DE LENGUAJE
+                ClearCollect(
+                    collAppLanguage,
+                    LookUp(
+                        'DSF Languages',
+                        'Language Code' in varLC
+                    )
+                );
+                
+                //---------------------------------------------------------------------------------------------------- EN CASO DE NO TENER LENGUAJE GUARDA DEFAULT (EN)
+                If(
+                    IsBlank(varUL),
+                    Patch(
+                        'users.users',
+                        LookUp(
+                            'users.users',
+                            varUserEmail = usr_email_vc
+                        ),
+                        {user_applang_vc: varLC}
+                    )
+                );
+                
+                //---------------------------------------------------------------------------------------------------- REVISAR EN CASO DE LO CONTRARIO ELIMINAR
+                /*Set(
+                    UserId,
+                    LookUp(
+                        'users.users',
+                        varUserEmail in usr_email_vc
+                    ).usr_id_bin
+                );*/
+                
+                //---------------------------------------------------------------------------------------------------- REVISAR EN CASO DE LO CONTRARIO ELIMINAR
+                /*Set(
+                    usrPlant,
+                    LookUp(
+                        'users.users',
+                        usr_id_bin = UserId,
+                        usr_plant_in
+                    )
+                );*/
+                
+                //---------------------------------------------------------------------------------------------------- CARGA COLECCION CON USUARIOS IBMS
+                ClearCollect(
+                    collIBMS,
+                    Filter(
+                        'dsf.master_role',
+                        usr_plant_in = varPlantId
+                    ).usr_email_vc
+                );
+                
+                //----------------------------------------------------------------------------------------------------IDENTIFICA SI ES IBMS
+                If(
+                    varUserEmail in collIBMS.usr_email_vc,
+                    Set(IBMS, true),
+                    Set(IBMS, false)
+                );
+                
+                //----------------------------------------------------------------------------------------------------
+                //----------------------------------------------------------------------------------------------------
+                Refresh('dsf.plant_configuration');
+                Set(varDoubleSave,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_double_save_bt);
+                Set(varRecordValidation,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_record_validation_bt);
+                Set(varTimerQuestion,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_timer_questions_in);
+                Set(varTimerSave,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_timer_save_in);
+                Set(varDebugBit,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_debug_mode_bt);
+                Set(varDebugEmail,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_email_tester_vc);
+                Set(varSingleValidation,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_single_save_bt);
+                Set(varSubmitCounter,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_submit_counter_in);
+                Set(varSubmitMode,Last(Filter('dsf.plant_configuration',cnf_plant_id_in = varPlantId)).cnf_submit_mode_in);
+            Tooltip: ="Configuración"
+            Width: =stIconWidth
+            X: =(Parent.Width/4) - (Configuration_Footer_Icon_RefreshConfig.Width/2)
+            Y: =Configuration_Footer_Shp_NavBarBottom_02.Y + Configuration_Footer_Shp_NavBarBottom_02.Height * 0.1
+            ZIndex: =4
+
+        Configuration_Footer_Icon_SafeConfig As icon.Add:
+            Color: =RGBA(40, 60, 97, 1)
+            Height: =Configuration_Footer_Shp_NavBarBottom_02.Height * 0.6 
+            Icon: =Icon.Save
+            OnSelect: |
+                =Set(
+                    varLanguageCode,
+                    LookUp(
+                        'DSF Languages',
+                        Language in Configuration_Settings_Cb_Language.Selected.Language,
+                        Text('Language Code')
+                    )
+                );
+                If(
+                    /*varUL <> varLanguageCode And*/
+                    !IsBlank(varLanguageCode),
+                    Clear(collAppLanguage);
+                    Collect(
+                        collAppLanguage,
+                        LookUp(
+                            'DSF Languages',
+                            'Language Code' in varLanguageCode
+                        )
+                    );
+                    Clear(collUserLanguageCode);
+                    Collect(
+                        collUserLanguageCode,
+                        User_Language.Run(
+                            User().Email,
+                            "Update",
+                            varLanguageCode
+                        )
+                    )
+                );
+                /*UpdateContext({Spec1: First(cbo_Specialities_1.SelectedItems).spn_spe_id_bin});
+                UpdateContext(
+                    {
+                        Spec2: Last(
+                            FirstN(
+                                cbo_Specialities_1.SelectedItems,
+                                2
+                            )
+                        ).spn_spe_id_bin
+                    }
+                );
+                UpdateContext(
+                    {
+                        Spec3: Last(
+                            FirstN(
+                                cbo_Specialities_1.SelectedItems,
+                                3
+                            )
+                        ).spn_spe_id_bin
+                    }
+                );*/
+                If(
+                    varPlantId <> oldPlant,
+                    Patch(
+                        'users.users',
+                        LookUp(
+                            'users.users',
+                            usr_id_bin = varUserId
+                        ),
+                        {usr_plant_in: varPlantId}
+                    )
+                );
+                Update_SpecialtiesDSFv2.Run(
+                    varUserEmail,
+                    0,
+                    0,
+                    0,
+                    If(
+                        CountRows(Configuracion_Other_cbo_Specialities_1.SelectedItems) > 0,
+                        If(
+                            IsBlank(Spec1),
+                            LookUp(
+                                collCurrentSpec,
+                                spn_spe_name_vc = First(Configuracion_Other_cbo_Specialities_1.SelectedItems).spn_spe_name_vc
+                            ).spn_spe_id_bin,
+                            Spec1
+                        ),
+                        0
+                    ),
+                    If(
+                        CountRows(Configuracion_Other_cbo_Specialities_1.SelectedItems) > 1,
+                        If(
+                            IsBlank(Spec2),
+                            LookUp(
+                                collCurrentSpec,
+                                spn_spe_name_vc = Last(
+                                    FirstN(
+                                        Configuracion_Other_cbo_Specialities_1.SelectedItems,
+                                        2
+                                    )
+                                ).spn_spe_name_vc
+                            ).spn_spe_id_bin,
+                            Spec2
+                        ),
+                        0
+                    ),
+                    If(
+                        CountRows(Configuracion_Other_cbo_Specialities_1.SelectedItems) > 2,
+                        If(
+                            IsBlank(Spec3),
+                            LookUp(
+                                collCurrentSpec,
+                                spn_spe_name_vc = Last(
+                                    FirstN(
+                                        Configuracion_Other_cbo_Specialities_1.SelectedItems,
+                                        3
+                                    )
+                                ).spn_spe_name_vc
+                            ).spn_spe_id_bin,
+                            Spec3
+                        ),
+                        0
+                    )
+                );
+                Notify(
+                    Last(collUserLanguageCode).sp_response_vc,
+                    If(
+                        Last(collUserLanguageCode).sp_response_in = 100,
+                        NotificationType.Success,
+                        If(
+                            Last(collUserLanguageCode).sp_response_in = 200,
+                            NotificationType.Warning,
+                            NotificationType.Error
+                        )
+                    ),
+                    4000
+                );
+                Refresh('users.users');
+                Refresh('users.specialty_sups_VIEW');
+                Navigate(
+                    '01_PRINCIPAL',
+                    ScreenTransition.Fade
+                );
+                //---------------------------------------------------------------------------------------------------- CARGA COLECCION CON USUARIOS IBMS
+                ClearCollect(
+                    collIBMS,
+                    Filter(
+                        'dsf.master_role',
+                        usr_plant_in = varPlantId
+                    ).usr_email_vc
+                );
+                //----------------------------------------------------------------------------------------------------IDENTIFICA SI ES IBMS
+                If(
+                    varUserEmail in collIBMS.usr_email_vc,
+                    Set(
+                        IBMS,
+                        true
+                    ),
+                    Set(
+                        IBMS,
+                        false
+                    )
+                );
+            Tooltip: ="Configuración"
+            Width: =stIconWidth
+            X: =(Parent.Width*3/4) - (Configuration_Footer_Icon_RefreshConfig.Width/2)
+            Y: =Configuration_Footer_Shp_NavBarBottom_02.Y + Configuration_Footer_Shp_NavBarBottom_02.Height * 0.1
+            ZIndex: =5
+
+        Configuration_Footer_Lbl_RightButton_10 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(130, 141, 158, 1)
+            Font: =stFontType
+            FontWeight: =FontWeight.Lighter
+            Height: =17
+            OnSelect: =
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: =First(collAppLanguage).Subtitle2_28
+            VerticalAlign: =VerticalAlign.Top
+            Width: =74
+            X: =Configuration_Footer_Icon_SafeConfig.X + (Configuration_Footer_Icon_SafeConfig.Width/2) - (Configuration_Footer_Lbl_RightButton_10.Width/2)
+            Y: =Parent.Height - Self.Height - Configuration_Footer_Icon_SafeConfig.Height * 0.1
+            ZIndex: =6
+
+        Configuration_Footer_Lbl_LeftButton_10 As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(130, 141, 158, 1)
+            Font: =stFontType
+            FontWeight: =FontWeight.Lighter
+            Height: =17
+            OnSelect: =
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: =First(collAppLanguage).Configuration_Footer_Lbl_LeftButton_10
+            VerticalAlign: =VerticalAlign.Top
+            Width: =74
+            X: =Configuration_Footer_Icon_RefreshConfig.X+(Configuration_Footer_Icon_RefreshConfig.Width/2) - (Configuration_Footer_Lbl_LeftButton_10.Width/2)
+            Y: =Parent.Height - Self.Height - Configuration_Footer_Icon_RefreshConfig.Height * 0.1
+            ZIndex: =7
+
+    Configuration_Settings As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =36
+
+        Configuration_Settings_Shp_BackgroudSettings As htmlViewer:
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =Configuration_Settings_Lbl_MySpecialty.Y + Configuration_Settings_Lbl_MySpecialty.Height - Self.Y + 50
+            HtmlText: |-
+                ="<div style='margin:10px;width: " & Self.Width - 32 & "px;height:" & Self.Height - 35 & "px;opacity:0.8;background-color:#FFFFFF;box-shadow:0 3px 6px 1px  #ccc; border-radius:5px'></div>"
+            Width: =570
+            X: =70
+            Y: =Configuracion_Header_Shp_NavBarTop_02.Height + 30 //Image2_11.Y + Image2_11.Height/2 -10
+            ZIndex: =2
+
+        Configuration_Settings_Cb_Language As dropdown:
+            BorderColor: =RGBA(149, 149, 149, 1)
+            ChevronBackground: =RGBA(202, 202, 202, 1)
+            ChevronHoverBackground: =RGBA(59, 165, 168, 1)
+            Default: =LookUp('DSF Languages','Language Code' in varLC,Language)
+            Font: ="Unity"
+            Height: =45
+            HoverFill: =RGBA(59, 165, 168, 0.49)
+            Items: ='DSF Languages'
+            PressedFill: =RGBA(59, 165, 168, 0.49)
+            SelectionFill: =RGBA(219, 219, 219, 1)
+            Size: =17
+            Width: =470
+            X: =130
+            Y: =Configuration_Settings_Lbl_MyVersion.Y + Configuration_Settings_Lbl_MyVersion.Height + 30
+            ZIndex: =3
+
+        Configuration_Settings_Lbl_MySpecialty As label:
+            Font: ="Unity"
+            Height: =144
+            Overflow: =Overflow.Scroll
+            Size: =17
+            Text: =First(collAppLanguage).Label2_29 & " " & Concat(collCurrentSpec,spn_spe_name_vc & "; ")
+            VerticalAlign: =VerticalAlign.Top
+            Width: =470
+            X: =130
+            Y: =Configuration_Settings_Cb_Language.Y + Configuration_Settings_Cb_Language.Height + 30
+            ZIndex: =14
+
+        Configuration_Settings_Img_ProfilePicture As image:
+            BorderColor: =RGBA(202, 202, 202, 1)
+            BorderThickness: =1
+            Height: =130
+            Image: =User().Image
+            ImagePosition: =ImagePosition.Stretch
+            RadiusBottomLeft: =Configuration_Settings_Img_ProfilePicture.Height
+            RadiusBottomRight: =Configuration_Settings_Img_ProfilePicture.Height
+            RadiusTopLeft: =Configuration_Settings_Img_ProfilePicture.Height
+            RadiusTopRight: =Configuration_Settings_Img_ProfilePicture.Height
+            Width: =132
+            X: =39//(Parent.Width / 2) - (Self.Width/2)
+            Y: =200
+            ZIndex: =15
+
+        Configuration_Settings_Lbl_MyEmail As label:
+            Font: ="Unity"
+            Height: =41
+            Size: =17
+            Text: |-
+                ="Email: " & varUserEmail
+            Width: =Parent.Width - Self.X - 30
+            X: =130
+            Y: =Configuration_Settings_Img_ProfilePicture.Y + Configuration_Settings_Img_ProfilePicture.Height + 40
+            ZIndex: =16
+
+        Configuration_Settings_Lbl_MyUserID As label:
+            Font: ="Unity"
+            Height: =41
+            Size: =17
+            Text: |-
+                ="User ID: " & varUserId
+            Width: =Parent.Width - Self.X - 30
+            X: =130
+            Y: =Configuration_Settings_Lbl_MyEmail.Y + Configuration_Settings_Lbl_MyEmail.Height + 30
+            ZIndex: =18
+
+        Configuration_Settings_Lbl_MyPlant As label:
+            Font: ="Unity"
+            Height: =41
+            Size: =17
+            Text: =First(collAppLanguage).Label2_28 & " " & LookUp('plant_resources.plant', plnt_id_in = varPlantId).plnt_name_vc & " (" & varPlantId & ")"
+            Width: =Parent.Width - Self.X - 30
+            X: =130
+            Y: =Configuration_Settings_Lbl_MyUserID.Y + Configuration_Settings_Lbl_MyUserID.Height + 30
+            ZIndex: =20
+
+        Configuration_Settings_Lbl_MyRole As label:
+            Font: ="Unity"
+            Height: =41
+            Size: =17
+            Text: |-
+                ="Role: " & If(IBMS,"Admin","Basic")
+            Width: =Parent.Width - Self.X - 30
+            X: =130
+            Y: =Configuration_Settings_Lbl_MyPlant.Y + Configuration_Settings_Lbl_MyPlant.Height + 30
+            ZIndex: =24
+
+        Configuration_Settings_Lbl_MyVersion As label:
+            Font: ="Unity"
+            Height: =41
+            Size: =17
+            Text: |-
+                ="Version: 1.8.0"
+            Width: =Parent.Width - Self.X - 30
+            X: =130
+            Y: =Configuration_Settings_Lbl_MyRole.Y + Configuration_Settings_Lbl_MyRole.Height + 30
+            ZIndex: =25
+
+        "Configuration_Settings_Icon_Email As icon.'3DPrinting'":
+            Color: =RGBA(24, 201, 217, 1)
+            Height: =30
+            Icon: =Icon.Mail
+            Width: =30
+            X: =92
+            Y: =371
+            ZIndex: =29
+
+        "Configuration_Settings_Icon_Plant As icon.'3DPrinting'":
+            Color: =RGBA(24, 201, 217, 1)
+            Height: =30
+            Icon: =Icon.Globe
+            Width: =30
+            X: =92
+            Y: =514
+            ZIndex: =30
+
+        "Configuration_Settings_Icon_UserId As icon.'3DPrinting'":
+            Color: =RGBA(24, 201, 217, 1)
+            Height: =30
+            Icon: =Icon.AddUser
+            Width: =30
+            X: =92
+            Y: =443
+            ZIndex: =31
+
+        "Configuration_Settings_Icon_Role As icon.'3DPrinting'":
+            Color: =RGBA(24, 201, 217, 1)
+            Height: =30
+            Icon: =Icon.LevelsLayersItems
+            Width: =30
+            X: =92
+            Y: =584
+            ZIndex: =32
+
+        "Configuration_Settings_Icon_Version As icon.'3DPrinting'":
+            Color: =RGBA(24, 201, 217, 1)
+            Height: =30
+            Icon: =Icon.OfficeBuilding
+            Width: =30
+            X: =92
+            Y: =655
+            ZIndex: =33
+
+        "Configuration_Settings_Icon_Language As icon.'3DPrinting'":
+            Color: =RGBA(24, 201, 217, 1)
+            Height: =30
+            Icon: =Icon.Text
+            Width: =30
+            X: =92
+            Y: =726
+            ZIndex: =34
+
+        "Configuration_Settings_Icon_Specialty As icon.'3DPrinting'":
+            Color: =RGBA(24, 201, 217, 1)
+            Height: =30
+            Icon: =Icon.People
+            Width: =30
+            X: =92
+            Y: =797
+            ZIndex: =35
+
+    Configuracion_Other As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =36
+
+        Configuracion_Other_Cb_Plant As dropdown:
+            BorderColor: =RGBA(149, 149, 149, 1)
+            ChevronBackground: =RGBA(202, 202, 202, 1)
+            Default: =LookUp('plant_resources.plant', plnt_id_in = varPlantId).plnt_name_vc
+            Font: =Font.'Open Sans Condensed'
+            Height: =45
+            Items: ='plant_resources.plant'
+            OnChange: |-
+                =UpdateContext({oldPlant: varPlantId});
+                If(varPlantId <> Configuracion_Other_Cb_Plant.Selected.plnt_id_in,Set(varPlantId, Configuracion_Other_Cb_Plant.Selected.plnt_id_in);
+                ClearCollect(collCurrentSpec,[]);
+                Reset(Configuracion_Other_cbo_Specialities_1));
+            OnSelect: |
+                =
+            SelectionFill: =RGBA(219, 219, 219, 1)
+            Size: =15
+            Visible: =false
+            Width: =85
+            X: =542
+            Y: =939
+            ZIndex: =8
+
+        Configuracion_Other_cbo_Specialities_1 As combobox:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            ChevronBackground: =RGBA(219, 219, 219, 1)
+            ChevronHoverBackground: =RGBA(202, 202, 202, 1)
+            DefaultSelectedItems: =collCurrentSpec.spn_spe_name_vc
+            DisplayFields: =["spn_spe_name_vc","spn_parent_vc"]
+            Height: =50
+            HoverFill: =RGBA(237, 237, 237, 1)
+            IsSearchable: =false
+            Items: =Filter('users.specialty_names',spn_usr_plant_in = Configuracion_Other_Cb_Plant.Selected.plnt_id_in)
+            OnChange: |-
+                =If(
+                   CountRows(Configuracion_Other_cbo_Specialities_1.SelectedItems) > 3,
+                   Notify("Please choose no more than 3 items", NotificationType.Error)
+                )
+            OnSelect: |-
+                =If(
+                   CountRows(Configuracion_Other_cbo_Specialities_1.SelectedItems) > 3,
+                   Notify("Please choose no more than 3 items", NotificationType.Error)
+                )
+            PressedFill: =RGBA(227, 234, 243, 1)
+            SearchFields: =["spn_spe_name_vc"]
+            SearchItems: =[]
+            SelectionColor: =RGBA(0, 0, 0, 1)
+            SelectionFill: =RGBA(255, 255, 255, 1)
+            Size: =15
+            Template: =ListItemTemplate.Double
+            Visible: =false
+            Width: =85
+            X: =542
+            Y: =984
+            ZIndex: =9
+
+    Configuracion_Header As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =20
+        ZIndex: =40
+
+        Configuracion_Header_Shp_NavBarTop_02 As htmlViewer:
+            Height: =202
+            HtmlText: |-
+                ="<div style ='
+                
+                  margin-top:0px;
+                  margin-bottom:3px;
+                  margin-left:0px;
+                  margin-right:0px;
+                  width: "& Configuracion_Header_Shp_NavBarTop_02.Width &"px;
+                  height: "& Configuracion_Header_Shp_NavBarTop_02.Height - 21 &"px;
+                  background-color: #3BA5A8;
+                  box-shadow: rgba(0, 0, 0, 0.15) 3px 6px 18px;'
+                  <center>
+                  </center>
+                  </div>
+                "//rgba(203, 16, 18, 1)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Width: =Parent.Width
+            ZIndex: =10
+
+        Configuracion_Header_Lbl_ScreenTitle_1 As label:
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =//"Arial Rounded MT"
+            Height: =67
+            Size: =32
+            Text: =Right(First(collAppLanguage).'Title Screen Config', Len(First(collAppLanguage).'Title Screen Config') -0)
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =Configuracion_Header_Lbl_ScreenSubTitle_1.Y - Self.Height
+            ZIndex: =11
+
+        Configuracion_Header_Lbl_ScreenSubTitle_1 As label:
+            Color: =RGBA(241, 244, 249, 1)
+            Font: ="Unity"
+            FontWeight: =FontWeight.Lighter
+            Height: =29
+            Size: =12
+            Text: =First(collAppLanguage).Configuracion_Header_Lbl_ScreenSubTitle_1
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =Configuracion_Header_Shp_NavBarTop_02.Height - Self.Height - 25
+            ZIndex: =12
+
+        Configuracion_Header_Btn_ProfileNav_1 As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.ArrowLeft
+            OnSelect: =Navigate('01_PRINCIPAL',ScreenTransition.Cover)
+            Width: =59
+            X: =30
+            Y: =33
+            ZIndex: =13
+

@@ -1,0 +1,1502 @@
+"'09_ESTADO SOLICITUD' As screen.'phoneLayout_FluidGridWithHeaderPageLayout_ver3.0'":
+    Fill: =RGBA(226, 226, 226, 1)
+    OnVisible: |-
+        =UpdateContext({VarViewerVisible: false});
+        UpdateContext({varLoadingVisible: true});
+        Reset(EstadoDatacard_PT_Txt_ApprovalComment);
+        
+        ClearCollect(
+            varApprovalDetailResponse,
+            lb_approval_detail.Run(
+                Pr_ProcessOrder,
+                Pr_Version
+            )
+        );
+        
+        If(
+            Last(varApprovalDetailResponse).la_approval_status_vc = "Pendiente",
+            UpdateContext({varExecuteTestVisible: true}),
+            UpdateContext({varExecuteTestVisible: false})
+        );
+        If(
+            Last(varApprovalDetailResponse).la_approval_status_vc = "Completado" Or Last(varApprovalDetailResponse).sp_response_in <> 100,
+            UpdateContext({VarDmv: DisplayMode.Disabled}),
+            UpdateContext({VarDmv: DisplayMode.Edit})
+        );
+        
+        
+        
+        UpdateContext({varLoadingVisible: false});
+        Notify(
+            Last(varApprovalDetailResponse).sp_response_vc,
+            If(
+                Last(varApprovalDetailResponse).sp_response_in = 100,
+                NotificationType.Success,
+                If(
+                    Last(varApprovalDetailResponse).sp_response_in = 200,
+                    NotificationType.Warning,
+                    NotificationType.Error
+                )
+            )
+        );
+        Set(TotalPending,CountRows(varFormsLibraryCT))
+
+    Estado_Canvas As fluidGrid.fluidGridWithBlankCard:
+        BorderThickness: =0
+        Height: =Parent.Height - Self.Y
+        Width: =Parent.Width
+        Y: =Estado_Header_Shp_NavBarTop.Height - 10
+        ZIndex: =1
+
+        EstadoDatacard As dataCard:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            BorderStyle: =BorderStyle.Solid
+            BorderThickness: =0
+            DisplayMode: =DisplayMode.Edit
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =955
+            Width: =Parent.Width
+            X: =0
+            Y: =0
+            ZIndex: =1
+
+            EstadoDatacard_Btn_Approve As button:
+                BorderColor: =RGBA(0, 0, 0, 1)
+                Color: =RGBA(0, 0, 0, 1)
+                DisplayMode: =VarDmv
+                Fill: =RGBA(241, 244, 249, 1)
+                Font: ="Unity"
+                FontWeight: =FontWeight.Normal
+                Height: =52
+                OnSelect: |-
+                    =UpdateContext({varLoadingVisible: true});
+                    ClearCollect(
+                        varApprovalAcquireResponse,
+                        lb_approval_acquire.Run(
+                            EstadoDatacard_Approval_Txt_ApprovalComment.Text,
+                            Text(
+                                Now(),
+                                "[$-es-ES]m/dd/yyyy hh:mm:ss"
+                            ),
+                            User().Email,
+                            "response",
+                            "Aprobado",
+                            Pr_ProcessOrder,
+                            Pr_Version
+                        )
+                    );
+                    If(
+                        Last(varApprovalAcquireResponse).sp_response_in = 100,
+                        ClearCollect(
+                            varApprovalDetailResponse,
+                            lb_approval_detail.Run(
+                                Pr_ProcessOrder,
+                                Pr_Version
+                            )
+                        ),
+                        ""
+                    );
+                    UpdateContext({varLoadingVisible: false});
+                    Notify(
+                        Last(varApprovalAcquireResponse).sp_response_vc,
+                        If(
+                            Last(varApprovalAcquireResponse).sp_response_in = 100,
+                            NotificationType.Success,
+                            If(
+                                Last(varApprovalAcquireResponse).sp_response_in = 200,
+                                NotificationType.Warning,
+                                NotificationType.Error
+                            )
+                        )
+                    )
+                Size: =17
+                Text: =First(collAppLanguage).Button1_1
+                Width: =180
+                X: =Parent.Width/4-EstadoDatacard_Btn_Approve.Width/2
+                Y: =EstadoDatacard_Approval_Txt_ApprovalComment.Y+ EstadoDatacard_Approval_Txt_ApprovalComment.Height + EstadoDatacard_Btn_Approve.Height/2
+                ZIndex: =25
+
+            EstadoDatacard_Btn_Reject As button:
+                BorderColor: =RGBA(0, 0, 0, 1)
+                Color: =RGBA(0, 0, 0, 1)
+                DisplayMode: =VarDmv
+                Fill: =RGBA(241, 244, 249, 1)
+                Font: ="Unity"
+                FontWeight: =FontWeight.Normal
+                Height: =52
+                OnSelect: |-
+                    =UpdateContext({varLoadingVisible: true});
+                    ClearCollect(
+                        varApprovalAcquireResponse,
+                        lb_approval_acquire.Run(
+                            EstadoDatacard_Approval_Txt_ApprovalComment.Text,
+                            Text(
+                                Now(),
+                                "[$-es-ES]m/dd/yyyy hh:mm:ss"
+                            ),
+                            User().Email,
+                            "response",
+                            "Rechazado",
+                            Pr_ProcessOrder,
+                            Pr_Version
+                        )
+                    );
+                    If(
+                        Last(varApprovalAcquireResponse).sp_response_in = 100,
+                        ClearCollect(
+                            varApprovalDetailResponse,
+                            lb_approval_detail.Run(
+                                Pr_ProcessOrder,
+                                Pr_Version
+                            )
+                        ),
+                        ""
+                    );
+                    UpdateContext({varLoadingVisible: false});
+                    Notify(
+                        Last(varApprovalAcquireResponse).sp_response_vc,
+                        If(
+                            Last(varApprovalAcquireResponse).sp_response_in = 100,
+                            NotificationType.Success,
+                            If(
+                                Last(varApprovalAcquireResponse).sp_response_in = 200,
+                                NotificationType.Warning,
+                                NotificationType.Error
+                            )
+                        )
+                    )
+                Size: =17
+                Text: =First(collAppLanguage).Button1_2
+                Width: =180
+                X: =(Parent.Width/4)*3-EstadoDatacard_Btn_Reject.Width/2
+                Y: =EstadoDatacard_Approval_Txt_ApprovalComment.Y+ EstadoDatacard_Approval_Txt_ApprovalComment.Height + EstadoDatacard_Btn_Reject.Height/2
+                ZIndex: =26
+
+            EstadoDatacard_Request As group:
+                Height: =5
+                Width: =5
+                X: =6.399999999999977
+                Y: =-125
+                ZIndex: =47
+
+                EstadoDatacard_RequestLbl_ProcessOrde As label:
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Semibold
+                    Height: =44
+                    Size: =15
+                    Text: =First(collAppLanguage).Lbl_ProcessOrder
+                    Width: =218
+                    X: =17
+                    Y: =17
+                    ZIndex: =1
+
+                EstadoDatacard_Request_Lbl_ProcessOrder As label:
+                    Align: =Align.Right
+                    Color: =RGBA(0, 0, 0, 0.67)
+                    Font: ="Unity"
+                    Height: =44
+                    Size: =15
+                    Text: =Last(varApprovalDetailResponse).lr_process_order_in & " v" & Last(varApprovalDetailResponse).lr_request_version_tin
+                    Width: =167
+                    X: =EstadoDatacard_Request_Btn_LabelAttached.X-EstadoDatacard_Request_Lbl_ProcessOrder.Width
+                    Y: =17
+                    ZIndex: =2
+
+                EstadoDatacard_Request_Lbl_RequestComment As label:
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Semibold
+                    Height: =46
+                    Size: =15
+                    Text: =First(collAppLanguage).Lbl_RequestComment
+                    Width: =319
+                    X: =17
+                    Y: =284
+                    ZIndex: =3
+
+                EstadoDatacard_Request_Txt_RequestComment As text:
+                    BorderColor: =RGBA(0, 0, 0, 1)
+                    Default: =Last(varApprovalDetailResponse).lr_request_comment_vc
+                    DisabledBorderColor: =RGBA(202, 202, 202, 1)
+                    DisabledColor: =RGBA(0, 0, 0, 1)
+                    DisabledFill: =RGBA(219, 219, 219, 1)
+                    DisplayMode: =DisplayMode.Disabled
+                    Fill: =RGBA(237, 237, 237, 1)
+                    Font: ="Unity"
+                    Height: =107
+                    HintText: =First(collAppLanguage).Txt_RequestComment
+                    HoverBorderColor: =RGBA(168, 0, 0, 1)
+                    HoverFill: =RGBA(241, 244, 249, 1)
+                    Mode: =TextMode.MultiLine
+                    Size: =15
+                    Width: =(Parent.Width/100)*92
+                    X: =17
+                    Y: =327
+                    ZIndex: =4
+
+                EstadoDatacard_Request_Lbl_RequestUser_Value As label:
+                    Align: =Align.Right
+                    BorderColor: =RGBA(202, 202, 202, 1)
+                    Color: =RGBA(0, 0, 0, 0.67)
+                    Font: ="Unity"
+                    Height: =24
+                    Size: =15
+                    Text: =Office365Users.UserProfile(Last(varApprovalDetailResponse).lr_request_user_email_vc).DisplayName
+                    Width: =197
+                    X: =(Parent.Width/100)*98-EstadoDatacard_Request_Lbl_RequestUser_Value.Width
+                    Y: =112
+                    ZIndex: =5
+
+                EstadoDatacard_Request_Shp_RequestLeft As rectangle:
+                    Fill: =RGBA(96, 96, 98, 1)
+                    Height: =1
+                    Width: =Parent.Width/2-EstadoDatacard_Request_Lbl_RequestTitle.Width
+                    X: =EstadoDatacard_Request_Lbl_RequestTitle.X-20-EstadoDatacard_Request_Shp_RequestLeft.Width
+                    Y: =74
+                    ZIndex: =6
+
+                EstadoDatacard_Request_Lbl_RequestDat As label:
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Semibold
+                    Height: =39
+                    Size: =15
+                    Text: =First(collAppLanguage).Lbl_RequestDate
+                    Width: =242
+                    X: =17
+                    Y: =164
+                    ZIndex: =7
+
+                EstadoDatacard_Request_Lbl_RequestUser As label:
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Semibold
+                    Height: =39
+                    Size: =15
+                    Text: =First(collAppLanguage).Lbl_RequestUser
+                    Width: =242
+                    X: =17
+                    Y: =105
+                    ZIndex: =8
+
+                EstadoDatacard_Request_Btn_LabelAttached As icon.Add:
+                    Color: =RGBA(246, 88, 16, 1)
+                    Height: =29
+                    Icon: =Icon.PaperClip
+                    OnSelect: |-
+                        =UpdateContext({VarViewerVisible02: false});
+                        UpdateContext({VarViewerVisible02: true});
+                        Clear(Etiquetas);
+                        
+                        
+                        IfError(Collect(
+                        Etiquetas,
+                        {Label: AzureBlobStorage.GetFileContentByPath(BlobPath & Last(varApprovalDetailResponse).lr_process_order_in & "_1 v" & Last(varApprovalDetailResponse).lr_request_version_tin & ".jpg")}
+                        ),"");
+                        IfError(Collect(
+                        Etiquetas,
+                        {Label: AzureBlobStorage.GetFileContentByPath(BlobPath & Last(varApprovalDetailResponse).lr_process_order_in & "_2 v" & Last(varApprovalDetailResponse).lr_request_version_tin & ".jpg")}
+                        ),"");
+                        IfError(Collect(
+                        Etiquetas,
+                        {Label: AzureBlobStorage.GetFileContentByPath(BlobPath & Last(varApprovalDetailResponse).lr_process_order_in & " v" & Last(varApprovalDetailResponse).lr_request_version_tin & ".jpg")}
+                        ),"")
+                    Tooltip: =
+                    Width: =38
+                    X: =(Parent.Width/100)*98-EstadoDatacard_Request_Btn_LabelAttached.Width
+                    Y: =24
+                    ZIndex: =9
+
+                EstadoDatacard_Request_Lbl_RequestTitle As label:
+                    Align: =Align.Center
+                    Color: =RGBA(128, 128, 128, 1)
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Semibold
+                    Height: =46
+                    Text: =First(collAppLanguage).Lbl_RequestTitle
+                    Width: =118
+                    X: =(Parent.Width-EstadoDatacard_Request_Lbl_RequestTitle.Width)/2
+                    Y: =48
+                    ZIndex: =10
+
+                EstadoDatacard_Request_Shp_RequestRight As rectangle:
+                    Fill: =RGBA(96, 96, 98, 1)
+                    Height: =1
+                    Width: =Parent.Width/2-EstadoDatacard_Request_Lbl_RequestTitle.Width
+                    X: =(Parent.Width+EstadoDatacard_Request_Lbl_RequestTitle.Width)/2+20
+                    Y: =75
+                    ZIndex: =11
+
+                EstadoDatacard_Request_LbL_ActualRequest As label:
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Semibold
+                    Height: =39
+                    Size: =15
+                    Text: =First(collAppLanguage).Lbl_RequestStatus
+                    Width: =242
+                    X: =17
+                    Y: =226
+                    ZIndex: =12
+
+                EstadoDatacard_Request_Lbl_RequestDate As label:
+                    Align: =Align.Right
+                    BorderColor: =RGBA(202, 202, 202, 1)
+                    Color: =RGBA(0, 0, 0, 0.67)
+                    Font: ="Unity"
+                    Height: =22
+                    Size: =15
+                    Text: =Last(varApprovalDetailResponse).lr_request_date_dt
+                    Width: =254
+                    X: =(Parent.Width/100)*98-EstadoDatacard_Request_Lbl_RequestDate.Width
+                    Y: =172
+                    ZIndex: =13
+
+                EstadoDatacard_Request_Lbl_RequestStatus As label:
+                    Align: =Align.Right
+                    BorderColor: =RGBA(202, 202, 202, 1)
+                    Color: =RGBA(0, 0, 0, 0.67)
+                    Font: ="Unity"
+                    Height: =24
+                    Size: =15
+                    Text: =Last(varApprovalDetailResponse).la_approval_status_vc
+                    Width: =400
+                    X: =(Parent.Width/100)*98-EstadoDatacard_Request_Lbl_RequestStatus.Width
+                    Y: =233
+                    ZIndex: =14
+
+            EstadoDatacard_Approval As group:
+                Height: =5
+                Width: =5
+                X: =11.799999999999955
+                Y: =40
+                ZIndex: =57
+
+                EstadoDatacard_Approval_Lbl_Res As label:
+                    AutoHeight: =true
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Bold
+                    Height: =36
+                    Size: =15
+                    Text: =First(collAppLanguage).Label2_8
+                    Width: =248
+                    X: =14
+                    Y: =595
+                    ZIndex: =15
+
+                EstadoDatacard_Approval_Lbl_Result As label:
+                    Align: =Align.Right
+                    BorderColor: =RGBA(187, 221, 140, 1)
+                    Color: =RGBA(0, 0, 0, 0.66)
+                    Fill: =If(Last(varApprovalDetailResponse).la_approval_result_vc = "Aprobado", RGBA(187, 221, 140, 1), If(Last(varApprovalDetailResponse).la_approval_result_vc = "Rechazado", RGBA(220, 153, 153, 1), RGBA(0, 0, 0, 0)))
+                    Font: ="Unity"
+                    Height: =44
+                    Size: =15
+                    Text: =Last(varApprovalDetailResponse).la_approval_result_vc
+                    Width: =181
+                    X: =(Parent.Width/100)*98-EstadoDatacard_Approval_Lbl_Result.Width-EstadoDatacard_Approval_Icon_Result.Width
+                    Y: =595
+                    ZIndex: =16
+
+                EstadoDatacard_Approval_Lbl_AnalystResult As label:
+                    Align: =Align.Right
+                    Color: =RGBA(0, 0, 0, 0.66)
+                    Font: ="Unity"
+                    Height: =28
+                    Size: =15
+                    Text: =If(varExecuteTestVisible,"Indefinido",Office365Users.UserProfile(Last(varApprovalDetailResponse).la_approval_user_email_vc).DisplayName)
+                    Width: =216
+                    X: =(Parent.Width/100)*98-EstadoDatacard_Approval_Lbl_AnalystResult.Width
+                    Y: =544
+                    ZIndex: =17
+
+                EstadoDatacard_Approval_Lbl_Analyst As label:
+                    AutoHeight: =true
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Bold
+                    Height: =36
+                    Size: =15
+                    Text: =First(collAppLanguage).Label2_21
+                    Width: =248
+                    X: =14
+                    Y: =542
+                    ZIndex: =18
+
+                EstadoDatacard_Approval_Lbl_Comment As label:
+                    AutoHeight: =true
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Bold
+                    Height: =34
+                    Size: =15
+                    Text: =First(collAppLanguage).Label2_17
+                    Width: =327
+                    X: =12
+                    Y: =645
+                    ZIndex: =19
+
+                EstadoDatacard_Approval_Txt_ApprovalComment As text:
+                    BorderColor: =RGBA(0, 0, 0, 1)
+                    Default: =If(IsBlankOrError(Last(varApprovalDetailResponse).la_approval_comment_vc),"",Last(varApprovalDetailResponse).la_approval_comment_vc)
+                    DisabledBorderColor: =RGBA(149, 149, 149, 1)
+                    DisplayMode: =VarDmv
+                    Font: ="Unity"
+                    Height: =113
+                    HintText: =First(collAppLanguage).Txt_ApprovalComment
+                    HoverBorderColor: =RGBA(168, 0, 0, 1)
+                    HoverFill: =RGBA(241, 244, 249, 1)
+                    Mode: =TextMode.MultiLine
+                    PressedBorderColor: =RGBA(149, 149, 149, 1)
+                    Size: =15
+                    Width: =(Parent.Width/100)*92
+                    X: =9
+                    Y: =680
+                    ZIndex: =20
+
+                EstadoDatacard_Approval_Icon_Result As icon.Add:
+                    Color: =RGBA(246, 88, 16, 1)
+                    Height: =33
+                    Icon: =If(Last(varApprovalDetailResponse).la_approval_result_vc = "Aprobado", Icon.Check, If(Last(varApprovalDetailResponse).la_approval_result_vc = "Rechazado", Icon.Cancel, Icon.DockCheckProperties))
+                    OnSelect: |-
+                        =If(1=2,UpdateContext({VarApproveLabelVisible:false});
+                        UpdateContext({VarApproveLabelVisible:true}),"")
+                    Tooltip: =
+                    Width: =39
+                    X: =(Parent.Width/100)*98-EstadoDatacard_Approval_Icon_Result.Width
+                    Y: =600
+                    ZIndex: =21
+
+                EstadoDatacard_Approval_Shp_ApprovalLeft As rectangle:
+                    Fill: =RGBA(96, 96, 98, 1)
+                    Height: =1
+                    Width: =Parent.Width/2-EstadoDatacard_Approval_Lbl_ApprovalTitle.Width
+                    X: =EstadoDatacard_Approval_Lbl_ApprovalTitle.X-20-EstadoDatacard_Approval_Shp_ApprovalLeft.Width
+                    Y: =492
+                    ZIndex: =22
+
+                EstadoDatacard_Approval_Lbl_ApprovalTitle As label:
+                    Align: =Align.Center
+                    AutoHeight: =true
+                    Color: =RGBA(128, 128, 128, 1)
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Bold
+                    Height: =30
+                    Text: =First(collAppLanguage).Lbl_ApprovalTitle
+                    Width: =126
+                    X: =(Parent.Width-EstadoDatacard_Approval_Lbl_ApprovalTitle.Width)/2
+                    Y: =462
+                    ZIndex: =23
+
+                EstadoDatacard_Approval_Shp_ApprovalRight As rectangle:
+                    Fill: =RGBA(96, 96, 98, 1)
+                    Height: =1
+                    Width: =Parent.Width/2-EstadoDatacard_Approval_Lbl_ApprovalTitle.Width
+                    X: =(Parent.Width+EstadoDatacard_Approval_Lbl_ApprovalTitle.Width)/2+20
+                    Y: =493
+                    ZIndex: =24
+
+            EstadoDatacard_Confirmation As group:
+                Height: =5
+                Width: =5
+                X: =40
+                Y: =40
+                ZIndex: =59
+
+                EstadoDatacard_Confirmation_Shp_GrayBackground As rectangle:
+                    DisabledFill: =EstadoDatacard_Confirmation_Shp_GrayBackground.Fill
+                    Fill: =RGBA(226, 226, 226, 1)
+                    FocusedBorderColor: =EstadoDatacard_Confirmation_Shp_GrayBackground.BorderColor
+                    Height: =430
+                    HoverFill: =EstadoDatacard_Confirmation_Shp_GrayBackground.Fill
+                    PressedFill: =EstadoDatacard_Confirmation_Shp_GrayBackground.Fill
+                    Visible: =varExecuteTestVisible
+                    Width: =Parent.Width
+                    Y: =EstadoDatacard_Request_Txt_RequestComment.Y + EstadoDatacard_Request_Txt_RequestComment.Height*1.2
+                    ZIndex: =54
+
+                EstadoDatacard_Confirmation_Shp_WhiteBackground As rectangle:
+                    DisabledFill: =EstadoDatacard_Confirmation_Shp_WhiteBackground.Fill
+                    Fill: =RGBA(255, 255, 255, 1)
+                    FocusedBorderColor: =EstadoDatacard_Confirmation_Shp_WhiteBackground.BorderColor
+                    Height: =265
+                    HoverFill: =EstadoDatacard_Confirmation_Shp_WhiteBackground.Fill
+                    PressedFill: =EstadoDatacard_Confirmation_Shp_WhiteBackground.Fill
+                    Visible: =varExecuteTestVisible
+                    Width: =(Parent.Width/100)*96.5
+                    X: =(EstadoDatacard_Confirmation_Shp_GrayBackground.Width-EstadoDatacard_Confirmation_Shp_WhiteBackground.Width)/2
+                    Y: =EstadoDatacard_Confirmation_Shp_GrayBackground.Y+EstadoDatacard_Confirmation_Shp_WhiteBackground.Height/2.3
+                    ZIndex: =55
+
+                EstadoDatacard_Confirmation_Lbl_Title As label:
+                    FocusedBorderColor: =EstadoDatacard_Confirmation_Lbl_Title.BorderColor
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Bold
+                    Height: =39
+                    HoverBorderColor: =EstadoDatacard_Confirmation_Lbl_Title.BorderColor
+                    HoverColor: =EstadoDatacard_Confirmation_Lbl_Title.Color
+                    HoverFill: =EstadoDatacard_Confirmation_Lbl_Title.Fill
+                    PressedBorderColor: =EstadoDatacard_Confirmation_Lbl_Title.BorderColor
+                    PressedColor: =EstadoDatacard_Confirmation_Lbl_Title.Color
+                    PressedFill: =EstadoDatacard_Confirmation_Lbl_Title.Fill
+                    Size: =15
+                    Text: =First(collAppLanguage).lblTitle_2
+                    Visible: =varExecuteTestVisible
+                    Width: =569
+                    X: =EstadoDatacard_Confirmation_Shp_WhiteBackground.X + 10
+                    Y: =EstadoDatacard_Confirmation_Shp_WhiteBackground.Y+EstadoDatacard_Confirmation_Lbl_Title.Height/2
+                    ZIndex: =56
+
+                EstadoDatacard_Confirmation_Lbl_Message As label:
+                    AutoHeight: =true
+                    Color: =RGBA(45, 45, 45, 1)
+                    FocusedBorderColor: =EstadoDatacard_Confirmation_Lbl_Message.BorderColor
+                    Font: ="Unity"
+                    HoverBorderColor: =EstadoDatacard_Confirmation_Lbl_Message.BorderColor
+                    HoverColor: =EstadoDatacard_Confirmation_Lbl_Message.Color
+                    HoverFill: =EstadoDatacard_Confirmation_Lbl_Message.Fill
+                    PressedBorderColor: =EstadoDatacard_Confirmation_Lbl_Message.BorderColor
+                    PressedColor: =EstadoDatacard_Confirmation_Lbl_Message.Color
+                    PressedFill: =EstadoDatacard_Confirmation_Lbl_Message.Fill
+                    Size: =15
+                    Text: =First(collAppLanguage).lblDescription_2
+                    VerticalAlign: =VerticalAlign.Top
+                    Visible: =varExecuteTestVisible
+                    Width: =(EstadoDatacard_Confirmation_Shp_WhiteBackground.Width/100)*94
+                    X: =(EstadoDatacard_Confirmation_Shp_GrayBackground.Width-EstadoDatacard_Confirmation_Lbl_Message.Width)/2
+                    Y: =EstadoDatacard_Confirmation_Lbl_Title.Y+EstadoDatacard_Confirmation_Lbl_Message.Height*1.5
+                    ZIndex: =57
+
+                EstadoDatacard_Confirmation_Btn_Accept As button:
+                    AutoDisableOnSelect: =false
+                    BorderColor: =RGBA(0, 0, 0, 0)
+                    BorderThickness: =0
+                    DisabledBorderColor: =RGBA(202, 202, 202, 1)
+                    DisabledFill: =RGBA(202, 202, 202, 1)
+                    DisplayMode: =If(Last(varApprovalDetailResponse).sp_response_in = 100, DisplayMode.Edit, DisplayMode.View)
+                    Fill: =RGBA(153, 153, 153, 1)
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Normal
+                    Height: =65
+                    HoverBorderColor: =RGBA(202, 202, 202, 1)
+                    HoverFill: =RGBA(202, 202, 202, 1)
+                    OnSelect: |-
+                        =UpdateContext({varLoadingVisible: true});
+                        ClearCollect(
+                            varApprovalAcquireResponse,
+                            lb_approval_acquire.Run(
+                                EstadoDatacard_Approval_Txt_ApprovalComment.Text,
+                                Text(
+                                    Now(),
+                                    "[$-es-ES]m/dd/yyyy hh:mm:ss"
+                                ),
+                                User().Email,
+                                "acquire",
+                                "",
+                                Pr_ProcessOrder,
+                                Pr_Version
+                            )
+                        );
+                        If(
+                            Last(varApprovalAcquireResponse).sp_response_in = 100,
+                            ClearCollect(
+                                varApprovalDetailResponse,
+                                lb_approval_detail.Run(
+                                    Pr_ProcessOrder,
+                                    Pr_Version
+                                )
+                            ); 
+                            UpdateContext({varExecuteTestVisible: false})
+                            ,
+                            ""
+                        );
+                        UpdateContext({varLoadingVisible: false});
+                        Notify(
+                            Last(varApprovalAcquireResponse).sp_response_vc,
+                            If(
+                                Last(varApprovalAcquireResponse).sp_response_in = 100,
+                                NotificationType.Success
+                                ,
+                                If(
+                                    Last(varApprovalAcquireResponse).sp_response_in = 200,
+                                    NotificationType.Warning;
+                            UpdateContext({varExecuteTestVisible: true}),
+                                    NotificationType.Error;
+                            UpdateContext({varExecuteTestVisible: true});
+                                )
+                            )
+                        )
+                    PressedBorderColor: =RGBA(202, 202, 202, 1)
+                    PressedFill: =RGBA(202, 202, 202, 1)
+                    RadiusBottomLeft: =7
+                    RadiusBottomRight: =7
+                    RadiusTopLeft: =7
+                    RadiusTopRight: =7
+                    Text: =First(collAppLanguage).Btn_LeftBtn
+                    Visible: =varExecuteTestVisible
+                    Width: =252
+                    X: =(EstadoDatacard_Confirmation_Shp_GrayBackground.Width-EstadoDatacard_Confirmation_Btn_Accept.Width)/2
+                    Y: =EstadoDatacard_Confirmation_Lbl_Message.Y+EstadoDatacard_Confirmation_Btn_Accept.Height*1.5
+                    ZIndex: =58
+
+            EstadoDatacard_FinalOk As group:
+                Height: =5
+                Width: =5
+                X: =1
+                Y: =-145
+                ZIndex: =81
+
+                EstadoDatacard_PT_Shp_Background As rectangle:
+                    Fill: =RGBA(226, 226, 226, 1)
+                    Height: =Parent.Height
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =Parent.Width
+                    X: =1
+                    ZIndex: =27
+
+                EstadoDatacard_PT_Shp_LabelResult As circle:
+                    BorderColor: =If(Last(varApprovalDetailResponse).la_approval_result_vc = "Aprobado",RGBA(232, 244, 217, 1), RGBA(238, 204, 204, 1))
+                    BorderThickness: =1
+                    Fill: =If(Last(varApprovalDetailResponse).la_approval_result_vc = "Aprobado",RGBA(152, 208, 70, 1), RGBA(203, 102, 102, 1))
+                    Height: =90
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =91
+                    X: =(Parent.Width/4)*1-EstadoDatacard_PT_Shp_LabelResult.Width/2
+                    Y: =32
+                    ZIndex: =28
+
+                EstadoDatacard_PT_Icon_LabelResult As icon.Add:
+                    Color: =RGBA(255, 255, 255, 1)
+                    Height: =59
+                    Icon: =If(Last(varApprovalDetailResponse).la_approval_result_vc = "Aprobado",Icon.Check, Icon.Cancel)
+                    OnSelect: =
+                    Tooltip: =
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =60
+                    X: =EstadoDatacard_PT_Shp_LabelResult.X+(EstadoDatacard_PT_Shp_LabelResult.Width-EstadoDatacard_PT_Icon_LabelResult.Width)/2
+                    Y: =47
+                    ZIndex: =29
+
+                EstadoDatacard_PT_Lbl_LabelResult As label:
+                    Align: =Align.Center
+                    Font: ="Unity"
+                    Height: =39
+                    Size: =19
+                    Text: =If(Left(Last(varApprovalDetailResponse).la_approval_result_vc,1)="A",First(collAppLanguage).Label2_12,First(collAppLanguage).Label2_12R)
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =200
+                    X: =EstadoDatacard_PT_Shp_LabelResult.X+(EstadoDatacard_PT_Shp_LabelResult.Width-EstadoDatacard_PT_Lbl_LabelResult.Width)/2
+                    Y: =116
+                    ZIndex: =30
+
+                EstadoDatacard_PT_LblAnalistResult As label:
+                    Align: =Align.Right
+                    Color: =RGBA(0, 0, 0, 0.66)
+                    Font: ="Unity"
+                    Height: =49
+                    Size: =15
+                    Text: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",Office365Users.UserProfile(Last(varApprovalDetailResponse).la_approval_user_email_vc).DisplayName,"Indefinido")
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =381
+                    X: =(Parent.Width/100)*90.5-EstadoDatacard_PT_LblAnalistResult.Width
+                    Y: =467
+                    ZIndex: =31
+
+                EstadoDatacard_PT_Lbl_Analyst As label:
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Bold
+                    Height: =39
+                    Size: =15
+                    Text: =First(collAppLanguage).Label2_22
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =270
+                    X: =68
+                    Y: =467
+                    ZIndex: =32
+
+                EstadoDatacard_PT_Lbl_ApprovalComment As label:
+                    BorderColor: =RGBA(202, 202, 202, 1)
+                    BorderThickness: =1
+                    Color: =RGBA(0, 0, 0, 0.66)
+                    Fill: =RGBA(237, 237, 237, 1)
+                    Font: ="Unity"
+                    Height: =80
+                    Overflow: =Overflow.Scroll
+                    Size: =15
+                    Text: =If(IsBlankOrError(Last(varApprovalDetailResponse).la_approval_comment_vc),"",Last(varApprovalDetailResponse).la_approval_comment_vc)
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =(Parent.Width/100)*80
+                    X: =68
+                    Y: =549
+                    ZIndex: =33
+
+                EstadoDatacard_PT_Lbl_VerificationDate As label:
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Bold
+                    Height: =39
+                    Size: =15
+                    Text: =First(collAppLanguage).Label2_23
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =247
+                    X: =68
+                    Y: =503
+                    ZIndex: =34
+
+                EstadoDatacard_PT_Lbl_VerificationDateResult As label:
+                    Align: =Align.Right
+                    Color: =RGBA(0, 0, 0, 0.66)
+                    Font: ="Unity"
+                    Height: =31
+                    Size: =15
+                    Text: =Last(varApprovalDetailResponse).la_approval_completed_dt
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =271
+                    X: =(Parent.Width/100)*90.5-EstadoDatacard_PT_Lbl_VerificationDateResult.Width
+                    Y: =511
+                    ZIndex: =35
+
+                EstadoDatacard_PT_Lbl_Operator As label:
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Bold
+                    Height: =39
+                    Size: =15
+                    Text: =First(collAppLanguage).Lbl_RequestUser_1
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =242
+                    X: =68
+                    Y: =255
+                    ZIndex: =36
+
+                EstadoDatacard_PT_Lbl_OperatorResult As label:
+                    Align: =Align.Right
+                    BorderColor: =RGBA(202, 202, 202, 1)
+                    Color: =RGBA(0, 0, 0, 0.67)
+                    Font: ="Unity"
+                    Size: =15
+                    Text: =Office365Users.UserProfile(Last(varApprovalDetailResponse).lr_request_user_email_vc).DisplayName
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =360
+                    X: =(Parent.Width/100)*90.5-EstadoDatacard_PT_Lbl_OperatorResult.Width
+                    Y: =254
+                    ZIndex: =37
+
+                EstadoDatacard_PT_Lbl_RequestDate As label:
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Bold
+                    Height: =39
+                    Size: =15
+                    Text: =First(collAppLanguage).Lbl_RequestDate_1
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =242
+                    X: =68
+                    Y: =292
+                    ZIndex: =38
+
+                EstadoDatacard_PT_Lbl_RequestDateResult As label:
+                    Align: =Align.Right
+                    BorderColor: =RGBA(202, 202, 202, 1)
+                    Color: =RGBA(0, 0, 0, 0.67)
+                    Font: ="Unity"
+                    Height: =23
+                    Size: =15
+                    Text: =Last(varApprovalDetailResponse).lr_request_date_dt
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =281
+                    X: =(Parent.Width/100)*90.5-EstadoDatacard_Request_Lbl_RequestDate.Width
+                    Y: =301
+                    ZIndex: =39
+
+                EstadoDatacard_PT_Lbl_ProcessOrder As label:
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Bold
+                    Height: =44
+                    Size: =15
+                    Text: =First(collAppLanguage).Lbl_ProcessOrder_1
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =305
+                    X: =68
+                    Y: =213
+                    ZIndex: =40
+
+                EstadoDatacard_PT_Lbl_ProcessOrderResult As label:
+                    Align: =Align.Right
+                    Color: =RGBA(0, 0, 0, 0.67)
+                    Font: ="Unity"
+                    Height: =44
+                    Size: =15
+                    Text: =Last(varApprovalDetailResponse).lr_process_order_in & " v" & Last(varApprovalDetailResponse).lr_request_version_tin
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =167
+                    X: =(Parent.Width/100)*90.5-EstadoDatacard_PT_Lbl_ProcessOrderResult.Width
+                    Y: =213
+                    ZIndex: =41
+
+                EstadoDatacard_PT_Lbl_RequestComment As label:
+                    BorderColor: =RGBA(202, 202, 202, 1)
+                    BorderThickness: =1
+                    Color: =RGBA(0, 0, 0, 0.66)
+                    Fill: =RGBA(237, 237, 237, 1)
+                    Font: ="Unity"
+                    Height: =80
+                    Overflow: =Overflow.Scroll
+                    Size: =15
+                    Text: =Last(varApprovalDetailResponse).lr_request_comment_vc
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =(Parent.Width/100)*80
+                    X: =68
+                    Y: =341
+                    ZIndex: =42
+
+                EstadoDatacard_PT_Icon_PTCheck As icon.Add:
+                    Color: =RGBA(116, 116, 116, 1)
+                    Height: =46
+                    Icon: =Icon.DockCheckProperties
+                    OnSelect: |-
+                        =UpdateContext({varLoadingVisible: true});
+                        ClearCollect(
+                            varApprovalAcquireResponse,
+                            lb_approval_acquire.Run(
+                                EstadoDatacard_PT_Txt_ApprovalComment.Text,
+                                 Text(
+                                    Now(),
+                                    "[$-es-ES]m/dd/yyyy hh:mm:ss"
+                                ),
+                                User().Email,
+                                "approve",
+                                "",
+                                Pr_ProcessOrder,
+                                Pr_Version
+                            )
+                        );
+                        If(
+                            Last(varApprovalAcquireResponse).sp_response_in = 100,
+                            ClearCollect(
+                                varApprovalDetailResponse,
+                                lb_approval_detail.Run(
+                                    Pr_ProcessOrder,
+                                    Pr_Version
+                                )
+                            ),
+                            ""
+                        );
+                        UpdateContext({varLoadingVisible: false});
+                        Notify(
+                            Last(varApprovalAcquireResponse).sp_response_vc,
+                            If(
+                                Last(varApprovalAcquireResponse).sp_response_in = 100,
+                                NotificationType.Success,
+                                If(
+                                    Last(varApprovalAcquireResponse).sp_response_in = 200,
+                                    NotificationType.Warning,
+                                    NotificationType.Error
+                                )
+                            )
+                        )
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =54
+                    X: =EstadoDatacard_PT_Txt_ApprovalComment.X+EstadoDatacard_PT_Txt_ApprovalComment.Width
+                    Y: =748
+                    ZIndex: =43
+
+                EstadoDatacard_PT_Shp_PTResult As circle:
+                    BorderColor: =If(Last(varApprovalDetailResponse).la_approval_result_vc = "Aprobado",RGBA(232, 244, 217, 1), RGBA(238, 204, 204, 1))
+                    BorderThickness: =1
+                    Fill: =If(IsBlankOrError(Last(varApprovalDetailResponse).la_approvalpt_user_email_vc),RGBA(203, 102, 102, 1),RGBA(152, 208, 70, 1))
+                    Height: =90
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =91
+                    X: =(Parent.Width/4)*3-EstadoDatacard_PT_Shp_PTResult.Width/2
+                    Y: =32
+                    ZIndex: =44
+
+                EstadoDatacard_PT_Icon_PTResult As icon.Add:
+                    Color: =RGBA(255, 255, 255, 1)
+                    Height: =59
+                    Icon: =If(IsBlankOrError(Last(varApprovalDetailResponse).la_approvalpt_user_email_vc),Icon.Clock,Icon.Check)
+                    OnSelect: =
+                    Tooltip: =
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =60
+                    X: =EstadoDatacard_PT_Shp_PTResult.X+(EstadoDatacard_PT_Shp_PTResult.Width-EstadoDatacard_PT_Icon_PTResult.Width)/2
+                    Y: =47
+                    ZIndex: =45
+
+                EstadoDatacard_PT_Lbl_PTResult As label:
+                    Align: =Align.Center
+                    Font: ="Unity"
+                    Height: =39
+                    Size: =19
+                    Text: =First(collAppLanguage).Label2_15
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =210
+                    X: =EstadoDatacard_PT_Shp_PTResult.X+(EstadoDatacard_PT_Shp_PTResult.Width-EstadoDatacard_PT_Lbl_PTResult.Width)/2
+                    Y: =116
+                    ZIndex: =46
+
+                EstadoDatacard_PT_Lbl_AnalystPTResult As label:
+                    Align: =Align.Right
+                    Color: =RGBA(0, 0, 0, 0.66)
+                    Font: ="Unity"
+                    Height: =49
+                    Size: =15
+                    Text: =If(false Or IsBlankOrError(Last(varApprovalDetailResponse).la_approvalpt_user_email_vc),"Pendiente",Office365Users.UserProfile(Last(varApprovalDetailResponse).la_approvalpt_user_email_vc).DisplayName)
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =381
+                    X: =(Parent.Width/100)*90.5-EstadoDatacard_PT_Lbl_AnalystPTResult.Width
+                    Y: =671
+                    ZIndex: =47
+
+                EstadoDatacard_PT_Lbl_AnalystPT As label:
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Bold
+                    Height: =38
+                    Size: =15
+                    Text: =First(collAppLanguage).Label2_25
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =283
+                    X: =68
+                    Y: =669
+                    ZIndex: =48
+
+                EstadoDatacard_PT_Lbl_Verif As label:
+                    Font: ="Unity"
+                    FontWeight: =FontWeight.Bold
+                    Height: =39
+                    Size: =15
+                    Text: =First(collAppLanguage).Label2_27
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =247
+                    X: =68
+                    Y: =703
+                    ZIndex: =49
+
+                EstadoDatacard_PT_Txt_ApprovalComment As text:
+                    BorderColor: =RGBA(0, 0, 0, 1)
+                    Default: =If(IsBlankOrError(Last(varApprovalDetailResponse).la_approvalpt_comment_vc),"",Last(varApprovalDetailResponse).la_approvalpt_comment_vc)
+                    DisabledBorderColor: =RGBA(149, 149, 149, 1)
+                    DisplayMode: =If(Last(varApprovalDetailResponse).la_approval_result_vc = "Aprobado",DisplayMode.Edit, DisplayMode.Disabled)
+                    Font: ="Unity"
+                    Height: =79
+                    HintText: =First(collAppLanguage).Txt_ApprovalPtComment
+                    HoverBorderColor: =RGBA(168, 0, 0, 1)
+                    HoverFill: =RGBA(241, 244, 249, 1)
+                    Mode: =TextMode.MultiLine
+                    PressedBorderColor: =RGBA(149, 149, 149, 1)
+                    Size: =15
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =EstadoDatacard_PT_Lbl_ApprovalComment.Width - EstadoDatacard_PT_Icon_PTCheck.Width
+                    X: =68
+                    Y: =748
+                    ZIndex: =50
+
+                EstadoDatacard_PT_Lbl_VerifResult As label:
+                    Align: =Align.Right
+                    Color: =RGBA(0, 0, 0, 0.66)
+                    Font: ="Unity"
+                    Height: =29
+                    Size: =15
+                    Text: =If(false Or IsBlankOrError(Last(varApprovalDetailResponse).la_approvalpt_dt),"Pendiente",Last(varApprovalDetailResponse).la_approvalpt_dt)
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =271
+                    X: =(Parent.Width/100)*90.5-EstadoDatacard_PT_Lbl_VerifResult.Width
+                    Y: =711
+                    ZIndex: =51
+
+                EstadoDatacard_PT_Shp_Separator As rectangle:
+                    BorderColor: =RGBA(116, 116, 116, 1)
+                    Fill: =RGBA(116, 116, 116, 1)
+                    Height: =1
+                    Visible: =If(Last(varApprovalDetailResponse).la_approval_status_vc = "Completado",true,false)
+                    Width: =(Parent.Width/100)*90
+                    X: =(Parent.Width/100)*5
+                    Y: =187
+                    ZIndex: =52
+
+    Estado_LabelViewer As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =25
+
+        Estado_LabelViewer_Shp_Background As rectangle:
+            Fill: =RGBA(96, 96, 98, 0.64)
+            Height: =Parent.Height
+            Visible: =VarViewerVisible02
+            Width: =Parent.Width
+            ZIndex: =22
+
+        Estado_LabelViewer_Lst_Gallery2_1 As gallery.galleryVertical:
+            '#CopilotOverlayLabel': ="Filtered"
+            Height: =Parent.Height
+            Items: |-
+                =Etiquetas
+                /*Filter(AzureBlobStorage.ListFolderV2(BlobId).value,
+                        Last(varApprovalDetailResponse).lr_process_order_in in Path)*/
+            Layout: =Layout.Vertical
+            TemplateSize: =Parent.Height*0.8
+            Visible: =VarViewerVisible02
+            Width: =Parent.Width
+            ZIndex: =23
+
+            Image4_3 As image:
+                Height: =Estado_LabelViewer_Lst_Gallery2_1.TemplateHeight
+                Image: =ThisItem.Label
+                ImageRotation: =varImagePositionView01.Value
+                Width: =630
+                ZIndex: =1
+
+        Estado_LabelViewer_Rectangle8_2 As rectangle:
+            Fill: =RGBA(151, 0, 0, 0.73)
+            Height: =92
+            Visible: =VarViewerVisible02
+            Width: =Parent.Width
+            Y: =Parent.Height-Estado_LabelViewer_Rectangle8_2.Height
+            ZIndex: =24
+
+        Estado_LabelViewer_Icon7_2 As icon.Add:
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledColor: =RGBA(255, 255, 255, 1)
+            Height: =40
+            Icon: =Icon.Reload
+            OnSelect: |-
+                =If(
+                    varIndexPositionView01 > 3,
+                    Set(
+                        varIndexPositionView01,
+                        1
+                    ),
+                    Set(
+                        varIndexPositionView01,
+                        varIndexPositionView01 + 1
+                    )
+                );
+                Set(
+                    varImagePositionView01,
+                    Last(
+                        FirstN(
+                            [
+                                ImageRotation.Rotate90,
+                                ImageRotation.Rotate180,
+                                ImageRotation.Rotate270,
+                                ImageRotation.None
+                            ],
+                            varIndexPositionView01
+                        )
+                    )
+                )
+            Visible: =VarViewerVisible02
+            Width: =40
+            X: =Parent.Width/2-(Parent.Width/2)/2-Estado_LabelViewer_Icon7_2.Width
+            Y: =Parent.Height- (Estado_LabelViewer_Rectangle8_2.Height/100)*85
+            ZIndex: =25
+
+        Estado_LabelViewer_Icon5_2 As icon.Add:
+            Color: =RGBA(255, 255, 255, 1)
+            Height: =40
+            Icon: =Icon.Cancel
+            OnSelect: |-
+                =UpdateContext({VarViewerVisible02:false})
+            Visible: =VarViewerVisible02
+            Width: =40
+            X: =Parent.Width/2+(Parent.Width/2)/2+Estado_LabelViewer_Icon5_2.Width/2
+            Y: =Parent.Height- (Estado_LabelViewer_Rectangle8_2.Height/100)*85
+            ZIndex: =26
+
+    Estado_Loading As Lir_Loading_1:
+        Height: =Parent.Height
+        IsLoading: =varLoadingVisible
+        Text: =First(collAppLanguage).LoadingText
+        Visible: =Estado_Loading.IsLoading
+        Width: =Parent.Width
+        ZIndex: =27
+
+    Estado_Header As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =20
+        ZIndex: =32
+
+        Estado_Header_Shp_NavBarTop As htmlViewer:
+            Height: =202
+            HtmlText: |-
+                ="<div style ='
+                
+                  margin-top:0px;
+                  margin-bottom:3px;
+                  margin-left:0px;
+                  margin-right:0px;
+                  width: "& Estado_Header_Shp_NavBarTop.Width &"px;
+                  height: "& Estado_Header_Shp_NavBarTop.Height - 21 &"px;
+                  background-color: #3BA5A8;
+                  box-shadow: rgba(0, 0, 0, 0.15) 3px 6px 18px;'
+                  <center>
+                  </center>
+                  </div>
+                "//rgba(203, 16, 18, 1)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Width: =Parent.Width
+            ZIndex: =2
+
+        Estado_Header_Lbl_ScreenTitle As label:
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =//"Arial Rounded MT"
+            Height: =67
+            Size: =32
+            Text: =Right(First(collAppLanguage).'Title Screen 4', Len(First(collAppLanguage).'Title Screen 4') -3)
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =SolicitudReq_Header_Lbl_ScreenSubTitle.Y - Self.Height
+            ZIndex: =3
+
+        Estado_Header_Lbl_ScreenSubTitle As label:
+            Color: =RGBA(241, 244, 249, 1)
+            Font: ="Unity"
+            FontWeight: =FontWeight.Lighter
+            Height: =29
+            Size: =12
+            Text: ="Buscador de verificaciones de etiquetas" 
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =Estado_Header_Shp_NavBarTop.Height - Self.Height - 25
+            ZIndex: =4
+
+        Estado_Header_Btn_NotificationNav As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.Bell
+            OnSelect: =Navigate('04_NOTIFICACIONES',ScreenTransition.Cover)
+            Tooltip: ="Pending Task"
+            Width: =59
+            X: =Parent.Width - Self.Width - 30
+            Y: =33
+            ZIndex: =5
+
+        Estado_Header_Btn_ProfileNav As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.ArrowLeft
+            OnSelect: =Navigate('01_PRINCIPAL',ScreenTransition.CoverRight)
+            Width: =59
+            X: =30
+            Y: =33
+            ZIndex: =6
+
+        Estado_Header_Btn_RequestIndicator As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.Tag
+            OnSelect: |-
+                =UpdateContext({Test:true})
+            Tooltip: ="Pending Request"
+            Width: =59
+            X: =Estado_Header_Btn_NotificationNav.X - Self.Width - 30
+            Y: =33
+            ZIndex: =7
+
+        Estado_Header_Shp_PendingIndicator As circle:
+            BorderColor: =RGBA(220, 153, 153, 1)
+            BorderThickness: =2
+            Fill: =RGBA(203, 102, 102, 1)
+            Height: =28
+            OnSelect: =Navigate('04_NOTIFICACIONES',ScreenTransition.Cover)
+            Visible: =If(TotalPending = 0 Or IsBlankOrError(TotalPending),false,true)
+            Width: =28
+            X: =Parent.Width - Self.Width - 30
+            Y: =30
+            ZIndex: =8
+
+        Estado_Header_Lbl_PendingIndicator As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =
+            FontWeight: =FontWeight.Bold
+            Height: =28
+            OnSelect: =Navigate('04_NOTIFICACIONES',ScreenTransition.Cover)
+            Size: =10
+            Text: |-
+                =//----------------------------------------------------------------------------------------------------MUESTRA CANTIDAD DE PENDIENTES
+                If(TotalPending > 9,"+9",TotalPending)
+            Visible: =If(TotalPending = 0 Or IsBlankOrError(TotalPending),false,true)
+            Width: =28
+            X: =Parent.Width - Self.Width - 30
+            Y: =31
+            ZIndex: =9
+
+    Estado_Footer As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =1019
+        ZIndex: =47
+
+        Estado_Footer_Shp_NavBarBottom As rectangle:
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =Parent.Height * 0.08
+            Width: =Parent.Width
+            Y: =Parent.Height - Self.Height
+            ZIndex: =10
+
+        Estado_Footer_Lbl_ConfidentialMessage As label:
+            Align: =Align.Center
+            Color: =RGBA(39, 67, 125, 1)
+            Font: ="Unity"
+            FontWeight: =FontWeight.Lighter
+            Height: =26
+            Size: =10
+            Text: ="Classified -  Confidential"
+            Width: =Parent.Width
+            Y: =Estado_Footer_Shp_NavBarBottom.Y - Self.Height
+            ZIndex: =11
+
+        Estado_Footer_Icon_Pending As icon.Add:
+            Color: =RGBA(40, 60, 97, 1)
+            Height: =Estado_Footer_Shp_NavBarBottom.Height * 0.6 
+            Icon: =Icon.Folder
+            OnSelect: =
+            Tooltip: ="Configuración"
+            Width: =stIconWidth
+            X: =(Parent.Width / 5) * 2 - (Self.Width / 2)
+            Y: =Estado_Footer_Shp_NavBarBottom.Y + Estado_Footer_Shp_NavBarBottom.Height * 0.1
+            ZIndex: =12
+
+        Estado_Footer_Icon_Label As icon.Add:
+            Color: =RGBA(40, 60, 97, 1)
+            Height: =Estado_Footer_Shp_NavBarBottom.Height * 0.6 
+            Icon: =Icon.PaperClip
+            OnSelect: =
+            Tooltip: ="Configuración"
+            Width: =stIconWidth
+            X: =(Parent.Width / 5) * 3 - (Self.Width / 2)
+            Y: =Estado_Footer_Shp_NavBarBottom.Y + Estado_Footer_Shp_NavBarBottom.Height * 0.1
+            ZIndex: =13
+
+        Estado_Footer_Icon_Submit As icon.Add:
+            Color: =RGBA(40, 60, 97, 1)
+            Height: =Estado_Footer_Shp_NavBarBottom.Height * 0.6 
+            Icon: =Icon.Send
+            OnSelect: =
+            Tooltip: ="Configuración"
+            Width: =stIconWidth
+            X: =(Parent.Width / 5) * 4 - (Self.Width / 2)
+            Y: =Estado_Footer_Shp_NavBarBottom.Y + Estado_Footer_Shp_NavBarBottom.Height * 0.1
+            ZIndex: =14
+
+        Estado_Footer_Lbl_Submit As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(130, 141, 158, 1)
+            Font: =stFontType
+            FontWeight: =FontWeight.Lighter
+            Height: =17
+            OnSelect: =
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: =First(collAppLanguage).Lbl_RightNav
+            VerticalAlign: =VerticalAlign.Top
+            Width: =90
+            Wrap: =false
+            X: =(Parent.Width / 5) * 4 - (Self.Width / 2)
+            Y: =Parent.Height - Self.Height - Estado_Footer_Icon_Submit.Height * 0.1
+            ZIndex: =15
+
+        Estado_Footer_Lbl_Label As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(130, 141, 158, 1)
+            Font: =stFontType
+            FontWeight: =FontWeight.Lighter
+            Height: =17
+            OnSelect: =
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: =First(collAppLanguage).Lbl_MiddleNav
+            VerticalAlign: =VerticalAlign.Top
+            Width: =90
+            Wrap: =false
+            X: =(Parent.Width / 5) * 3 - (Self.Width / 2)
+            Y: =Parent.Height - Self.Height - Estado_Footer_Icon_Label.Height * 0.1
+            ZIndex: =16
+
+        Estado_Footer_Lbl_Pending As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(130, 141, 158, 1)
+            Font: =stFontType
+            FontWeight: =FontWeight.Lighter
+            Height: =17
+            OnSelect: =
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: =First(collAppLanguage).Lbl_MiddleNav_1
+            VerticalAlign: =VerticalAlign.Top
+            Width: =90
+            Wrap: =false
+            X: =(Parent.Width / 5) * 2 - (Self.Width / 2)
+            Y: =Parent.Height - Self.Height - Estado_Footer_Icon_Pending.Height * 0.1
+            ZIndex: =17
+
+        Estado_Footer_Btn_Label As button:
+            AutoDisableOnSelect: =false
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderThickness: =0
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =Estado_Footer_Shp_NavBarBottom.Height
+            HoverBorderColor: =
+            HoverFill: =
+            OnSelect: |-
+                =UpdateContext({VarViewerVisible02: false});
+                UpdateContext({VarViewerVisible02: true});
+                Clear(Etiquetas);
+                
+                
+                IfError(Collect(
+                Etiquetas,
+                {Label: AzureBlobStorage.GetFileContentByPath(BlobPath & Last(varApprovalDetailResponse).lr_process_order_in & "_1 v" & Last(varApprovalDetailResponse).lr_request_version_tin & ".jpg")}
+                ),"");
+                
+                IfError(Collect(
+                Etiquetas,
+                {Label: AzureBlobStorage.GetFileContentByPath(BlobPath & Last(varApprovalDetailResponse).lr_process_order_in & "_2 v" & Last(varApprovalDetailResponse).lr_request_version_tin & ".jpg")}
+                ),"");
+                
+                IfError(Collect(
+                Etiquetas,
+                {Label: AzureBlobStorage.GetFileContentByPath(BlobPath & Last(varApprovalDetailResponse).lr_process_order_in & " v" & Last(varApprovalDetailResponse).lr_request_version_tin & ".jpg")}
+                ),"")
+            PressedBorderColor: =
+            PressedColor: =
+            PressedFill: =
+            Size: =24
+            Text: =""
+            Tooltip: =First(collAppLanguage).Lbl_MiddleButton_2
+            Width: =95
+            X: =(Parent.Width / 5) * 3 - (Self.Width / 2)
+            Y: =Parent.Height - Self.Height
+            ZIndex: =18
+
+        Estado_Footer_Btn_Submit As button:
+            AutoDisableOnSelect: =false
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderThickness: =0
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =Estado_Footer_Shp_NavBarBottom.Height
+            HoverBorderColor: =
+            HoverFill: =
+            OnSelect: |-
+                =UpdateContext({varLoadingVisible: true});
+                ClearCollect(
+                    varApprovalAcquireResponse,
+                    lb_approval_acquire.Run(
+                        EstadoDatacard_Approval_Txt_ApprovalComment.Text,
+                        Text(
+                            Now(),
+                            "[$-es-ES]m/dd/yyyy hh:mm:ss"
+                        ),
+                        User().Email,
+                        "complete",
+                        "Aprobado",
+                        Pr_ProcessOrder,
+                        Pr_Version
+                    )
+                );
+                If(
+                    Last(varApprovalAcquireResponse).sp_response_in = 100,
+                    ClearCollect(
+                        varApprovalDetailResponse,
+                        lb_approval_detail.Run(
+                            Pr_ProcessOrder,
+                            Pr_Version
+                        )
+                    );
+                    
+                /*Navigate(
+                    '01_PRINCIPAL';
+                    ScreenTransition.Fade
+                );;*/
+                PowerAppsNotification.SendPushNotification(
+                        {
+                            recipients: [Last(varApprovalDetailResponse).lr_request_user_email_vc],
+                            message: "Verificación de etiqueta finalizada. PO: " & Last(varApprovalDetailResponse).lr_process_order_in & " Versión: " & Last(varApprovalDetailResponse).lr_request_version_tin & " fue " & Last(varApprovalDetailResponse).la_approval_result_vc & ".",
+                            openApp: false,
+                            params: Table(
+                                {
+                                    key: "Notification",
+                                    value: "True"
+                                },
+                                {
+                                    key: "ProcessOrder",
+                                    value: Text(Last(varApprovalDetailResponse).lr_process_order_in)
+                                },
+                                {
+                                    key: "Version",
+                                    value: Text(Last(varApprovalDetailResponse).lr_request_version_tin)
+                                }
+                            )
+                        }
+                    ),
+                    ""
+                );
+                UpdateContext({varLoadingVisible: false});
+                Notify(
+                    Last(varApprovalAcquireResponse).sp_response_vc,
+                    If(
+                        Last(varApprovalAcquireResponse).sp_response_in = 100,
+                        NotificationType.Success,
+                        If(
+                            Last(varApprovalAcquireResponse).sp_response_in = 200,
+                            NotificationType.Warning,
+                            NotificationType.Error
+                        )
+                    )
+                )
+            PressedBorderColor: =
+            PressedColor: =
+            PressedFill: =
+            Size: =24
+            Text: =""
+            Tooltip: =First(collAppLanguage).Lbl_RightButton_2
+            Width: =95
+            X: =(Parent.Width / 5) * 4 - (Self.Width / 2)
+            Y: =Parent.Height - Self.Height
+            ZIndex: =19
+
+        Estado_Footer_Btn_PendingRequest As button:
+            AutoDisableOnSelect: =false
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderThickness: =0
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =Estado_Footer_Shp_NavBarBottom.Height
+            HoverBorderColor: =
+            HoverFill: =
+            OnSelect: =Navigate('08_SOLICITUDES PENDIENTES',ScreenTransition.Fade)
+            PressedBorderColor: =
+            PressedColor: =
+            PressedFill: =
+            Size: =24
+            Text: =""
+            Tooltip: ="Filter"
+            Width: =95
+            X: =(Parent.Width / 5) * 2 - (Self.Width / 2)
+            Y: =Parent.Height - Self.Height
+            ZIndex: =21
+

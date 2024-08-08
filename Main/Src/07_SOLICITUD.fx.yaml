@@ -1,0 +1,651 @@
+"'07_SOLICITUD' As screen":
+    Fill: =RGBA(237, 242, 242, 1)
+    OnVisible: |-
+        =UpdateContext({varLoadingVisible: true});
+        UpdateContext({VarCameraVisible: false});
+        Reset(Solicitud_Txt_ProcessOrder);
+        Reset(Solicitud_Comments_Txt_Comment);
+        Reset(Solicitud_Cmp_Camera);
+        UpdateContext({varLabelVisible: true});
+        ClearCollect(
+            varNotificationUserResponse,
+            notification_user.Run("Laboratorio")
+        );
+        UpdateContext({varLoadingVisible: false});
+        UpdateContext({TotalPending:CountRows(varFormsLibraryCT)})
+
+    Solicitud_Txt_ProcessOrder As text:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        Default: =""
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        Font: ="Unity"
+        Format: =TextFormat.Number
+        Height: =52
+        HintText: =First(collAppLanguage).Txt_ProcessOrder
+        HoverBorderColor: =RGBA(166, 166, 166, 1)
+        HoverFill: =RGBA(241, 244, 249, 1)
+        MaxLength: =9
+        PressedBorderColor: =RGBA(166, 166, 166, 1)
+        Size: =17
+        Width: =339
+        X: =25
+        Y: =Solicitud_Header_Shp_NavBarTop.Height + 10
+        ZIndex: =11
+
+    Solicitud_Cmp_Camera As Lir_Camera:
+        Height: =Parent.Height
+        OpenClose: =VarCameraVisible
+        Visible: =Solicitud_Cmp_Camera.CamVisible
+        Width: =Parent.Width
+        ZIndex: =26
+
+    Solicitud_LabelViewer As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =31
+
+        Solicitud_LabelViewer_Shp_Background As rectangle:
+            Fill: =RGBA(96, 96, 98, 0.64)
+            Height: =Parent.Height
+            Visible: =VarViewerVisible
+            Width: =Parent.Width
+            ZIndex: =27
+
+        Solicitud_LabelViewer_Lst_Images As gallery.galleryHorizontal:
+            '#CopilotOverlayLabel': ="Filtered"
+            Height: =Parent.Height
+            Items: =Solicitud_Cmp_Camera.FotoCapturada
+            ShowNavigation: =true
+            ShowScrollbar: =false
+            TemplateSize: =635
+            Visible: =VarViewerVisible
+            Width: =Parent.Width
+            ZIndex: =28
+
+            Solicitud_LabelViewer_Image As image:
+                Height: =1126
+                Image: =ThisItem.Label
+                ImageRotation: =varImagePositionView01.Value
+                OnSelect: =Select(Parent)
+                Width: =635
+                ZIndex: =1
+
+        Solicitud_LabelViewer_Shp_BackgroundOptions As rectangle:
+            Fill: =RGBA(151, 0, 0, 0.73)
+            Height: =92
+            Visible: =VarViewerVisible
+            Width: =Parent.Width
+            Y: =Parent.Height-Solicitud_LabelViewer_Shp_BackgroundOptions.Height
+            ZIndex: =29
+
+        Solicitud_LabelViewer_Btn_Rotate As icon.Add:
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledColor: =RGBA(255, 255, 255, 1)
+            Height: =40
+            Icon: =Icon.Reload
+            OnSelect: |-
+                =If(varIndexPositionView01>3,Set(varIndexPositionView01,1),Set(varIndexPositionView01,varIndexPositionView01+1));
+                Set(varImagePositionView01,Last(FirstN([ImageRotation.Rotate90,ImageRotation.Rotate180,ImageRotation.Rotate270,ImageRotation.None], varIndexPositionView01)))
+            Visible: =VarViewerVisible
+            Width: =40
+            X: =Parent.Width/2-(Parent.Width/2)/2-Solicitud_LabelViewer_Btn_Rotate.Width
+            Y: =Parent.Height- (Solicitud_LabelViewer_Shp_BackgroundOptions.Height/100)*85
+            ZIndex: =30
+
+        Solicitud_LabelViewer_Btn_Close As icon.Add:
+            Color: =RGBA(255, 255, 255, 1)
+            Height: =40
+            Icon: =Icon.Cancel
+            OnSelect: |-
+                =UpdateContext({VarViewerVisible:false})
+            Visible: =VarViewerVisible
+            Width: =40
+            X: =Parent.Width/2+(Parent.Width/2)/2+Solicitud_LabelViewer_Btn_Close.Width/2
+            Y: =Parent.Height- (Solicitud_LabelViewer_Shp_BackgroundOptions.Height/100)*85
+            ZIndex: =31
+
+    Solicitud_Loading As Lir_Loading:
+        Height: =Parent.Height
+        IsLoading: =varLoadingVisible
+        Text: =First(collAppLanguage).LoadingText
+        Visible: =Solicitud_Loading.IsLoading
+        Width: =Parent.Width
+        ZIndex: =32
+
+    Solicitud_Comments As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =32
+
+        Solicitud_Comments_Txt_Comment As text:
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Default: =""
+            Font: ="Unity"
+            Height: =119
+            HintText: =First(collAppLanguage).Txt_Comment
+            HoverBorderColor: =RGBA(166, 166, 166, 1)
+            HoverFill: =RGBA(241, 244, 249, 1)
+            Mode: =TextMode.MultiLine
+            PressedBorderColor: =RGBA(166, 166, 166, 1)
+            Size: =18
+            Width: =((Parent.Width-Solicitud_Comments_Txt_Comment.X)/100)*99
+            X: =25
+            Y: =Solicitud_Comments_Lbl_Comment.Y+Solicitud_Comments_Lbl_Comment.Height
+            ZIndex: =1
+
+        Solicitud_Comments_Lbl_Comment As label:
+            Font: ="Unity"
+            Height: =39
+            Size: =18
+            Text: =First(collAppLanguage).Lbl_Comment
+            Width: =250
+            X: =25
+            Y: =Solicitud_Preview_Images.Y+Solicitud_Preview_Images.Height+Solicitud_Comments_Lbl_Comment.Height/2
+            ZIndex: =8
+
+        "Solicitud_Comments_Lst_NotifUsers As gallery.'BrowseLayout_Vertical_OneTextVariant_ver4.0'":
+            '#CopilotOverlayLabel': ="Filtered"
+            Height: =34
+            Items: =varNotificationUserResponse
+            Layout: =Layout.Vertical
+            TemplatePadding: =0
+            TemplateSize: =Min(96, Self.Height - 60)
+            Visible: =false
+            Width: =21
+            X: =619
+            Y: =Solicitud_Comments_Txt_Comment.Y+ Solicitud_Comments_Txt_Comment.Height
+            ZIndex: =9
+
+            Title2_2 As label:
+                BorderColor: =RGBA(0, 0, 0, 1)
+                FontWeight: =FontWeight.Semibold
+                Height: =1
+                OnSelect: =Select(Parent)
+                PaddingBottom: =0
+                PaddingLeft: =0
+                PaddingRight: =0
+                PaddingTop: =0
+                Size: =20
+                Text: =ThisItem.usr_email_vc
+                VerticalAlign: =VerticalAlign.Top
+                Width: =Parent.TemplateWidth - 104
+                ZIndex: =1
+
+            Separator2_2 As rectangle:
+                Fill: =RGBA(0, 18, 107, 1)
+                Height: =1
+                OnSelect: =Select(Parent)
+                Width: =Parent.TemplateWidth
+                Y: =Parent.TemplateHeight - 1
+                ZIndex: =3
+
+    Solicitud_Preview As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =33
+
+        Solicitud_Preview_Default As image:
+            BorderColor: =RGBA(149, 149, 149, 1)
+            BorderThickness: =1
+            Fill: =RGBA(202, 202, 202, 1)
+            Height: =Parent.Height/3.5
+            Image: =First(Solicitud_Cmp_Camera.FotoCapturada).Label
+            ImagePosition: =ImagePosition.Fill
+            Visible: =false
+            Width: =((Parent.Width-Solicitud_Preview_Default.X)/100)*98
+            X: =65
+            Y: =Solicitud_Header_Shp_NavBarTop.Height+Solicitud_Txt_ProcessOrder.Height*2
+            ZIndex: =2
+
+        "Solicitud_Preview_Images As gallery.'BrowseLayout_Horizontal_TwoTextOneImageVariant_ver4.0'":
+            '#CopilotOverlayLabel': ="Filtered"
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(237, 237, 237, 1)
+            Height: =Parent.Height/3.5
+            Items: =Solicitud_Cmp_Camera.FotoCapturada
+            ShowNavigation: =true
+            ShowScrollbar: =false
+            TemplatePadding: =0
+            TemplateSize: =583
+            Width: =Parent.Width
+            Y: =Solicitud_Header_Shp_NavBarTop.Height+Solicitud_Txt_ProcessOrder.Height*2
+            ZIndex: =3
+
+            Solicitud_Preview_Images_Image As image:
+                Fill: =RGBA(219, 219, 219, 1)
+                Height: =Parent.Height
+                Image: =ThisItem.Label
+                ImagePosition: =ImagePosition.Fill
+                OnSelect: =Select(Parent)
+                Width: =Parent.Width
+                Y: =
+                ZIndex: =1
+
+        Solicitud_Preview_Lbl_Title As label:
+            Font: ="Unity"
+            Height: =39
+            Size: =18
+            Text: =First(collAppLanguage).Lbl_Etiqueta
+            Width: =139
+            X: =Solicitud_Preview_Images.X
+            Y: =Solicitud_Preview_Images.Y
+            ZIndex: =4
+
+        Solicitud_Preview_Shp_Message As rectangle:
+            Fill: =RGBA(96, 96, 98, 0.51)
+            Height: =115
+            Visible: =varLabelVisible
+            Width: =Parent.Width
+            Y: =Solicitud_Header_Shp_NavBarTop.Height+Solicitud_Txt_ProcessOrder.Height+(Solicitud_Preview_Images.Height/100)*55
+            ZIndex: =5
+
+        Solicitud_Preview_Lbl_Message As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            Font: ="Unity"
+            Height: =115
+            Size: =18
+            Text: =First(collAppLanguage).Grp_ImageLabel
+            Visible: =varLabelVisible
+            Width: =400
+            X: =(Solicitud_Preview_Shp_Message.Width-Solicitud_Preview_Lbl_Message.Width)/2
+            Y: =Solicitud_Header_Shp_NavBarTop.Height+Solicitud_Txt_ProcessOrder.Height+(Solicitud_Preview_Images.Height/100)*55
+            ZIndex: =6
+
+        Solicitud_Preview_Icon_Message As icon.Add:
+            Color: =RGBA(255, 255, 255, 1)
+            Height: =54
+            Rotation: =315
+            Tooltip: ="Fotografiar Etqiueta"
+            Visible: =varLabelVisible
+            Width: =54
+            X: =Solicitud_Preview_Lbl_Message.X+(Solicitud_Preview_Lbl_Message.Width/100)*90
+            Y: =Solicitud_Preview_Lbl_Message.Y+Solicitud_Preview_Lbl_Message.Height-Solicitud_Preview_Icon_Message.Height
+            ZIndex: =7
+
+        Solicitud_Preview_Btn_LabelViewer As icon.Add:
+            Color: =RGBA(0, 0, 0, 1)
+            Height: =46
+            Icon: =Icon.ExpandView
+            OnSelect: |-
+                =UpdateContext({VarViewerVisible:false});UpdateContext({VarViewerVisible:true})
+            Tooltip: ="Fotografiar Etqiueta"
+            Width: =46
+            X: =Solicitud_Preview_Images.Width-Solicitud_Preview_Btn_LabelViewer.Width
+            Y: =Solicitud_Header_Shp_NavBarTop.Height+Solicitud_Txt_ProcessOrder.Height*2+15
+            ZIndex: =10
+
+        Solicitud_Preview_Btn_Camera As icon.Add:
+            Color: =RGBA(0, 0, 0, 1)
+            Height: =54
+            Icon: =Icon.Camera
+            OnSelect: |-
+                =UpdateContext({VarCameraVisible: false});
+                UpdateContext({VarCameraVisible: true});
+                UpdateContext({varLabelVisible: false})
+            Tooltip: ="Fotografiar Etqiueta"
+            Width: =54
+            X: =Solicitud_Preview_Images.Width-Self.Width
+            Y: =Solicitud_Preview_Default.Height+Solicitud_Header_Shp_NavBarTop.Height+Solicitud_Txt_ProcessOrder.Height-3
+            ZIndex: =12
+
+    Solicitud_Header As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =20
+        ZIndex: =39
+
+        Solicitud_Header_Shp_NavBarTop As htmlViewer:
+            Height: =202
+            HtmlText: |-
+                ="<div style ='
+                
+                  margin-top:0px;
+                  margin-bottom:3px;
+                  margin-left:0px;
+                  margin-right:0px;
+                  width: "& Solicitud_Header_Shp_NavBarTop.Width &"px;
+                  height: "& Solicitud_Header_Shp_NavBarTop.Height - 21 &"px;
+                  background-color: #3BA5A8;
+                  box-shadow: rgba(0, 0, 0, 0.15) 3px 6px 18px;'
+                  <center>
+                  </center>
+                  </div>
+                "//rgba(203, 16, 18, 1)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Width: =Parent.Width
+            ZIndex: =13
+
+        Solicitud_Header_Lbl_ScreenTitle As label:
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =//"Arial Rounded MT"
+            Height: =67
+            Size: =32
+            Text: =Right(First(collAppLanguage).'Title Screen 3', Len(First(collAppLanguage).'Title Screen 3') -3)
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =Solicitud_Header_Lbl_ScreenSubTitle.Y - Self.Height
+            ZIndex: =14
+
+        Solicitud_Header_Lbl_ScreenSubTitle As label:
+            Color: =RGBA(241, 244, 249, 1)
+            Font: ="Unity"
+            FontWeight: =FontWeight.Lighter
+            Height: =29
+            Size: =12
+            Text: ="Verificación de etiquetas " 
+            Width: =Parent.Width - 60
+            X: =30
+            Y: =Solicitud_Header_Shp_NavBarTop.Height - Self.Height - 25
+            ZIndex: =15
+
+        Solicitud_Header_Btn_NotificationNav As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.Bell
+            OnSelect: =Navigate('04_NOTIFICACIONES',ScreenTransition.Cover)
+            Tooltip: ="Pending Task"
+            Width: =59
+            X: =Parent.Width - Self.Width - 30
+            Y: =33
+            ZIndex: =16
+
+        Solicitud_Header_Btn_ProfileNav As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.ArrowLeft
+            OnSelect: =Navigate('01_PRINCIPAL',ScreenTransition.CoverRight)
+            Width: =59
+            X: =30
+            Y: =33
+            ZIndex: =17
+
+        Solicitud_Header_Btn_RequestIndicator As icon.Filter:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =0
+            Height: =49
+            Icon: =Icon.Tag
+            OnSelect: |-
+                =UpdateContext({Test:true})
+            Tooltip: ="Pending Request"
+            Width: =59
+            X: =Solicitud_Header_Btn_NotificationNav.X - Self.Width - 30
+            Y: =33
+            ZIndex: =18
+
+        Solicitud_Header_Shp_PendingIndicator As circle:
+            BorderColor: =RGBA(220, 153, 153, 1)
+            BorderThickness: =2
+            Fill: =RGBA(203, 102, 102, 1)
+            Height: =28
+            OnSelect: =Navigate('04_NOTIFICACIONES',ScreenTransition.Cover)
+            Visible: =If(TotalPending = 0 Or IsBlankOrError(TotalPending),false,true)
+            Width: =28
+            X: =Parent.Width - Self.Width - 30
+            Y: =30
+            ZIndex: =19
+
+        Solicitud_Header_Lbl_PendingIndicator As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =
+            FontWeight: =FontWeight.Bold
+            Height: =28
+            OnSelect: =Navigate('04_NOTIFICACIONES',ScreenTransition.Cover)
+            Size: =10
+            Text: |-
+                =//----------------------------------------------------------------------------------------------------MUESTRA CANTIDAD DE PENDIENTES
+                If(TotalPending > 9,"+9",TotalPending)
+            Visible: =If(TotalPending = 0 Or IsBlankOrError(TotalPending),false,true)
+            Width: =28
+            X: =Parent.Width - Self.Width - 30
+            Y: =31
+            ZIndex: =20
+
+    Solicitud_Footer As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =1019.1199999999999
+        ZIndex: =54
+
+        Solicitud_Footer_Shp_NavBarBottom As rectangle:
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =Parent.Height * 0.08
+            Width: =Parent.Width
+            Y: =Parent.Height - Self.Height
+            ZIndex: =21
+
+        Solicitud_Footer_Lbl_ConfidentialMessage As label:
+            Align: =Align.Center
+            Color: =RGBA(39, 67, 125, 1)
+            Font: ="Unity"
+            FontWeight: =FontWeight.Lighter
+            Height: =26
+            Size: =10
+            Text: ="Classified -  Confidential"
+            Width: =Parent.Width
+            Y: =Solicitud_Footer_Shp_NavBarBottom.Y - Self.Height
+            ZIndex: =22
+
+        Solicitud_Footer_Icon_SubmitLabel As icon.Add:
+            Color: =RGBA(40, 60, 97, 1)
+            Height: =Solicitud_Footer_Shp_NavBarBottom.Height * 0.6 
+            Icon: =Icon.Send
+            OnSelect: |-
+                =If(
+                    CountRows(Solicitud_Cmp_Camera.FotoCapturada) = 0 Or Solicitud_Txt_ProcessOrder.Text = "",
+                    Notify(
+                        "Información incompleta! Complete toda la información requerida para continuar",
+                        NotificationType.Warning
+                    ),
+                    UpdateContext({varLoadingVisible: true});
+                    ClearCollect(
+                        varNewRequestResponse,
+                        lb_new_request_v2.Run(
+                            Solicitud_Txt_ProcessOrder.Text,
+                            Solicitud_Comments_Txt_Comment.Text,
+                            Text(
+                                Now(),
+                                "[$-es-ES]m/dd/yyyy hh:mm:ss"
+                            ),
+                            User().Email,
+                            5144
+                        )
+                    );
+                    ForAll(Solicitud_Preview_Images.AllItems,
+                    AzureBlobStorage.CreateFile(
+                        BlobPath,
+                        Solicitud_Txt_ProcessOrder.Text & "_" & ThisRecord.Id & " v" & Last(varNewRequestResponse).lr_request_version_tin & ".jpg",
+                        ThisRecord.Label
+                    ));
+                    If(
+                        Last(varNewRequestResponse).sp_response_in = 100,
+                        ForAll(
+                            varNotificationUserResponse,
+                            PowerAppsNotification.SendPushNotification(
+                                {
+                                    recipients: [ThisRecord.usr_email_vc],
+                                    message: "Verificación de etiquetas! Orden de Proceso: " & Solicitud_Txt_ProcessOrder.Text & " Versión: " & Last(varNewRequestResponse).lr_request_version_tin,
+                                    openApp: false,
+                                    params: Table(
+                                        {
+                                            key: "Notification",
+                                            value: "True"
+                                        },
+                                        {
+                                            key: "ProcessOrder",
+                                            value: Solicitud_Txt_ProcessOrder.Text
+                                        },
+                                        {
+                                            key: "Version",
+                                            value: Text(Last(varNewRequestResponse).lr_request_version_tin)
+                                        }
+                                    )
+                                }
+                            )
+                        );
+                        Navigate(
+                            '09_ESTADO SOLICITUD',
+                            ScreenTransition.Fade,
+                            {
+                                Pr_ProcessOrder: Solicitud_Txt_ProcessOrder.Text,
+                                Pr_Version: Last(varNewRequestResponse).lr_request_version_tin
+                            }
+                        ),
+                        ""
+                    );
+                    UpdateContext({varLoadingVisible: false});
+                    Notify(
+                        Last(varNewRequestResponse).sp_response_vc,
+                        If(
+                            Last(varNewRequestResponse).sp_response_in = 100,
+                            NotificationType.Success,
+                            If(
+                                Last(varNewRequestResponse).sp_response_in = 200,
+                                NotificationType.Warning,
+                                NotificationType.Error
+                            )
+                        )
+                    )
+                )
+            Tooltip: ="Configuración"
+            Width: =stIconWidth
+            X: =(Parent.Width / 5) * 4 - (Self.Width / 2)
+            Y: =Solicitud_Footer_Shp_NavBarBottom.Y + Solicitud_Footer_Shp_NavBarBottom.Height * 0.1
+            ZIndex: =23
+
+        Solicitud_Footer_Lbl_SubmitLabel As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(130, 141, 158, 1)
+            Font: =stFontType
+            FontWeight: =FontWeight.Lighter
+            Height: =17
+            OnSelect: =
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =10
+            Text: =First(collAppLanguage).Lbl_RightButton_3
+            VerticalAlign: =VerticalAlign.Top
+            Width: =131
+            Wrap: =false
+            X: =(Parent.Width / 5) * 4 - (Self.Width / 2)
+            Y: =Parent.Height - Self.Height - Solicitud_Footer_Icon_SubmitLabel.Height * 0.1
+            ZIndex: =24
+
+        Solicitud_Footer_Btn_SubmitLabel As button:
+            AutoDisableOnSelect: =false
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderThickness: =0
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =Solicitud_Footer_Shp_NavBarBottom.Height
+            HoverBorderColor: =
+            HoverFill: =
+            OnSelect: |-
+                =If(
+                    CountRows(Solicitud_Cmp_Camera.FotoCapturada) = 0 Or Solicitud_Txt_ProcessOrder.Text = "",
+                    Notify(
+                        "Información incompleta! Complete toda la información requerida para continuar",
+                        NotificationType.Warning
+                    ),
+                    UpdateContext({varLoadingVisible: true});
+                    ClearCollect(
+                        varNewRequestResponse,
+                        lb_new_request_v2.Run(
+                            Solicitud_Txt_ProcessOrder.Text,
+                            Solicitud_Comments_Txt_Comment.Text,
+                            Text(
+                                Now(),
+                                "[$-es-ES]m/dd/yyyy hh:mm:ss"
+                            ),
+                            User().Email,
+                            5144
+                        )
+                    );
+                    ForAll(Solicitud_Preview_Images.AllItems,
+                    AzureBlobStorage.CreateFile(
+                        BlobPath,
+                        Solicitud_Txt_ProcessOrder.Text & "_" & ThisRecord.Id & " v" & Last(varNewRequestResponse).lr_request_version_tin & ".jpg",
+                        ThisRecord.Label
+                    ));
+                    If(
+                        Last(varNewRequestResponse).sp_response_in = 100,
+                        ForAll(
+                            varNotificationUserResponse,
+                            PowerAppsNotification.SendPushNotification(
+                                {
+                                    recipients: [ThisRecord.usr_email_vc],
+                                    message: "Verificación de etiquetas! Orden de Proceso: " & Solicitud_Txt_ProcessOrder.Text & " Versión: " & Last(varNewRequestResponse).lr_request_version_tin,
+                                    openApp: false,
+                                    params: Table(
+                                        {
+                                            key: "Notification",
+                                            value: "True"
+                                        },
+                                        {
+                                            key: "ProcessOrder",
+                                            value: Solicitud_Txt_ProcessOrder.Text
+                                        },
+                                        {
+                                            key: "Version",
+                                            value: Text(Last(varNewRequestResponse).lr_request_version_tin)
+                                        }
+                                    )
+                                }
+                            )
+                        );
+                        Navigate(
+                            '09_ESTADO SOLICITUD',
+                            ScreenTransition.Fade,
+                            {
+                                Pr_ProcessOrder: Solicitud_Txt_ProcessOrder.Text,
+                                Pr_Version: Last(varNewRequestResponse).lr_request_version_tin
+                            }
+                        ),
+                        ""
+                    );
+                    UpdateContext({varLoadingVisible: false});
+                    Notify(
+                        Last(varNewRequestResponse).sp_response_vc,
+                        If(
+                            Last(varNewRequestResponse).sp_response_in = 100,
+                            NotificationType.Success,
+                            If(
+                                Last(varNewRequestResponse).sp_response_in = 200,
+                                NotificationType.Warning,
+                                NotificationType.Error
+                            )
+                        )
+                    )
+                )
+            PressedBorderColor: =
+            PressedColor: =
+            PressedFill: =
+            Size: =24
+            Text: =""
+            Tooltip: =
+            Width: =95
+            X: =(Parent.Width / 5) * 4 - (Self.Width / 2)
+            Y: =Solicitud_Footer_Shp_NavBarBottom.Y
+            ZIndex: =25
+
